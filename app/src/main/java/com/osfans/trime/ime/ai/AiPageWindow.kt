@@ -38,6 +38,7 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
     private lateinit var bodyView: TextView
     private lateinit var statusView: TextView
     private lateinit var primaryButton: TextView
+    private lateinit var secondaryButton: TextView
     private var renderJob: Job? = null
 
     override fun onCreateView(): View {
@@ -99,6 +100,8 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
                 gravity = Gravity.END
             }
         primaryButton = actionButton(textColor) { onPrimaryAction() }
+        secondaryButton = actionButton(textColor) { onSecondaryAction() }.apply { visibility = View.GONE }
+        actions.addView(secondaryButton)
         actions.addView(primaryButton)
         actions.addView(
             actionButton(textColor) {
@@ -141,6 +144,7 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
 
     private fun render(state: AiPanelState) {
         if (!::bodyView.isInitialized) return
+        secondaryButton.visibility = View.GONE
         when (state) {
             is AiPanelState.Idle -> {
                 bodyView.text = context.getString(R.string.ai_panel_hint)
@@ -157,13 +161,21 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
             is AiPanelState.Done -> {
                 bodyView.text = state.text
                 statusView.text = context.getString(R.string.ai_status_done)
-                primaryButton.text = context.getString(R.string.ai_retry)
+                primaryButton.text = context.getString(R.string.ai_insert)
+                secondaryButton.text = context.getString(R.string.ai_copy)
+                secondaryButton.visibility = View.VISIBLE
             }
 
             is AiPanelState.Error -> {
                 bodyView.text = state.message
                 statusView.text = context.getString(R.string.ai_status_error)
                 primaryButton.text = context.getString(R.string.ai_retry)
+            }
+
+            is AiPanelState.Inserted -> {
+                bodyView.text = state.text
+                statusView.text = context.getString(R.string.ai_status_inserted)
+                primaryButton.text = context.getString(R.string.ai_undo)
             }
         }
     }
@@ -172,7 +184,13 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
         when (aiController.state.value) {
             is AiPanelState.Streaming -> aiController.stop()
             is AiPanelState.Idle -> aiController.ask(service.getString(R.string.ai_test_prompt))
+            is AiPanelState.Done -> aiController.insertAnswer()
+            is AiPanelState.Inserted -> aiController.undoLastCommit()
             else -> aiController.retry()
         }
+    }
+
+    private fun onSecondaryAction() {
+        if (aiController.state.value is AiPanelState.Done) aiController.copyAnswer()
     }
 }

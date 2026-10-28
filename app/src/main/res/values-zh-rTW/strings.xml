@@ -37,6 +37,10 @@
     <string name="ai_test_prompt">用一句話介紹你自己。</string>
     <string name="ai_stop">停止</string>
     <string name="ai_retry">重試</string>
+    <string name="ai_insert">插入</string>
+    <string name="ai_copy">複製</string>
+    <string name="ai_undo">復原</string>
+    <string name="ai_status_inserted">已插入</string>
     <string name="ai_status_streaming">正在生成…</string>
     <string name="ai_status_done">完成</string>
     <string name="ai_status_error">失敗</string>

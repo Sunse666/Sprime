@@ -18,6 +18,7 @@ import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.osfans.trime.R
+import com.osfans.trime.ai.AiController
 import com.osfans.trime.data.theme.ColorManager
 import splitties.dimensions.dp
 
@@ -29,10 +30,12 @@ class AiStripView(
     context: Context,
     private val onAction: () -> Unit,
     private val onActivate: () -> Unit,
+    private val onCursorChange: (Int) -> Unit,
 ) : LinearLayout(context) {
     companion object {
         const val HEIGHT_DP = 48
         private const val CARET_BLINK_MS = 500L
+        private const val NEWLINE_MARK = "↵"
     }
 
     private val scrollView: HorizontalScrollView
@@ -50,7 +53,7 @@ class AiStripView(
         }
 
     private var composing = false
-    private var aiPage = false
+    private var cursor = 0
 
     init {
         orientation = HORIZONTAL
@@ -99,12 +102,22 @@ class AiStripView(
         addView(scrollView, LayoutParams(0, LayoutParams.MATCH_PARENT, 1f))
         addView(actionView, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT))
 
-        setOnClickListener { onActivate() }
         scrollView.setOnTouchListener { _, event ->
-            if (event.actionMasked == MotionEvent.ACTION_DOWN) onActivate()
-            true
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    if (!composing) onActivate()
+                    true
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    if (composing) moveCursorTo(event.x)
+                    true
+                }
+
+                else -> true
+            }
         }
-        textView.setOnClickListener { onActivate() }
+        setOnClickListener { onActivate() }
 
         setAiPage(false)
         refreshColors()
@@ -124,10 +137,15 @@ class AiStripView(
         scrollToEnd()
     }
 
-    fun setDraft(text: String) {
+    fun setDraft(state: AiController.Draft) {
         if (!composing) return
-        textView.text = text.ifEmpty { context.getString(R.string.ai_strip_hint) }
-        scrollToEnd()
+        cursor = state.cursor
+        textView.text =
+            state.text
+                .replace("\n", NEWLINE_MARK)
+                .ifEmpty { context.getString(R.string.ai_strip_hint) }
+        textView.post { updateCaretPosition(state.text.isEmpty()) }
+        scrollToCursor()
     }
 
     fun setComposing(active: Boolean) {
@@ -143,13 +161,44 @@ class AiStripView(
             caretView.visibility = View.INVISIBLE
             textView.text = context.getString(R.string.ai_strip_placeholder)
         }
+        cursor = 0
         scrollToEnd()
     }
 
     fun setAiPage(open: Boolean) {
-        aiPage = open
         actionView.text =
             context.getString(if (open) R.string.ai_back_to_keyboard_short else R.string.ai_assistant)
+    }
+
+    private fun moveCursorTo(xInScroll: Float) {
+        val layout = textView.layout ?: return
+        val x = xInScroll + scrollView.scrollX - textView.left
+        val offset = layout.getOffsetForHorizontal(0, x.coerceAtLeast(0f))
+        cursor = offset
+        onCursorChange(offset)
+        updateCaretPosition(textView.text.isEmpty())
+    }
+
+    private fun updateCaretPosition(empty: Boolean) {
+        val layout = textView.layout ?: return
+        val x =
+            if (empty || cursor <= 0) {
+                0f
+            } else {
+                layout.getPrimaryHorizontal(cursor.coerceAtMost(layout.text.length))
+            }
+        caretView.translationX = x - textView.width
+    }
+
+    private fun scrollToCursor() {
+        scrollView.post {
+            val width = scrollView.width
+            val layout = textView.layout ?: return@post
+            val x =
+                if (cursor <= 0) 0f else layout.getPrimaryHorizontal(cursor.coerceAtMost(layout.text.length))
+            val target = (x + textView.left - width + dp(32)).toInt().coerceAtLeast(0)
+            scrollView.scrollTo(target, 0)
+        }
     }
 
     private fun scrollToEnd() {

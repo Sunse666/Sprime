@@ -37,6 +37,10 @@
     <string name="ai_test_prompt">Introduce yourself in one sentence.</string>
     <string name="ai_stop">Stop</string>
     <string name="ai_retry">Retry</string>
+    <string name="ai_insert">Insert</string>
+    <string name="ai_copy">Copy</string>
+    <string name="ai_undo">Undo</string>
+    <string name="ai_status_inserted">Inserted</string>
     <string name="ai_status_streaming">Streaming…</string>
     <string name="ai_status_done">Done</string>
     <string name="ai_status_error">Failed</string>

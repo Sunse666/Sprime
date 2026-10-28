@@ -110,6 +110,7 @@ class InputView(
             context,
             onAction = { if (aiController.isOpen) aiController.close() else aiController.submitDraft() },
             onActivate = { if (!aiController.isOpen) aiController.startCompose() },
+            onCursorChange = { aiController.setCursor(it) },
         )
 
     private val candidatesMode by AppPrefs.defaultInstance().candidates.mode

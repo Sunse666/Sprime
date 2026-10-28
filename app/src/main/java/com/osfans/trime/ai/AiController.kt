@@ -33,6 +33,16 @@ import org.kodein.di.instance
  * Both pages share the same fixed IME height, so switching never changes insets.
  */
 class AiController : InputBroadcastReceiver {
+    companion object {
+        private val PRINTABLE_RANGE = 0x20..0x10FFFF
+        private const val NEWLINE = '\n'
+    }
+
+    data class Draft(
+        val text: String = "",
+        val cursor: Int = 0,
+    )
+
     private val windowManager: BoardWindowManager by InputDependencyManager.getInstance().di.instance()
     private val service: TrimeInputMethodService by InputDependencyManager.getInstance().di.instance()
 
@@ -42,21 +52,24 @@ class AiController : InputBroadcastReceiver {
     private val _state = MutableStateFlow<AiPanelState>(AiPanelState.Idle)
     val state: StateFlow<AiPanelState> = _state.asStateFlow()
 
+    private val _draft = MutableStateFlow(Draft())
+    val draft: StateFlow<Draft> = _draft.asStateFlow()
+
     private var requestJob: Job? = null
 
     var lastPrompt: String = ""
+        private set
+
+    var hasSelection: Boolean = false
+        private set
+
+    var isComposing: Boolean = false
         private set
 
     var isOpen: Boolean = false
         private set
 
     var onStateChanged: ((Boolean) -> Unit)? = null
-
-    private val _draft = MutableStateFlow("")
-    val draft: StateFlow<String> = _draft.asStateFlow()
-
-    var isComposing: Boolean = false
-        private set
 
     var onComposeChanged: ((Boolean) -> Unit)? = null
 
@@ -74,8 +87,86 @@ class AiController : InputBroadcastReceiver {
         windowManager.attachWindow(KeyboardWindow)
     }
 
+    fun startCompose() {
+        if (isComposing) return
+        isComposing = true
+        _draft.value = Draft()
+        onComposeChanged?.invoke(true)
+    }
+
+    fun stopCompose() {
+        if (!isComposing) return
+        isComposing = false
+        onComposeChanged?.invoke(false)
+    }
+
+    fun setCursor(position: Int) {
+        if (!isComposing) return
+        val current = _draft.value
+        val clamped = position.coerceIn(0, current.text.length)
+        if (clamped == current.cursor) return
+        _draft.value = current.copy(cursor = clamped)
+    }
+
+    fun appendText(text: String) {
+        if (!isComposing || text.isEmpty()) return
+        val current = _draft.value
+        val insertAt = current.cursor.coerceIn(0, current.text.length)
+        val updated =
+            current.text.substring(0, insertAt) + text + current.text.substring(insertAt)
+        _draft.value = Draft(updated, insertAt + text.length)
+    }
+
+    fun deleteBackward() {
+        if (!isComposing) return
+        val current = _draft.value
+        if (current.cursor == 0) return
+        val from = (current.cursor - 1).coerceAtLeast(0)
+        val updated = current.text.removeRange(from, current.cursor)
+        _draft.value = Draft(updated, from)
+    }
+
+    fun submitDraft() {
+        if (!isComposing) return
+        val prompt = _draft.value.text.trim()
+        stopCompose()
+        _draft.value = Draft()
+        if (prompt.isEmpty()) return
+        open()
+        ask(prompt)
+    }
+
+    /**
+     * Intercepts keys rime would forward to the editor while the draft is active.
+     * Returns true when the key was consumed.
+     */
+    fun handleKey(data: RimeMessage.KeyMessage.Data): Boolean {
+        if (!isComposing) return false
+        val keyCode = data.value.keyCode
+        val value = data.value.value
+        return when {
+            keyCode == KeyEvent.KEYCODE_DEL -> {
+                deleteBackward()
+                true
+            }
+
+            value == RimeKeyMapping.RimeKey_Return || keyCode == KeyEvent.KEYCODE_ENTER -> {
+                appendText(NEWLINE.toString())
+                true
+            }
+
+            value in PRINTABLE_RANGE -> {
+                appendText(String(Character.toChars(value)))
+                true
+            }
+
+            else -> false
+        }
+    }
+
     fun ask(prompt: String) {
         lastPrompt = prompt
+        hasSelection = service.currentInputConnection?.getSelectedText(0).isNullOrEmpty().not()
         if (!settings.enabled) {
             _state.value = AiPanelState.Error(service.getString(R.string.ai_error_disabled))
             return
@@ -111,67 +202,6 @@ class AiController : InputBroadcastReceiver {
             }
     }
 
-    fun startCompose() {
-        if (isComposing) return
-        isComposing = true
-        onComposeChanged?.invoke(true)
-    }
-
-    fun stopCompose() {
-        if (!isComposing) return
-        isComposing = false
-        onComposeChanged?.invoke(false)
-    }
-
-    fun appendText(text: String) {
-        if (!isComposing) return
-        _draft.value = _draft.value + text
-    }
-
-    fun deleteLast() {
-        if (!isComposing) return
-        val value = _draft.value
-        if (value.isNotEmpty()) _draft.value = value.dropLast(1)
-    }
-
-    fun submitDraft() {
-        if (!isComposing) return
-        val prompt = _draft.value.trim()
-        stopCompose()
-        _draft.value = ""
-        if (prompt.isEmpty()) return
-        open()
-        ask(prompt)
-    }
-
-    /**
-     * Intercepts keys rime would forward to the editor while the draft is active.
-     * Returns true when the key was consumed.
-     */
-    fun handleKey(data: RimeMessage.KeyMessage.Data): Boolean {
-        if (!isComposing) return false
-        val keyCode = data.value.keyCode
-        val value = data.value.value
-        return when {
-            keyCode == KeyEvent.KEYCODE_DEL -> {
-                deleteLast()
-                true
-            }
-
-            value == RimeKeyMapping.RimeKey_Return || keyCode == KeyEvent.KEYCODE_ENTER -> {
-                submitDraft()
-                true
-            }
-
-            value in PRINTABLE_RANGE -> {
-                appendText(String(Character.toChars(value)))
-                true
-            }
-
-            else -> false
-        }
-    }
-
     fun stop() {
         requestJob?.cancel()
         requestJob = null
@@ -182,16 +212,25 @@ class AiController : InputBroadcastReceiver {
         if (lastPrompt.isNotBlank()) ask(lastPrompt)
     }
 
-    fun reset() {
-        stop()
+    fun currentAnswer(): String? = (state.value as? AiPanelState.Done)?.text?.takeIf { it.isNotBlank() }
+
+    fun insertAnswer() {
+        val answer = currentAnswer() ?: return
+        service.commitTextToEditor(answer)
+        _state.value = AiPanelState.Inserted(answer)
+    }
+
+    fun copyAnswer() {
+        currentAnswer()?.let { service.copyToClipboard(it) }
+    }
+
+    fun undoLastCommit() {
+        service.undoLastCommit()
+        _state.value = AiPanelState.Idle
     }
 
     override fun onWindowAttached(window: BoardWindow) {
         setOpen(window is AiPageWindow)
-    }
-
-    private companion object {
-        val PRINTABLE_RANGE = 0x20..0x10FFFF
     }
 
     private fun setOpen(value: Boolean) {

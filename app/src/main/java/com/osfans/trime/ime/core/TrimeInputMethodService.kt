@@ -7,6 +7,7 @@ package com.osfans.trime.ime.core
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.ClipData
 import android.content.IntentFilter
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
@@ -593,8 +594,12 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
             it.appendText(text)
             return
         }
-        val ic = currentInputConnection ?: return
+        commitTextToEditor(text)
+    }
 
+    /** Commits text straight to the editor, bypassing the AI draft sink. */
+    fun commitTextToEditor(text: String) {
+        val ic = currentInputConnection ?: return
         // when composing text equals commit content, finish composing text as-is
         if (composingText.isNotEmpty() && composingText == text) {
             ic.finishComposingText()
@@ -604,6 +609,14 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
         lastCommittedText = text
         composingText = ""
         InputFeedbackManager.textCommitSpeak(text)
+    }
+
+    fun copyToClipboard(text: String) {
+        clipboardManager.setPrimaryClip(ClipData.newPlainText(null, text))
+    }
+
+    fun undoLastCommit() {
+        currentInputConnection?.performContextMenuAction(android.R.id.undo)
     }
 
     /**
