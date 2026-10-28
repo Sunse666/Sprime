@@ -40,6 +40,8 @@ class AiController : InputBroadcastReceiver {
     companion object {
         private val PRINTABLE_RANGE = 0x20..0x10FFFF
         private const val SCREEN_SENTINEL = "[screenshot]"
+        private val SCREEN_HINTS =
+            listOf("截图", "截屏", "看屏幕", "看下屏幕", "看看屏幕", "屏幕内容", "screenshot", "screen")
         private const val SCREEN_LOOK_PROMPT =
             "Here is a screenshot of the current screen. Answer the previous question with it."
         private const val SCREEN_LOOK_FAILED =
@@ -246,9 +248,24 @@ class AiController : InputBroadcastReceiver {
             _state.value = AiPanelState.Error(service.getString(R.string.ai_error_not_configured))
             return
         }
-        session.addUser(PiiFilter.sanitize(prompt, settings.piiOptions).trim())
+        val safe = PiiFilter.sanitize(prompt, settings.piiOptions).trim()
+        session.addUser(safe)
+        if (settings.allowScreenshot && wantsScreen(safe) && SprimeAccessibilityService.canCapture) {
+            requestJob?.cancel()
+            _state.value = AiPanelState.Streaming("")
+            requestJob =
+                service.lifecycleScope.launch {
+                    val image = SprimeAccessibilityService.captureScreenshot(service.imeTopOnScreen())
+                    if (image != null) session.addUser(SCREEN_LOOK_PROMPT, image)
+                    runConversation()
+                }
+            return
+        }
         startRequest()
     }
+
+    /** True when the question explicitly asks for a screenshot of the current screen. */
+    private fun wantsScreen(text: String): Boolean = SCREEN_HINTS.any { text.contains(it, ignoreCase = true) }
 
     private fun startRequest() {
         requestJob?.cancel()

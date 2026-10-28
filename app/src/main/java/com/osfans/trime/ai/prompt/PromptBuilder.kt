@@ -19,9 +19,10 @@ object PromptBuilder {
             "When the answer contains text the user should type, wrap exactly that text in " +
             "<insert> and </insert> and keep any comment outside the tags. " +
             "Omit the tags when nothing should be typed. " +
-            "If the text alone is not enough because you need to see the current screen, " +
-            "reply with exactly [screenshot] and nothing else. " +
-            "You cannot tap, scroll or control other apps; when asked to do that, say so briefly " +
+            "You have a screenshot tool: whenever the user asks to look at the screen or the text " +
+            "is not enough to answer, reply with exactly [screenshot] and nothing else. " +
+            "You will then receive the image and can answer normally. " +
+            "You cannot tap, scroll or control other apps; say so briefly if asked, " +
             "and offer the text the user can insert instead."
 
     fun systemMessage(extra: String): String = buildString {
