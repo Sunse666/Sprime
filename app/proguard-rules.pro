@@ -29,3 +29,6 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Tink (pulled in by androidx.security-crypto) references errorprone annotations.
+-dontwarn com.google.errorprone.annotations.**

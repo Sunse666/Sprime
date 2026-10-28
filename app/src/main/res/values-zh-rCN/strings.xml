@@ -121,8 +121,8 @@
     <string name="custom_sound_effect_name">自定义按键音效</string>
     <string name="setup__next">下一步</string>
     <string name="done">完成</string>
-    <string name="setup__enable_ime_hint">在语言和输入设置中启用<b>同文输入法</b></string>
-    <string name="setup__select_ime_hint">选择<b>同文输入法</b>作为默认输入法</string>
+    <string name="setup__enable_ime_hint">在语言和输入设置中启用<b>Sprime</b></string>
+    <string name="setup__select_ime_hint">选择<b>Sprime</b>作为默认输入法</string>
     <string name="setup__enable_ime">启用输入法</string>
     <string name="setup__select_ime">选择输入法</string>
     <string name="setup__prev">上一步</string>
@@ -204,7 +204,7 @@
     <string name="enable_landscape_mode">启用横屏模式</string>
     <string name="split_space_percent">自动分割键盘比例</string>
     <string name="setup__step_three">第 3 步</string>
-    <string name="setup__select_data_path_hint">选择<b>同文输入法</b>如何存储 Rime 数据</string>
+    <string name="setup__select_data_path_hint">选择<b>Sprime</b>如何存储 Rime 数据</string>
     <string name="setup__select_data_path">选择外部数据目录…</string>
     <string name="setup__data_path_imported">数据文件夹导入成功</string>
     <string name="setup__data_path_import_failed">数据文件夹导入失败</string>
@@ -316,4 +316,11 @@
     <string name="ai_accessibility_on">已开启</string>
     <string name="ai_accessibility_off">未开启，点击去设置</string>
     <string name="ai_allow_screenshot">允许 AI 看屏幕（无障碍静默截屏）</string>
+
+    <string name="sprime_section">Sprime</string>
+    <string name="sprime_intro_title">快速上手</string>
+    <string name="sprime_privacy_title">隐私说明</string>
+    <string name="sprime_intro_body">1. 在任意输入框里，点键盘顶栏就能直接输入问题；回车换行，点 AI 发送。\n\n2. 或者点 AI，用翻译 / 润色 / 总结等快捷动作处理选中文字或整段输入框。\n\n3. 回答可以复制或插入；设置里能打开「自动填入」省掉这一步。\n\n4. 点「读页面」把当前页面的文字交给模型；想让模型自己决定要不要看屏幕，打开「允许 AI 看屏幕」。\n\n5. 设置 → AI 助手 里有接口地址、模型、PII 脱敏和键盘防截图。</string>
+    <string name="sprime_privacy_body">Sprime 不收集、不上传、不出售你的任何数据。\n\n只有你点发送时，文字才会从本机直接发给你自己配置的模型接口。\n\n本地不保存聊天历史；剪贴板、整段输入框和页面文字，只在你主动操作或打开对应开关后才会被读取。\n\nPII 脱敏和键盘防截图默认开启；密码框会被直接拒绝，不会发送。\n\n无障碍权限只用于「读页面」和可选的静默截图，不点击、不输入、不后台监听，随时可以在系统设置里关闭。</string>
+    <string name="sprime_intro_ok">知道了</string>
 </resources>

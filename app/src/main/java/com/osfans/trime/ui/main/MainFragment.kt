@@ -98,6 +98,15 @@ class MainFragment : PaddingPreferenceFragment() {
                     NavigationRoute.Advanced,
                 )
             }
+            addCategory(getString(R.string.sprime_section)) {
+                isIconSpaceReserved = false
+                addPreference(R.string.sprime_intro_title, icon = R.drawable.ic_ai_24) {
+                    SprimeDialogs.showIntro(requireContext(), markSeen = false)
+                }
+                addPreference(R.string.sprime_privacy_title, icon = R.drawable.ic_baseline_book_24) {
+                    SprimeDialogs.showPrivacy(requireContext())
+                }
+            }
         }
     }
 }

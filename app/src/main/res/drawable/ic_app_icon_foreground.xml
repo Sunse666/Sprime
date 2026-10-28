@@ -16,6 +16,6 @@
         android:pathData="M36,34 H72 A8,8 0 0 1 80,42 V60 A8,8 0 0 1 72,68 H58 L46,78 V68 H36 A8,8 0 0 1 28,60 V42 A8,8 0 0 1 36,34 Z" />
     <!-- sparkle -->
     <path
-        android:fillColor="#12151A"
+        android:fillColor="#0EA5E9"
         android:pathData="M54,40 L57.4,47.6 L65,51 L57.4,54.4 L54,62 L50.6,54.4 L43,51 L50.6,47.6 Z" />
 </vector>

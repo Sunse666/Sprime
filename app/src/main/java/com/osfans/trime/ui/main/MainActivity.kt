@@ -145,6 +145,9 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         processIntent(intent)
         checkNotificationPermission()
+        if (savedInstanceState == null && SprimeDialogs.shouldShowIntro(this)) {
+            SprimeDialogs.showIntro(this)
+        }
     }
 
     override fun onNewIntent(intent: Intent) {

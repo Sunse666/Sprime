@@ -318,4 +318,11 @@
     <string name="ai_accessibility_on">Enabled</string>
     <string name="ai_accessibility_off">Disabled, tap to open settings</string>
     <string name="ai_allow_screenshot">Let the AI look at the screen (silent screenshots)</string>
+
+    <string name="sprime_section">Sprime</string>
+    <string name="sprime_intro_title">Quick start</string>
+    <string name="sprime_privacy_title">Privacy</string>
+    <string name="sprime_intro_body">1. Tap the bar above the keyboard to type a question; Enter adds a line, AI sends it.\n\n2. Or tap AI to run translate / polish / summarize on the selection or the whole field.\n\n3. Copy or insert the answer; turn on auto insert to skip the button.\n\n4. Tap Read screen to give the model the current page, or enable Let the AI look at the screen to let it ask for a screenshot.\n\n5. Settings - AI assistant holds the endpoint, model, PII masking and screenshot options.</string>
+    <string name="sprime_privacy_body">Sprime does not collect, upload or sell your data.\n\nText is sent only when you send it, and only to the endpoint you configured, directly from this device.\n\nNo chat history is stored locally. The clipboard, the whole input field and the screen text are read only after your explicit action or switch.\n\nPII masking and screenshot blocking are on by default. Password fields are refused and never sent.\n\nAccessibility is used only for reading the screen and the optional silent screenshot; it never taps, types or listens in the background, and can be revoked in system settings at any time.</string>
+    <string name="sprime_intro_ok">Got it</string>
 </resources>

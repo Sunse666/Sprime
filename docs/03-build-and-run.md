@@ -65,3 +65,27 @@ set both the git proxy and the Gradle proxy:
 - python3 missing: the OpenCC data task fails with exit code 9009.
 - Boost download timeout: see the offline archive trick above.
 - INSTALL_FAILED_TEST_ONLY: build without -Pandroid.injected.build.abi, or pass adb install -t.
+
+## Release 构建
+
+1. 生成签名（只做一次，文件已被 .gitignore 忽略）：
+
+   ```powershell
+   powershell -NoProfile -ExecutionPolicy Bypass -File tools/make-keystore.ps1
+   ```
+
+   它会生成 `.secrets/sprime-release.jks` 与仓库根目录的 `keystore.properties`（含 storeFile / storePassword / keyAlias / keyPassword）。
+
+2. 打包：
+
+   ```powershell
+   .\gradlew.bat :app:assembleRelease -PbuildAbi=arm64-v8a
+   ```
+
+   产物在 `app/build/outputs/apk/release/`，已用上面的密钥签名。R8 默认开启，规则见 `app/proguard-rules.pro`。
+
+3. 上架前检查：
+
+   - 版本号 `versionCode` / `versionName` 在 `app/build.gradle.kts`
+   - 隐私说明与截图/无障碍开关的文案（设置 → Sprime）
+   - 若使用无障碍能力，需在商店后台按要求声明用途
