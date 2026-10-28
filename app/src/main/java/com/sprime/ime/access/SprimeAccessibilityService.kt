@@ -139,10 +139,10 @@ class SprimeAccessibilityService : AccessibilityService() {
     }
 
     private fun capture(limit: Int): String? {
-        val window =
-            windows.firstOrNull { it.isActive && it.root?.packageName != packageName }
-                ?: windows.firstOrNull { it.root?.packageName != packageName }
-        val root = window?.root ?: return null
+        val fromWindows =
+            windows.firstOrNull { it.isActive && it.root?.packageName != packageName }?.root
+                ?: windows.firstOrNull { it.root?.packageName != packageName }?.root
+        val root = fromWindows ?: rootInActiveWindow?.takeIf { it.packageName != packageName } ?: return null
         if (root.isPassword) return null
         val builder = StringBuilder()
         collect(root, builder, limit)
@@ -167,7 +167,7 @@ class SprimeAccessibilityService : AccessibilityService() {
                 )
             }
         for (value in values) {
-            if (value.isNullOrEmpty() || value.length < 2) continue
+            if (value.isNullOrBlank() || value.length < 2) continue
             if (builder.contains(value)) continue
             builder.append(value).append('\n')
             if (builder.length >= limit) return

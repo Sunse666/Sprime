@@ -20,7 +20,9 @@ object PromptBuilder {
             "<insert> and </insert> and keep any comment outside the tags. " +
             "Omit the tags when nothing should be typed. " +
             "If the text alone is not enough because you need to see the current screen, " +
-            "reply with exactly [screenshot] and nothing else."
+            "reply with exactly [screenshot] and nothing else. " +
+            "You cannot tap, scroll or control other apps; when asked to do that, say so briefly " +
+            "and offer the text the user can insert instead."
 
     fun systemMessage(extra: String): String = buildString {
         append(BASE_PROMPT)

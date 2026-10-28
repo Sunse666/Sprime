@@ -465,6 +465,8 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
 
     private val inputViewLocation = intArrayOf(0, 0)
 
+    private var lastContentTop = 0
+
     override fun onComputeInsets(outInsets: Insets) {
         if (inputDeviceManager.useVirtualKeyboard) {
             inputView?.keyboardView?.getLocationInWindow(inputViewLocation)
@@ -473,6 +475,7 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
                 visibleTopInsets = inputViewLocation[1]
                 touchableInsets = Insets.TOUCHABLE_INSETS_VISIBLE
             }
+            lastContentTop = inputViewLocation[1]
         } else {
             val n = decorView.findViewById<View>(android.R.id.navigationBarBackground)?.height ?: 0
             val h = decorView.height - n
@@ -674,7 +677,26 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
     }
 
     /** Top edge of the IME window in screen pixels, used to crop screenshots. */
-    fun imeTopOnScreen(): Int = (inputViewRef as? InputView)?.boardTopOnScreen() ?: 0
+
+    /**
+     * Screen Y where the app content ends and the keyboard starts, used to crop
+     * screenshots. Some layouts report a zero top for the board container, so it
+     * falls back to the insets value and then to the keyboard size.
+     */
+    fun imeTopOnScreen(): Int {
+        val view = inputViewRef as? InputView ?: return 0
+        val screenHeight = resources.displayMetrics.heightPixels
+        val minimum = screenHeight / 4
+        val location = IntArray(2)
+        view.keyboardView.getLocationOnScreen(location)
+        val keyboardTop = location[1]
+        if (keyboardTop in minimum until screenHeight) return keyboardTop
+        if (lastContentTop in minimum until screenHeight) return lastContentTop
+        val boardTop = view.boardTopOnScreen()
+        if (boardTop in minimum until screenHeight) return boardTop
+        val keyboardHeight = view.keyboardView.height
+        return if (keyboardHeight > 0) screenHeight - keyboardHeight else screenHeight
+    }
 
     fun copyToClipboard(text: String) {
         clipboardManager.setPrimaryClip(ClipData.newPlainText(null, text))
