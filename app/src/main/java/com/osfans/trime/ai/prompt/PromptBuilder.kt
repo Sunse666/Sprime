@@ -8,7 +8,7 @@ package com.osfans.trime.ai.prompt
 import com.osfans.trime.ai.context.EditorContext
 
 object PromptBuilder {
-    private const val MAX_CONTENT = 2000
+    private const val MAX_CONTENT = 4000
     private const val MAX_PERSONA = 2000
 
     private val BASE_PROMPT =
@@ -30,18 +30,21 @@ object PromptBuilder {
 
     fun build(
         action: AiAction,
-        context: EditorContext,
-    ): String {
-        val content = context.content.orEmpty().trim().take(MAX_CONTENT)
-        return action.instruction + "\n\n" + content
-    }
+        content: String,
+    ): String = action.instruction + "\n\n" + content.trim().take(MAX_CONTENT)
 
     fun buildCustom(
         question: String,
         context: EditorContext,
+        screenText: String = "",
     ): String {
-        val content = context.selection?.trim()?.take(MAX_CONTENT)
-        return if (content.isNullOrEmpty()) {
+        val content =
+            listOf(context.selection.orEmpty(), screenText)
+                .map { it.trim() }
+                .firstOrNull { it.isNotEmpty() }
+                .orEmpty()
+                .take(MAX_CONTENT)
+        return if (content.isEmpty()) {
             question
         } else {
             question + "\n\n---\n" + content

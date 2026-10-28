@@ -5,15 +5,20 @@
 
 package com.osfans.trime.ui.main.settings
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceScreen
 import com.osfans.trime.R
 import com.osfans.trime.ai.AiKeyStore
+import com.osfans.trime.ai.access.ScreenReaderService
 import com.osfans.trime.data.prefs.AppPrefs
 import com.osfans.trime.data.prefs.PreferenceDelegateFragment
 
 class AiSettingsFragment : PreferenceDelegateFragment(AppPrefs.defaultInstance().ai) {
+    private var accessPreference: Preference? = null
+
     override fun onPreferenceUiCreated(screen: PreferenceScreen) {
         val context = requireContext()
         val keyPreference =
@@ -35,5 +40,33 @@ class AiSettingsFragment : PreferenceDelegateFragment(AppPrefs.defaultInstance()
                 }
             }
         screen.addPreference(keyPreference)
+
+        val access =
+            Preference(context).apply {
+                key = "ai_accessibility"
+                order = 1
+                title = context.getString(R.string.ai_accessibility_title)
+                setOnPreferenceClickListener {
+                    runCatching {
+                        context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                    }
+                    true
+                }
+            }
+        accessPreference = access
+        screen.addPreference(access)
+        refreshAccessSummary()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshAccessSummary()
+    }
+
+    private fun refreshAccessSummary() {
+        accessPreference?.summary =
+            requireContext().getString(
+                if (ScreenReaderService.isConnected) R.string.ai_accessibility_on else R.string.ai_accessibility_off,
+            )
     }
 }

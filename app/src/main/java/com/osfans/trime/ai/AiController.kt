@@ -8,6 +8,7 @@ package com.osfans.trime.ai
 import android.view.KeyEvent
 import androidx.lifecycle.lifecycleScope
 import com.osfans.trime.R
+import com.osfans.trime.ai.access.ScreenReaderService
 import com.osfans.trime.ai.chat.ChatSession
 import com.osfans.trime.ai.model.AiDelta
 import com.osfans.trime.ai.privacy.PiiFilter
@@ -51,6 +52,9 @@ class AiController : InputBroadcastReceiver {
 
     private val settings = AiSettings()
     private val provider = OpenAiCompatibleProvider()
+
+    private val _screenText = MutableStateFlow<String?>(null)
+    val screenText: StateFlow<String?> = _screenText.asStateFlow()
 
     private var lastInsertText: String? = null
     private var askedFromAction = false
@@ -143,7 +147,8 @@ class AiController : InputBroadcastReceiver {
         if (question.isEmpty()) return
         open()
         askedFromAction = false
-        ask(PromptBuilder.buildCustom(question, service.captureEditorContext(settings.useClipboard)))
+        val context = service.captureEditorContext(settings.useClipboard)
+        ask(PromptBuilder.buildCustom(question, context, _screenText.value.orEmpty()))
     }
 
     fun startInputFromPanel() {
@@ -155,21 +160,42 @@ class AiController : InputBroadcastReceiver {
     fun runAction(action: AiAction) {
         val context = service.captureEditorContext(settings.useClipboard)
         open()
+        val screen = _screenText.value
         when {
             context.isPassword -> {
                 _state.value = AiPanelState.Error(service.getString(R.string.ai_error_password))
             }
 
-            !context.hasContent -> {
+            screen.isNullOrBlank() && !context.hasContent -> {
                 _state.value = AiPanelState.Error(service.getString(R.string.ai_error_no_text))
             }
 
             else -> {
                 session.reset()
                 askedFromAction = true
-                ask(PromptBuilder.build(action, context))
+                ask(PromptBuilder.build(action, screen ?: context.content.orEmpty()))
             }
         }
+    }
+
+    /** Reads the current screen once and keeps it as the context of the next questions. */
+    fun captureScreen() {
+        open()
+        if (!ScreenReaderService.isConnected) {
+            _state.value = AiPanelState.Error(service.getString(R.string.ai_error_no_accessibility))
+            return
+        }
+        val text = ScreenReaderService.readScreen()
+        if (text.isNullOrBlank()) {
+            _state.value = AiPanelState.Error(service.getString(R.string.ai_error_screen_empty))
+            return
+        }
+        _screenText.value = text
+        _state.value = AiPanelState.Idle
+    }
+
+    fun clearScreen() {
+        _screenText.value = null
     }
 
     /**
@@ -270,6 +296,7 @@ class AiController : InputBroadcastReceiver {
         requestJob?.cancel()
         requestJob = null
         session.reset()
+        _screenText.value = null
         _state.value = AiPanelState.Idle
     }
 

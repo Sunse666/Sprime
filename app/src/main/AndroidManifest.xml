@@ -37,6 +37,19 @@ SPDX-License-Identifier: GPL-3.0-or-later
                 android:resource="@xml/method" />
         </service>
 
+        <service
+            android:name=".ai.access.ScreenReaderService"
+            android:exported="false"
+            android:label="@string/accessibility_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/screen_reader_service" />
+        </service>
+
         <provider
             android:name=".provider.RimeDataProvider"
             android:authorities="${applicationId}.provider"

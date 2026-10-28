@@ -44,6 +44,7 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
     private lateinit var primaryButton: TextView
     private lateinit var secondaryButton: TextView
     private lateinit var chipsView: View
+    private var screenChars = 0
     private var thinkingExpanded = false
     private var lastState: AiPanelState? = null
     private var renderJob: Job? = null
@@ -180,6 +181,15 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
 
     private fun buildChips(textColor: Int): View {
         val row = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
+        row.addView(
+            TextView(context).apply {
+                text = context.getString(R.string.ai_read_screen)
+                textSize = 14f
+                setTextColor(textColor)
+                setPadding(context.dp(12), context.dp(6), context.dp(12), context.dp(6))
+                setOnClickListener { aiController.captureScreen() }
+            },
+        )
         AiAction.entries.forEach { action ->
             row.addView(
                 TextView(context).apply {
@@ -214,6 +224,12 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
         render(aiController.state.value)
         renderJob =
             service.lifecycleScope.launch {
+                launch {
+                    aiController.screenText.collect {
+                        screenChars = it?.length ?: 0
+                        render(aiController.state.value)
+                    }
+                }
                 aiController.state.collect { render(it) }
             }
     }
@@ -234,7 +250,12 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
 
         when (state) {
             is AiPanelState.Idle -> {
-                bodyView.text = context.getString(R.string.ai_panel_hint)
+                bodyView.text =
+                    if (screenChars > 0) {
+                        context.getString(R.string.ai_screen_ready, screenChars)
+                    } else {
+                        context.getString(R.string.ai_panel_hint)
+                    }
                 statusView.text = ""
                 primaryButton.text = context.getString(R.string.ai_compose_entry)
                 setThinking("")
