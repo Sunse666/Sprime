@@ -12,6 +12,7 @@ import com.osfans.trime.ai.chat.ChatSession
 import com.osfans.trime.ai.model.AiDelta
 import com.osfans.trime.ai.privacy.PiiFilter
 import com.osfans.trime.ai.prompt.AiAction
+import com.osfans.trime.ai.prompt.InsertParser
 import com.osfans.trime.ai.prompt.PromptBuilder
 import com.osfans.trime.ai.provider.OpenAiCompatibleProvider
 import com.osfans.trime.core.RimeKeyMapping
@@ -50,6 +51,9 @@ class AiController : InputBroadcastReceiver {
 
     private val settings = AiSettings()
     private val provider = OpenAiCompatibleProvider()
+
+    private var lastInsertText: String? = null
+    private var askedFromAction = false
 
     private val session =
         ChatSession { PromptBuilder.systemMessage(settings.systemPrompt) }
@@ -138,6 +142,7 @@ class AiController : InputBroadcastReceiver {
         _draft.value = Draft()
         if (question.isEmpty()) return
         open()
+        askedFromAction = false
         ask(PromptBuilder.buildCustom(question, service.captureEditorContext(settings.useClipboard)))
     }
 
@@ -161,6 +166,7 @@ class AiController : InputBroadcastReceiver {
 
             else -> {
                 session.reset()
+                askedFromAction = true
                 ask(PromptBuilder.build(action, context))
             }
         }
@@ -196,6 +202,7 @@ class AiController : InputBroadcastReceiver {
 
     fun ask(prompt: String) {
         lastPrompt = prompt
+        lastInsertText = null
         hasSelection = service.currentInputConnection?.getSelectedText(0).isNullOrEmpty().not()
         if (!settings.enabled) {
             _state.value = AiPanelState.Error(service.getString(R.string.ai_error_disabled))
@@ -230,12 +237,16 @@ class AiController : InputBroadcastReceiver {
                         }
 
                         is AiDelta.Done -> {
-                            session.addAssistant(text.toString())
-                            if (settings.autoInsert) {
-                                service.commitTextToEditor(text.toString())
-                                _state.value = AiPanelState.Inserted(text.toString())
+                            val raw = text.toString()
+                            val parsed = InsertParser.parse(raw)
+                            val insert = parsed.insert ?: if (askedFromAction) parsed.display else null
+                            lastInsertText = insert
+                            session.addAssistant(parsed.display)
+                            if (settings.autoInsert && !insert.isNullOrBlank()) {
+                                service.commitTextToEditor(insert)
+                                _state.value = AiPanelState.Inserted(parsed.display.ifBlank { insert })
                             } else {
-                                _state.value = AiPanelState.Done(text.toString(), thinking.toString())
+                                _state.value = AiPanelState.Done(parsed.display, thinking.toString(), insert)
                             }
                         }
 
@@ -265,7 +276,7 @@ class AiController : InputBroadcastReceiver {
     fun currentAnswer(): String? = (state.value as? AiPanelState.Done)?.text?.takeIf { it.isNotBlank() }
 
     fun insertAnswer() {
-        val answer = currentAnswer() ?: return
+        val answer = (state.value as? AiPanelState.Done)?.insertText ?: currentAnswer() ?: return
         service.commitTextToEditor(answer)
         _state.value = AiPanelState.Inserted(answer)
     }

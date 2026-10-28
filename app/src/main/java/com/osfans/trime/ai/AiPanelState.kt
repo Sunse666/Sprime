@@ -16,6 +16,7 @@ sealed interface AiPanelState {
     data class Done(
         val text: String,
         val thinking: String = "",
+        val insertText: String? = null,
     ) : AiPanelState
 
     data class Error(val message: String) : AiPanelState
