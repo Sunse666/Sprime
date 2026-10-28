@@ -482,3 +482,6 @@ app/src/main/jni/boost-*.tar.xz
 # kotlin
 .kotlin
 
+
+# Markdown files stay out of the repository
+*.md

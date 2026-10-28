@@ -309,8 +309,8 @@
     <string name="ai_screen_ready">已讀取目前頁面 %1$d 字，選一個動作或直接提問。</string>
     <string name="ai_error_no_accessibility">請先在系統設定中開啟 Sprime 的無障礙服務</string>
     <string name="ai_error_screen_empty">目前頁面沒有可讀取的文字</string>
-    <string name="accessibility_service_label">Sprime 頁面讀取</string>
-    <string name="accessibility_service_description">只在點「讀頁面」時讀取目前畫面文字，不會點擊、不會輸入、不會背景監聽。</string>
+    <string name="accessibility_service_label">Sprime</string>
+    <string name="accessibility_service_description">Sprime</string>
     <string name="ai_accessibility_title">讀屏（無障礙）</string>
     <string name="ai_accessibility_on">已開啟</string>
     <string name="ai_accessibility_off">未開啟，點擊去設定</string>

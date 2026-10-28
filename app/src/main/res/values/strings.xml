@@ -312,8 +312,8 @@
     <string name="ai_screen_ready">Read %1$d characters from the screen. Pick an action or ask a question.</string>
     <string name="ai_error_no_accessibility">Enable Sprime accessibility in system settings first</string>
     <string name="ai_error_screen_empty">No readable text on this screen</string>
-    <string name="accessibility_service_label">Sprime screen reader</string>
-    <string name="accessibility_service_description">Reads the text of the current screen when you tap Read screen. It never taps, types or watches in the background.</string>
+    <string name="accessibility_service_label">Sprime</string>
+    <string name="accessibility_service_description">Sprime</string>
     <string name="ai_accessibility_title">Screen reading (accessibility)</string>
     <string name="ai_accessibility_on">Enabled</string>
     <string name="ai_accessibility_off">Disabled, tap to open settings</string>
