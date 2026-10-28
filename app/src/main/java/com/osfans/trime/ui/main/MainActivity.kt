@@ -43,7 +43,7 @@ import com.osfans.trime.util.startActivity
 import com.osfans.trime.worker.BackgroundSyncWork
 import splitties.views.topPadding
 
-class MainActivity : AppCompatActivity() {
+open class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
 
     private val uiMode by AppPrefs.defaultInstance().advanced.uiMode

@@ -49,7 +49,7 @@ class AdvancedSettingsFragment : PreferenceDelegateFragment(AppPrefs.defaultInst
     }
 
     companion object {
-        private const val SETTINGS_ACTIVITY_NAME = "com.osfans.trime.MainLauncherAlias"
+        private const val SETTINGS_ACTIVITY_NAME = "com.sprime.ime.LauncherAlias"
 
         fun showAppIcon(context: Context, enable: Boolean) {
             val state = if (enable) {

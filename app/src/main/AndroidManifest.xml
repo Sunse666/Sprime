@@ -25,7 +25,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
         tools:targetApi="29">
 
         <service
-            android:name=".ime.core.TrimeInputMethodService"
+            android:name="com.sprime.ime.SprimeInputMethodService"
             android:exported="true"
             android:label="@string/trime_app_name"
             android:permission="android.permission.BIND_INPUT_METHOD">
@@ -74,6 +74,12 @@ SPDX-License-Identifier: GPL-3.0-or-later
         <!-- Settings activity -->
         <activity
             android:name=".ui.main.MainActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name="com.sprime.ime.SprimeMainActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize" />
@@ -100,11 +106,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
         <!-- Using an activity alias to disable/enable the app icon in the launcher -->
         <activity-alias
-            android:name="com.osfans.trime.MainLauncherAlias"
+            android:name="com.sprime.ime.LauncherAlias"
             android:exported="true"
             android:label="@string/trime_app_name"
             android:launchMode="singleTask"
-            android:targetActivity=".ui.main.MainActivity">
+            android:targetActivity="com.sprime.ime.SprimeMainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
