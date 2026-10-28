@@ -16,6 +16,16 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+// Single source of truth for the ABIs we build; override with -PbuildAbi=a,b.
+val builtAbis: List<String> =
+    (
+        project.findProperty("buildAbi")?.toString()
+            ?: "armeabi-v7a,arm64-v8a,x86,x86_64"
+        )
+        .split(",")
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+
 android {
     namespace = "com.osfans.trime"
     compileSdk = 36
@@ -34,6 +44,15 @@ android {
         buildConfigField("String", "BUILD_COMMIT_HASH", "\"${project.buildCommitHash}\"")
         buildConfigField("String", "BUILD_GIT_REPO", "\"${project.buildGitRepo}\"")
         buildConfigField("String", "BUILD_VERSION_NAME", "\"${project.buildVersionName}\"")
+    }
+
+    splits {
+        abi {
+            isEnable = true
+            isUniversalApk = false
+            reset()
+            include(*builtAbis.toTypedArray())
+        }
     }
 
     base {
