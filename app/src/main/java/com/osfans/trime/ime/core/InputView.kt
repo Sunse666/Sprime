@@ -367,6 +367,13 @@ class InputView(
     @RequiresApi(Build.VERSION_CODES.R)
     fun handleInlineSuggestions(response: InlineSuggestionsResponse): Boolean = inputBar.handleInlineSuggestions(response)
 
+    /** Top edge of the board area (keyboard or AI page) in screen pixels. */
+    fun boardTopOnScreen(): Int {
+        val location = IntArray(2)
+        windowManager.view.getLocationOnScreen(location)
+        return location[1]
+    }
+
     override fun onDetachedFromWindow() {
         ViewCompat.setOnApplyWindowInsetsListener(this, null)
         // cancel the notification job and clear all broadcast receivers,

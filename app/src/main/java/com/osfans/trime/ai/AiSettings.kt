@@ -36,6 +36,9 @@ class AiSettings {
     val autoInsert: Boolean
         get() = prefs.autoInsert.getValue()
 
+    val allowScreenshot: Boolean
+        get() = prefs.allowScreenshot.getValue()
+
     val piiOptions: PiiFilter.Options
         get() =
             PiiFilter.Options(

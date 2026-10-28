@@ -39,6 +39,11 @@ import org.kodein.di.instance
 class AiController : InputBroadcastReceiver {
     companion object {
         private val PRINTABLE_RANGE = 0x20..0x10FFFF
+        private const val SCREEN_SENTINEL = "[screenshot]"
+        private const val SCREEN_LOOK_PROMPT =
+            "Here is a screenshot of the current screen. Answer the previous question with it."
+        private const val SCREEN_LOOK_FAILED =
+            "The screenshot could not be captured. Answer with the information you already have."
         private const val NEWLINE = '\n'
     }
 
@@ -245,41 +250,67 @@ class AiController : InputBroadcastReceiver {
     private fun startRequest() {
         requestJob?.cancel()
         _state.value = AiPanelState.Streaming("")
-        val messages = session.messages()
-        requestJob =
-            service.lifecycleScope.launch {
-                val text = StringBuilder()
-                val thinking = StringBuilder()
-                provider.chat(settings.requestConfig(), messages).collect { delta ->
-                    when (delta) {
-                        is AiDelta.Text -> {
-                            text.append(delta.value)
-                            _state.value = AiPanelState.Streaming(text.toString(), thinking.toString())
-                        }
+        requestJob = service.lifecycleScope.launch { runConversation() }
+    }
 
-                        is AiDelta.Reasoning -> {
-                            thinking.append(delta.value)
-                            _state.value = AiPanelState.Streaming(text.toString(), thinking.toString())
-                        }
-
-                        is AiDelta.Done -> {
-                            val raw = text.toString()
-                            val parsed = InsertParser.parse(raw)
-                            val insert = parsed.insert ?: if (askedFromAction) parsed.display else null
-                            lastInsertText = insert
-                            session.addAssistant(parsed.display)
-                            if (settings.autoInsert && !insert.isNullOrBlank()) {
-                                service.commitTextToEditor(insert)
-                                _state.value = AiPanelState.Inserted(parsed.display.ifBlank { insert })
-                            } else {
-                                _state.value = AiPanelState.Done(parsed.display, thinking.toString(), insert)
-                            }
-                        }
-
-                        is AiDelta.Failure -> _state.value = AiPanelState.Error(delta.message)
+    private suspend fun runConversation() {
+        var rounds = 0
+        while (true) {
+            val text = StringBuilder()
+            val thinking = StringBuilder()
+            var failed = false
+            provider.chat(settings.requestConfig(), session.messages()).collect { delta ->
+                when (delta) {
+                    is AiDelta.Text -> {
+                        text.append(delta.value)
+                        _state.value = AiPanelState.Streaming(text.toString(), thinking.toString())
                     }
+
+                    is AiDelta.Reasoning -> {
+                        thinking.append(delta.value)
+                        _state.value = AiPanelState.Streaming(text.toString(), thinking.toString())
+                    }
+
+                    is AiDelta.Failure -> {
+                        _state.value = AiPanelState.Error(delta.message)
+                        failed = true
+                    }
+
+                    is AiDelta.Done -> Unit
                 }
             }
+            if (failed) return
+            val raw = text.toString()
+            if (rounds == 0 && settings.allowScreenshot && raw.contains(SCREEN_SENTINEL)) {
+                _state.value = AiPanelState.Streaming("", "")
+                val image = ScreenReaderService.captureScreenshot(service.imeTopOnScreen())
+                rounds++
+                if (image != null) {
+                    session.addUser(SCREEN_LOOK_PROMPT, image)
+                    continue
+                }
+                session.addUser(SCREEN_LOOK_FAILED)
+                continue
+            }
+            finishAnswer(raw.replace(SCREEN_SENTINEL, "").trim(), thinking.toString())
+            return
+        }
+    }
+
+    private fun finishAnswer(
+        raw: String,
+        thinking: String,
+    ) {
+        val parsed = InsertParser.parse(raw)
+        val insert = parsed.insert ?: if (askedFromAction) parsed.display else null
+        lastInsertText = insert
+        session.addAssistant(parsed.display)
+        if (settings.autoInsert && !insert.isNullOrBlank()) {
+            service.commitTextToEditor(insert)
+            _state.value = AiPanelState.Inserted(parsed.display.ifBlank { insert })
+        } else {
+            _state.value = AiPanelState.Done(parsed.display, thinking, insert)
+        }
     }
 
     fun stop() {

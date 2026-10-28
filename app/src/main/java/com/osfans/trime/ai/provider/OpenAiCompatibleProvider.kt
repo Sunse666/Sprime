@@ -152,7 +152,33 @@ class OpenAiCompatibleProvider {
                             add(
                                 buildJsonObject {
                                     put("role", message.role.wireName)
-                                    put("content", message.content)
+                                    val image = message.image
+                                    if (image.isNullOrEmpty()) {
+                                        put("content", message.content)
+                                    } else {
+                                        put(
+                                            "content",
+                                            buildJsonArray {
+                                                add(
+                                                    buildJsonObject {
+                                                        put("type", "text")
+                                                        put("text", message.content)
+                                                    },
+                                                )
+                                                add(
+                                                    buildJsonObject {
+                                                        put("type", "image_url")
+                                                        put(
+                                                            "image_url",
+                                                            buildJsonObject {
+                                                                put("url", "data:image/jpeg;base64," + image)
+                                                            },
+                                                        )
+                                                    },
+                                                )
+                                            },
+                                        )
+                                    }
                                 },
                             )
                         }

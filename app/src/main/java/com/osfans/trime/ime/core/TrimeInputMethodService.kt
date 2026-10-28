@@ -497,8 +497,11 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
         return null
     }
 
+    private var inputViewRef: View? = null
+
     override fun setInputView(view: View) {
         super.setInputView(view)
+        inputViewRef = view
         val inputArea = contentView.findViewById<FrameLayout>(android.R.id.inputArea)
         inputArea.updateLayoutParams<ViewGroup.LayoutParams> {
             height = ViewGroup.LayoutParams.MATCH_PARENT
@@ -669,6 +672,9 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
     private companion object {
         const val FIELD_TEXT_LIMIT = 4000
     }
+
+    /** Top edge of the IME window in screen pixels, used to crop screenshots. */
+    fun imeTopOnScreen(): Int = (inputViewRef as? InputView)?.boardTopOnScreen() ?: 0
 
     fun copyToClipboard(text: String) {
         clipboardManager.setPrimaryClip(ClipData.newPlainText(null, text))

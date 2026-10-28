@@ -18,7 +18,9 @@ object PromptBuilder {
             "output only the result without explanations. " +
             "When the answer contains text the user should type, wrap exactly that text in " +
             "<insert> and </insert> and keep any comment outside the tags. " +
-            "Omit the tags when nothing should be typed."
+            "Omit the tags when nothing should be typed. " +
+            "If the text alone is not enough because you need to see the current screen, " +
+            "reply with exactly [screenshot] and nothing else."
 
     fun systemMessage(extra: String): String = buildString {
         append(BASE_PROMPT)

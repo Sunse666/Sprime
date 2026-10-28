@@ -315,4 +315,5 @@
     <string name="ai_accessibility_title">读屏（无障碍）</string>
     <string name="ai_accessibility_on">已开启</string>
     <string name="ai_accessibility_off">未开启，点击去设置</string>
+    <string name="ai_allow_screenshot">允许 AI 看屏幕（无障碍静默截屏）</string>
 </resources>

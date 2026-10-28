@@ -29,8 +29,11 @@ class ChatSession(
         history.clear()
     }
 
-    fun addUser(text: String) {
-        history += ChatMessage(ChatRole.USER, text)
+    fun addUser(
+        text: String,
+        image: String? = null,
+    ) {
+        history += ChatMessage(ChatRole.USER, text, image)
         trim()
     }
 

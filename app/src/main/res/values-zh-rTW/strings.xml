@@ -314,4 +314,5 @@
     <string name="ai_accessibility_title">讀屏（無障礙）</string>
     <string name="ai_accessibility_on">已開啟</string>
     <string name="ai_accessibility_off">未開啟，點擊去設定</string>
+    <string name="ai_allow_screenshot">允許 AI 看畫面（無障礙靜默截圖）</string>
 </resources>

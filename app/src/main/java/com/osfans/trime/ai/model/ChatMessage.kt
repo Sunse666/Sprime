@@ -14,4 +14,6 @@ enum class ChatRole(val wireName: String) {
 data class ChatMessage(
     val role: ChatRole,
     val content: String,
+    /** Base64 JPEG that accompanies this message as an image part. */
+    val image: String? = null,
 )

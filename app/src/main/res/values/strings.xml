@@ -317,4 +317,5 @@
     <string name="ai_accessibility_title">Screen reading (accessibility)</string>
     <string name="ai_accessibility_on">Enabled</string>
     <string name="ai_accessibility_off">Disabled, tap to open settings</string>
+    <string name="ai_allow_screenshot">Let the AI look at the screen (silent screenshots)</string>
 </resources>
