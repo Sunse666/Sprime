@@ -256,7 +256,8 @@ class AiController : InputBroadcastReceiver {
             _state.value = AiPanelState.Streaming("")
             requestJob =
                 service.lifecycleScope.launch {
-                    val image = SprimeAccessibilityService.captureScreenshot(service.imeTopOnScreen())
+                    val image =
+                        captureWithSecureFlagOff()
                     if (image != null) session.addUser(SCREEN_LOOK_PROMPT, image)
                     runConversation()
                 }
@@ -272,6 +273,20 @@ class AiController : InputBroadcastReceiver {
         requestJob?.cancel()
         _state.value = AiPanelState.Streaming("")
         requestJob = service.lifecycleScope.launch { runConversation() }
+    }
+
+    /**
+     * FLAG_SECURE on the full screen IME window blanks the whole screenshot, so it
+     * is dropped for the moment the frame is captured and restored right after.
+     */
+    private suspend fun captureWithSecureFlagOff(): String? {
+        service.setSecureForCapture(false)
+        return try {
+            kotlinx.coroutines.delay(80)
+            SprimeAccessibilityService.captureScreenshot(service.imeTopOnScreen())
+        } finally {
+            service.setSecureForCapture(true)
+        }
     }
 
     private suspend fun runConversation() {
@@ -304,7 +319,8 @@ class AiController : InputBroadcastReceiver {
             val raw = text.toString()
             if (rounds == 0 && settings.allowScreenshot && raw.contains(SCREEN_SENTINEL)) {
                 _state.value = AiPanelState.Streaming("", "")
-                val image = SprimeAccessibilityService.captureScreenshot(service.imeTopOnScreen())
+                val image =
+                    captureWithSecureFlagOff()
                 rounds++
                 if (image != null) {
                     session.addUser(SCREEN_LOOK_PROMPT, image)

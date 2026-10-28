@@ -514,17 +514,33 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
         }
     }
 
+    private fun applySecureFlag(
+        win: Window?,
+        secure: Boolean,
+    ) {
+        win ?: return
+        if (secure) {
+            win.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        } else {
+            win.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+    }
+
+    /**
+     * The IME window fills the screen, so FLAG_SECURE blanks the whole capture
+     * instead of only the keyboard. Drop it for the moment of a screenshot.
+     */
+    fun setSecureForCapture(secure: Boolean) {
+        if (prefs.ai.secureKeyboard.getValue()) applySecureFlag(window?.window, secure)
+    }
+
     override fun onConfigureWindow(
         win: Window,
         isFullscreen: Boolean,
         isCandidatesOnly: Boolean,
     ) {
         win.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-        if (prefs.ai.secureKeyboard.getValue()) {
-            win.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        } else {
-            win.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        }
+        applySecureFlag(win, prefs.ai.secureKeyboard.getValue())
     }
 
     override fun onStartInput(
