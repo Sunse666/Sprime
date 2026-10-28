@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-package com.osfans.trime.ai.access
+package com.sprime.ime.access
 
 import android.accessibilityservice.AccessibilityService
 import android.graphics.Bitmap
@@ -22,12 +22,12 @@ import kotlin.coroutines.resume
  * Read-only accessibility service. It exposes the text of the focused window and
  * can take a single silent screenshot, but it never performs actions or gestures.
  */
-class ScreenReaderService : AccessibilityService() {
+class SprimeAccessibilityService : AccessibilityService() {
     companion object {
         private const val MAX_WIDTH = 720
 
         @Volatile
-        private var current: ScreenReaderService? = null
+        private var current: SprimeAccessibilityService? = null
 
         val isConnected: Boolean
             get() = current != null

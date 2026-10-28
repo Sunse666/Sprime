@@ -8,7 +8,6 @@ package com.osfans.trime.ai
 import android.view.KeyEvent
 import androidx.lifecycle.lifecycleScope
 import com.osfans.trime.R
-import com.osfans.trime.ai.access.ScreenReaderService
 import com.osfans.trime.ai.chat.ChatSession
 import com.osfans.trime.ai.model.AiDelta
 import com.osfans.trime.ai.privacy.PiiFilter
@@ -25,6 +24,7 @@ import com.osfans.trime.ime.dependency.InputDependencyManager
 import com.osfans.trime.ime.keyboard.KeyboardWindow
 import com.osfans.trime.ime.window.BoardWindow
 import com.osfans.trime.ime.window.BoardWindowManager
+import com.sprime.ime.access.SprimeAccessibilityService
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -186,11 +186,11 @@ class AiController : InputBroadcastReceiver {
     /** Reads the current screen once and keeps it as the context of the next questions. */
     fun captureScreen() {
         open()
-        if (!ScreenReaderService.isConnected) {
+        if (!SprimeAccessibilityService.isConnected) {
             _state.value = AiPanelState.Error(service.getString(R.string.ai_error_no_accessibility))
             return
         }
-        val text = ScreenReaderService.readScreen()
+        val text = SprimeAccessibilityService.readScreen()
         if (text.isNullOrBlank()) {
             _state.value = AiPanelState.Error(service.getString(R.string.ai_error_screen_empty))
             return
@@ -283,7 +283,7 @@ class AiController : InputBroadcastReceiver {
             val raw = text.toString()
             if (rounds == 0 && settings.allowScreenshot && raw.contains(SCREEN_SENTINEL)) {
                 _state.value = AiPanelState.Streaming("", "")
-                val image = ScreenReaderService.captureScreenshot(service.imeTopOnScreen())
+                val image = SprimeAccessibilityService.captureScreenshot(service.imeTopOnScreen())
                 rounds++
                 if (image != null) {
                     session.addUser(SCREEN_LOOK_PROMPT, image)

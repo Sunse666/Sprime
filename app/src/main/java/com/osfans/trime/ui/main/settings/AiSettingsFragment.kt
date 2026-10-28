@@ -12,9 +12,9 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceScreen
 import com.osfans.trime.R
 import com.osfans.trime.ai.AiKeyStore
-import com.osfans.trime.ai.access.ScreenReaderService
 import com.osfans.trime.data.prefs.AppPrefs
 import com.osfans.trime.data.prefs.PreferenceDelegateFragment
+import com.sprime.ime.access.SprimeAccessibilityService
 
 class AiSettingsFragment : PreferenceDelegateFragment(AppPrefs.defaultInstance().ai) {
     private var accessPreference: Preference? = null
@@ -66,7 +66,7 @@ class AiSettingsFragment : PreferenceDelegateFragment(AppPrefs.defaultInstance()
     private fun refreshAccessSummary() {
         accessPreference?.summary =
             requireContext().getString(
-                if (ScreenReaderService.isConnected) R.string.ai_accessibility_on else R.string.ai_accessibility_off,
+                if (SprimeAccessibilityService.isConnected) R.string.ai_accessibility_on else R.string.ai_accessibility_off,
             )
     }
 }

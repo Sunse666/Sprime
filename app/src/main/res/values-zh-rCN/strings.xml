@@ -8,7 +8,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- 输入法平台名称  -->
     <string name="app_name_release">Sprime</string>
-    <string name="app_name_debug">Sprime（调试）</string>
+    <string name="app_name_debug">Sprime</string>
     <!-- AI 助手 -->
     <string name="ai_assistant">AI</string>
     <string name="ai_strip_placeholder">点 AI 提问</string>
@@ -65,9 +65,6 @@
     <string name="ai_error_disabled">AI 助手已关闭</string>
     <string name="ai_error_not_configured">请先在设置里填写 API Key</string>
 
-<string name="qq_group_1">同文 QQ 群 1</string>
-    <string name="qq_group_2">同文 QQ 群 2</string>
-    <string name="rime_qq_group">中州韵 QQ 群</string>
     <string name="librime_version">RIME 版本</string>
     <string name="opencc_version">OpenCC 版本</string>
     <string name="current_version">当前版本</string>
@@ -140,7 +137,6 @@
     <string name="hook_ctrl_zy">拦截 Ctrl+Z/Y</string>
     <string name="key_swipe_velocity">触发按键滑动手势的速度（距离/速度满足其一即可）</string>
     <string name="build_info">构建信息</string>
-    <string name="telegram">Telegram</string>
     <string name="quick_bar">快捷栏</string>
     <string name="copy_done">已复制</string>
     <string name="hook_shift_space">点击空格时，忽略Shift的锁定状态</string>
@@ -175,7 +171,7 @@
     <string name="use_app_specific_storage">使用应用专属存储空间</string>
     <string name="sync_from_external_desc">每次部署或同步用户数据前，从指定目录导入数据到内部存储，并在同步用户数据后导出到该目录。需要较多存储空间。推荐老用户使用。</string>
     <string name="use_app_specific_storage_desc">直接使用应用内部私有存储空间，用户需要使用支持的文件管理器管理数据。卸载应用时系统可能会询问是否保留数据，请随时做好备份。</string>
-    <string name="external_sync_select_folder_message">外部同步需要选择数据文件夹。请选择存放 Trime 配置文件的位置。</string>
+    <string name="external_sync_select_folder_message">外部同步需要选择数据文件夹。请选择存放 Sprime 配置文件的位置。</string>
     <string name="external_sync_fallback_app_storage">文件夹选择失败或已取消。存储模式将还原为使用应用专属存储空间。</string>
     <string name="external_sync_missing_tree_fallback">外部数据文件夹缺失或无法访问，已切换为应用专属存储空间。如需继续外部同步，请在设置中重新选择文件夹。</string>
     <string name="maintenance">维护</string>
@@ -222,7 +218,7 @@
     <string name="grant_permission">授予权限</string>
     <string name="notification_permission_title">没有通知权限</string>
     <string name="notification_permission_message">没有发送通知的权限，我们无法在一些耗时操作完成时通知您。</string>
-    <string name="rime_daemon">Rime 守护程序</string>
+    <string name="rime_daemon">Sprime 输入法</string>
     <string name="restarting_rime">正在重新启动 Rime</string>
     <string name="select_current_schema">选择当前方案</string>
     <string name="enable_schemata">启用方案</string>

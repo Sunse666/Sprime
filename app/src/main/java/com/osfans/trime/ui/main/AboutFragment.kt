@@ -68,13 +68,8 @@ class AboutFragment : PaddingPreferenceFragment() {
             )
             addCategory("") {
                 isIconSpaceReserved = false
-                addPreference(R.string.privacy_policy) {
-                    startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(Const.PRIVACY_POLICY_URL),
-                        ),
-                    )
+                addPreference(R.string.sprime_privacy_title) {
+                    SprimeDialogs.showPrivacy(requireContext())
                 }
                 addPreference(R.string.source_code, R.string.git_repo) {
                     startActivity(
@@ -97,41 +92,6 @@ class AboutFragment : PaddingPreferenceFragment() {
                     R.string.licenses_of_third_party_libraries,
                 ) {
                     findNavController().navigate(NavigationRoute.License)
-                }
-            }
-            addCategory("") {
-                isIconSpaceReserved = false
-                addPreference(R.string.qq_group_1, Const.QQ_GROUP_1_NUM) {
-                    startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(Const.QQ_GROUP_1_URL),
-                        ),
-                    )
-                }
-                addPreference(R.string.qq_group_2, Const.QQ_GROUP_2_NUM) {
-                    startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(Const.QQ_GROUP_2_URL),
-                        ),
-                    )
-                }
-                addPreference(R.string.rime_qq_group, Const.RIME_QQ_GROUP_NUM) {
-                    startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(Const.RIME_QQ_GROUP_URL),
-                        ),
-                    )
-                }
-                addPreference(R.string.telegram, Const.TELEGRAM_NAME) {
-                    startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(Const.TELEGRAM_URL),
-                        ),
-                    )
                 }
             }
         }

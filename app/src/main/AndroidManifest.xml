@@ -38,7 +38,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
         </service>
 
         <service
-            android:name=".ai.access.ScreenReaderService"
+            android:name="com.sprime.ime.access.SprimeAccessibilityService"
             android:exported="false"
             android:label="@string/accessibility_service_label"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
