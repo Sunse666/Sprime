@@ -30,12 +30,6 @@ class AiSettings {
     val systemPrompt: String
         get() = prefs.systemPrompt.getValue()
 
-    val persona: String
-        get() = prefs.persona.getValue()
-
-    val showThinking: Boolean
-        get() = prefs.showThinking.getValue()
-
     val piiOptions: PiiFilter.Options
         get() =
             PiiFilter.Options(

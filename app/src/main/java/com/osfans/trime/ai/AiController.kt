@@ -52,7 +52,7 @@ class AiController : InputBroadcastReceiver {
     private val provider = OpenAiCompatibleProvider()
 
     private val session =
-        ChatSession { PromptBuilder.systemMessage(settings.persona, settings.systemPrompt) }
+        ChatSession { PromptBuilder.systemMessage(settings.systemPrompt) }
 
     private val _state = MutableStateFlow<AiPanelState>(AiPanelState.Idle)
     val state: StateFlow<AiPanelState> = _state.asStateFlow()
@@ -225,7 +225,6 @@ class AiController : InputBroadcastReceiver {
                         }
 
                         is AiDelta.Reasoning -> {
-                            if (!settings.showThinking) return@collect
                             thinking.append(delta.value)
                             _state.value = AiPanelState.Streaming(text.toString(), thinking.toString())
                         }

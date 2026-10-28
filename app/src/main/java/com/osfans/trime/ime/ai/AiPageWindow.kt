@@ -7,7 +7,6 @@ package com.osfans.trime.ime.ai
 
 import android.graphics.Color
 import android.graphics.Typeface
-import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
@@ -39,11 +38,14 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
     private val aiController: AiController by di.instance()
 
     private lateinit var bodyView: TextView
+    private lateinit var thinkingHeader: TextView
+    private lateinit var thinkingBody: TextView
     private lateinit var statusView: TextView
     private lateinit var primaryButton: TextView
     private lateinit var secondaryButton: TextView
     private lateinit var chipsView: View
-    private lateinit var thinkingView: TextView
+    private var thinkingExpanded = false
+    private var lastState: AiPanelState? = null
     private var renderJob: Job? = null
 
     override fun onCreateView(): View {
@@ -95,21 +97,27 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
             ).also { it.topMargin = context.dp(6) },
         )
 
-        thinkingView =
+        thinkingHeader =
             TextView(context).apply {
                 textSize = 12f
-                maxLines = 3
-                ellipsize = TextUtils.TruncateAt.END
                 setTextColor(dimColor)
                 visibility = View.GONE
+                setPadding(0, context.dp(4), 0, context.dp(2))
+                setOnClickListener {
+                    if (!thinkingExpanded && thinkingBody.text.isBlank()) return@setOnClickListener
+                    thinkingExpanded = !thinkingExpanded
+                    updateThinking()
+                }
             }
-        root.addView(
-            thinkingView,
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-            ).also { it.topMargin = context.dp(4) },
-        )
+
+        thinkingBody =
+            TextView(context).apply {
+                textSize = 12f
+                setTextColor(dimColor)
+                setLineSpacing(context.dp(2).toFloat(), 1f)
+                visibility = View.GONE
+                setPadding(0, 0, 0, context.dp(6))
+            }
 
         bodyView =
             TextView(context).apply {
@@ -117,11 +125,19 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
                 setTextColor(textColor)
                 setLineSpacing(context.dp(3).toFloat(), 1f)
             }
+
+        val column =
+            LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                addView(thinkingHeader, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                addView(thinkingBody, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                addView(bodyView, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            }
         root.addView(
             ScrollView(context).apply {
                 isFillViewport = true
                 addView(
-                    bodyView,
+                    column,
                     LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -132,7 +148,7 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 0,
                 1f,
-            ).also { it.topMargin = context.dp(10) },
+            ).also { it.topMargin = context.dp(8) },
         )
 
         statusView =
@@ -211,24 +227,29 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
         if (!::bodyView.isInitialized) return
         secondaryButton.visibility = View.GONE
         chipsView.visibility = if (state is AiPanelState.Idle) View.VISIBLE else View.GONE
-        thinkingView.visibility = View.GONE
+        if (state is AiPanelState.Streaming && lastState !is AiPanelState.Streaming) {
+            thinkingExpanded = false
+        }
+        lastState = state
+
         when (state) {
             is AiPanelState.Idle -> {
                 bodyView.text = context.getString(R.string.ai_panel_hint)
                 statusView.text = ""
                 primaryButton.text = context.getString(R.string.ai_compose_entry)
+                setThinking("")
             }
 
             is AiPanelState.Streaming -> {
                 bodyView.text = state.text
-                renderThinking(state.thinking)
+                setThinking(state.thinking)
                 statusView.text = context.getString(R.string.ai_status_streaming)
                 primaryButton.text = context.getString(R.string.ai_stop)
             }
 
             is AiPanelState.Done -> {
                 bodyView.text = state.text
-                renderThinking(state.thinking)
+                setThinking(state.thinking)
                 statusView.text = context.getString(R.string.ai_status_done)
                 primaryButton.text = context.getString(R.string.ai_insert)
                 secondaryButton.text = context.getString(R.string.ai_copy)
@@ -237,22 +258,35 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
 
             is AiPanelState.Error -> {
                 bodyView.text = state.message
+                setThinking("")
                 statusView.text = context.getString(R.string.ai_status_error)
                 primaryButton.text = context.getString(R.string.ai_retry)
             }
 
             is AiPanelState.Inserted -> {
                 bodyView.text = state.text
+                setThinking("")
                 statusView.text = context.getString(R.string.ai_status_inserted)
                 primaryButton.text = context.getString(R.string.ai_undo)
             }
         }
     }
 
-    private fun renderThinking(text: String) {
-        if (text.isBlank()) return
-        thinkingView.text = text
-        thinkingView.visibility = View.VISIBLE
+    private fun setThinking(text: String) {
+        thinkingBody.text = text
+        updateThinking()
+    }
+
+    private fun updateThinking() {
+        if (thinkingBody.text.isBlank()) {
+            thinkingHeader.visibility = View.GONE
+            thinkingBody.visibility = View.GONE
+            return
+        }
+        thinkingHeader.visibility = View.VISIBLE
+        val label = context.getString(R.string.ai_thinking_label)
+        thinkingHeader.text = if (thinkingExpanded) "$label ▾" else "$label ▸"
+        thinkingBody.visibility = if (thinkingExpanded) View.VISIBLE else View.GONE
     }
 
     private fun onPrimaryAction() {

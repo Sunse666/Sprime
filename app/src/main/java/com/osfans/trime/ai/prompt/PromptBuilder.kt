@@ -17,15 +17,8 @@ object PromptBuilder {
             "Keep answers short. When the task is to rewrite or translate text, " +
             "output only the result without explanations."
 
-    fun systemMessage(
-        persona: String,
-        extra: String,
-    ): String = buildString {
+    fun systemMessage(extra: String): String = buildString {
         append(BASE_PROMPT)
-        if (persona.isNotBlank()) {
-            append("\n\n[Persona]\n")
-            append(persona.trim().take(MAX_PERSONA))
-        }
         if (extra.isNotBlank()) {
             append("\n\n")
             append(extra.trim().take(MAX_PERSONA))

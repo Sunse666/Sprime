@@ -27,14 +27,12 @@
     <string name="ai_temperature">Temperature</string>
     <string name="ai_max_tokens">Max tokens</string>
     <string name="ai_system_prompt">System prompt</string>
-    <string name="ai_persona">Persona</string>
-    <string name="ai_persona_hint">Optional character or tone the assistant should keep</string>
-    <string name="ai_show_thinking">Show reasoning</string>
     <string name="ai_pii_phone">Mask phone numbers</string>
     <string name="ai_pii_id_card">Mask ID numbers</string>
     <string name="ai_pii_bank_card">Mask bank cards</string>
     <string name="ai_pii_email">Mask email addresses</string>
     <string name="ai_new_chat">New</string>
+    <string name="ai_thinking_label">Reasoning</string>
     <string name="ai_system_prompt_hint">Optional instructions sent with every request</string>
     <string name="ai_stream">Stream responses</string>
     <string name="ai_api_key">API key</string>

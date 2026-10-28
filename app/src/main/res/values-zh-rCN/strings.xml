@@ -27,14 +27,12 @@
     <string name="ai_temperature">随机性</string>
     <string name="ai_max_tokens">最大长度</string>
     <string name="ai_system_prompt">系统提示词</string>
-    <string name="ai_persona">人设</string>
-    <string name="ai_persona_hint">可选的语气或角色设定</string>
-    <string name="ai_show_thinking">显示思考过程</string>
     <string name="ai_pii_phone">屏蔽手机号</string>
     <string name="ai_pii_id_card">屏蔽身份证号</string>
     <string name="ai_pii_bank_card">屏蔽银行卡号</string>
     <string name="ai_pii_email">屏蔽邮箱</string>
     <string name="ai_new_chat">新对话</string>
+    <string name="ai_thinking_label">思考过程</string>
     <string name="ai_system_prompt_hint">每次请求都会带上，可留空</string>
     <string name="ai_stream">流式输出</string>
     <string name="ai_api_key">API Key</string>
