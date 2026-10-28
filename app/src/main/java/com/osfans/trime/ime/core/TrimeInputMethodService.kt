@@ -34,6 +34,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
+import com.osfans.trime.ai.AiController
 import com.osfans.trime.core.KeyModifiers
 import com.osfans.trime.core.KeyValue
 import com.osfans.trime.core.RimeApi
@@ -89,6 +90,9 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
         }
     }
     private val rimeIntentReceiver = RimeIntentReceiver()
+
+    /** Set by InputView once the AI strip is ready. */
+    var aiController: AiController? = null
 
     private var lastCommittedText: String = ""
 
@@ -213,6 +217,7 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
             }
             is RimeMessage.KeyMessage ->
                 it.data.let msg@{
+                    if (aiController?.handleKey(it) == true) return
                     if (it.isVirtual) {
                         when (it.value.value) {
                             RimeKeyMapping.RimeKey_Return -> handleReturnKey()
@@ -567,6 +572,7 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
 
     override fun onFinishInputView(finishingInput: Boolean) {
         Timber.d("onFinishInputView: finishingInput=$finishingInput")
+        aiController?.stopCompose()
         decorLocationUpdated = false
         inputView?.dismissCandidateActionMenu()
         candidatesView?.dismissCandidateActionMenu()
@@ -583,6 +589,10 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
     }
 
     fun commitText(text: String) {
+        aiController?.takeIf { it.isComposing }?.let {
+            it.appendText(text)
+            return
+        }
         val ic = currentInputConnection ?: return
 
         // when composing text equals commit content, finish composing text as-is
@@ -749,6 +759,7 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
     @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
     override fun onViewClicked(focusChanged: Boolean) {
         super.onViewClicked(focusChanged)
+        aiController?.stopCompose()
         inputDeviceManager.evaluateOnViewClicked(this)
     }
 

@@ -5,12 +5,15 @@
 
 package com.osfans.trime.ai
 
+import android.view.KeyEvent
 import androidx.lifecycle.lifecycleScope
 import com.osfans.trime.R
 import com.osfans.trime.ai.model.AiDelta
 import com.osfans.trime.ai.model.ChatMessage
 import com.osfans.trime.ai.model.ChatRole
 import com.osfans.trime.ai.provider.OpenAiCompatibleProvider
+import com.osfans.trime.core.RimeKeyMapping
+import com.osfans.trime.core.RimeMessage
 import com.osfans.trime.ime.ai.AiPageWindow
 import com.osfans.trime.ime.broadcast.InputBroadcastReceiver
 import com.osfans.trime.ime.core.TrimeInputMethodService
@@ -48,6 +51,14 @@ class AiController : InputBroadcastReceiver {
         private set
 
     var onStateChanged: ((Boolean) -> Unit)? = null
+
+    private val _draft = MutableStateFlow("")
+    val draft: StateFlow<String> = _draft.asStateFlow()
+
+    var isComposing: Boolean = false
+        private set
+
+    var onComposeChanged: ((Boolean) -> Unit)? = null
 
     fun toggle() {
         if (isOpen) close() else open()
@@ -100,6 +111,67 @@ class AiController : InputBroadcastReceiver {
             }
     }
 
+    fun startCompose() {
+        if (isComposing) return
+        isComposing = true
+        onComposeChanged?.invoke(true)
+    }
+
+    fun stopCompose() {
+        if (!isComposing) return
+        isComposing = false
+        onComposeChanged?.invoke(false)
+    }
+
+    fun appendText(text: String) {
+        if (!isComposing) return
+        _draft.value = _draft.value + text
+    }
+
+    fun deleteLast() {
+        if (!isComposing) return
+        val value = _draft.value
+        if (value.isNotEmpty()) _draft.value = value.dropLast(1)
+    }
+
+    fun submitDraft() {
+        if (!isComposing) return
+        val prompt = _draft.value.trim()
+        stopCompose()
+        _draft.value = ""
+        if (prompt.isEmpty()) return
+        open()
+        ask(prompt)
+    }
+
+    /**
+     * Intercepts keys rime would forward to the editor while the draft is active.
+     * Returns true when the key was consumed.
+     */
+    fun handleKey(data: RimeMessage.KeyMessage.Data): Boolean {
+        if (!isComposing) return false
+        val keyCode = data.value.keyCode
+        val value = data.value.value
+        return when {
+            keyCode == KeyEvent.KEYCODE_DEL -> {
+                deleteLast()
+                true
+            }
+
+            value == RimeKeyMapping.RimeKey_Return || keyCode == KeyEvent.KEYCODE_ENTER -> {
+                submitDraft()
+                true
+            }
+
+            value in PRINTABLE_RANGE -> {
+                appendText(String(Character.toChars(value)))
+                true
+            }
+
+            else -> false
+        }
+    }
+
     fun stop() {
         requestJob?.cancel()
         requestJob = null
@@ -116,6 +188,10 @@ class AiController : InputBroadcastReceiver {
 
     override fun onWindowAttached(window: BoardWindow) {
         setOpen(window is AiPageWindow)
+    }
+
+    private companion object {
+        val PRINTABLE_RANGE = 0x20..0x10FFFF
     }
 
     private fun setOpen(value: Boolean) {

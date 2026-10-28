@@ -12,6 +12,7 @@
     <!-- AI assistant -->
     <string name="ai_assistant">AI</string>
     <string name="ai_strip_placeholder">Tap AI to ask</string>
+    <string name="ai_strip_hint">Type your question…</string>
     <string name="ai_panel_title">AI assistant</string>
     <string name="ai_panel_hint">Ask anything, or pick a quick action.</string>
     <string name="ai_back_to_keyboard">Back to keyboard</string>

@@ -12,6 +12,7 @@
     <!-- AI 助理 -->
     <string name="ai_assistant">AI</string>
     <string name="ai_strip_placeholder">點 AI 提問</string>
+    <string name="ai_strip_hint">輸入問題…</string>
     <string name="ai_panel_title">AI 助理</string>
     <string name="ai_panel_hint">可以自由提問，或選一個快捷動作。</string>
     <string name="ai_back_to_keyboard">返回鍵盤</string>

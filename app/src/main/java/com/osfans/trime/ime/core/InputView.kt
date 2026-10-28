@@ -105,7 +105,12 @@ class InputView(
     private val keyboardWindow: KeyboardWindow by di.instance()
     private val liquidWindow: LiquidWindow by di.instance()
     private val aiController: AiController by di.instance()
-    private val aiStrip: AiStripView = AiStripView(context) { aiController.toggle() }
+    private val aiStrip: AiStripView =
+        AiStripView(
+            context,
+            onAction = { if (aiController.isOpen) aiController.close() else aiController.submitDraft() },
+            onActivate = { if (!aiController.isOpen) aiController.startCompose() },
+        )
 
     private val candidatesMode by AppPrefs.defaultInstance().candidates.mode
 
@@ -211,6 +216,11 @@ class InputView(
             }
 
         aiController.onStateChanged = { aiStrip.setAiPage(it) }
+        aiController.onComposeChanged = { aiStrip.setComposing(it) }
+        service.aiController = aiController
+        service.lifecycleScope.launch {
+            aiController.draft.collect { aiStrip.setDraft(it) }
+        }
 
         updateWindowViewHeightJob =
             service.lifecycleScope.launch {
