@@ -613,20 +613,37 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
     }
 
     /** Captures what the user can see around the cursor, never from password fields. */
-    fun captureEditorContext(): EditorContext {
+    fun captureEditorContext(readClipboard: Boolean = false): EditorContext {
         val info = currentInputEditorInfo
-        val password = info.isPasswordField()
-        if (password) {
-            return EditorContext(null, "", "", true, info?.packageName.orEmpty())
+        val packageName = info?.packageName.orEmpty()
+        if (info.isPasswordField()) {
+            return EditorContext(null, "", "", "", "", true, packageName)
         }
         val ic = currentInputConnection
         if (ic == null) {
-            return EditorContext(null, "", "", false, info?.packageName.orEmpty())
+            return EditorContext(null, "", "", "", "", false, packageName)
         }
         val selection = ic.getSelectedText(0)?.toString()
         val before = ic.getTextBeforeCursor(1024, 0)?.toString().orEmpty()
         val after = ic.getTextAfterCursor(256, 0)?.toString().orEmpty()
-        return EditorContext(selection, before, after, false, info?.packageName.orEmpty())
+        val extracted =
+            ic.getExtractedText(
+                ExtractedTextRequest().apply {
+                    hintMaxChars = FIELD_TEXT_LIMIT
+                    hintMaxLines = 200
+                },
+                0,
+            )
+        val field = extracted?.text?.toString().orEmpty().take(FIELD_TEXT_LIMIT)
+        val clipboard =
+            if (readClipboard) {
+                runCatching {
+                    clipboardManager.primaryClip?.getItemAt(0)?.coerceToText(this)?.toString().orEmpty()
+                }.getOrDefault("").take(FIELD_TEXT_LIMIT)
+            } else {
+                ""
+            }
+        return EditorContext(selection, before, after, field, clipboard, false, packageName)
     }
 
     private fun EditorInfo?.isPasswordField(): Boolean {
@@ -642,6 +659,10 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
                 variation == InputType.TYPE_NUMBER_VARIATION_PASSWORD
             else -> false
         }
+    }
+
+    private companion object {
+        const val FIELD_TEXT_LIMIT = 4000
     }
 
     fun copyToClipboard(text: String) {

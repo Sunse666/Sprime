@@ -30,6 +30,12 @@ class AiSettings {
     val systemPrompt: String
         get() = prefs.systemPrompt.getValue()
 
+    val useClipboard: Boolean
+        get() = prefs.useClipboard.getValue()
+
+    val autoInsert: Boolean
+        get() = prefs.autoInsert.getValue()
+
     val piiOptions: PiiFilter.Options
         get() =
             PiiFilter.Options(

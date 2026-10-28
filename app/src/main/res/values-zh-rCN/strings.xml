@@ -32,6 +32,8 @@
     <string name="ai_pii_bank_card">屏蔽银行卡号</string>
     <string name="ai_pii_email">屏蔽邮箱</string>
     <string name="ai_new_chat">新对话</string>
+    <string name="ai_use_clipboard">把剪贴板内容作为上下文</string>
+    <string name="ai_auto_insert">回答完成后自动填入</string>
     <string name="ai_thinking_label">思考过程</string>
     <string name="ai_system_prompt_hint">每次请求都会带上，可留空</string>
     <string name="ai_stream">流式输出</string>

@@ -479,6 +479,8 @@ class AppPrefs(
             const val PII_ID_CARD = "ai_pii_id_card"
             const val PII_BANK_CARD = "ai_pii_bank_card"
             const val PII_EMAIL = "ai_pii_email"
+            const val USE_CLIPBOARD = "ai_use_clipboard"
+            const val AUTO_INSERT = "ai_auto_insert"
         }
 
         val enabled = switch(R.string.ai_enabled, ENABLED, true)
@@ -528,5 +530,7 @@ class AppPrefs(
         val piiIdCard = switch(R.string.ai_pii_id_card, PII_ID_CARD, true)
         val piiBankCard = switch(R.string.ai_pii_bank_card, PII_BANK_CARD, true)
         val piiEmail = switch(R.string.ai_pii_email, PII_EMAIL, false)
+        val useClipboard = switch(R.string.ai_use_clipboard, USE_CLIPBOARD, false)
+        val autoInsert = switch(R.string.ai_auto_insert, AUTO_INSERT, false)
     }
 }

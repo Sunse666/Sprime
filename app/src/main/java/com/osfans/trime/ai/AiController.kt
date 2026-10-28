@@ -138,7 +138,7 @@ class AiController : InputBroadcastReceiver {
         _draft.value = Draft()
         if (question.isEmpty()) return
         open()
-        ask(PromptBuilder.buildCustom(question, service.captureEditorContext()))
+        ask(PromptBuilder.buildCustom(question, service.captureEditorContext(settings.useClipboard)))
     }
 
     fun startInputFromPanel() {
@@ -148,7 +148,7 @@ class AiController : InputBroadcastReceiver {
 
     /** Runs a quick action on the current selection (or the text before the cursor). */
     fun runAction(action: AiAction) {
-        val context = service.captureEditorContext()
+        val context = service.captureEditorContext(settings.useClipboard)
         open()
         when {
             context.isPassword -> {
@@ -231,7 +231,12 @@ class AiController : InputBroadcastReceiver {
 
                         is AiDelta.Done -> {
                             session.addAssistant(text.toString())
-                            _state.value = AiPanelState.Done(text.toString(), thinking.toString())
+                            if (settings.autoInsert) {
+                                service.commitTextToEditor(text.toString())
+                                _state.value = AiPanelState.Inserted(text.toString())
+                            } else {
+                                _state.value = AiPanelState.Done(text.toString(), thinking.toString())
+                            }
                         }
 
                         is AiDelta.Failure -> _state.value = AiPanelState.Error(delta.message)
