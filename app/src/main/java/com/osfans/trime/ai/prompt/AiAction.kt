@@ -14,27 +14,26 @@ enum class AiAction(
 ) {
     TRANSLATE(
         R.string.ai_action_translate,
-        "Translate the text below. Output only the translation and keep the original formatting.",
+        "翻译下面的内容，只输出译文，保持原有格式。",
     ),
     POLISH(
         R.string.ai_action_polish,
-        "Rewrite the text below to be clearer and more natural while keeping the original meaning. " +
-            "Output only the rewritten text.",
+        "把下面的内容改得更通顺自然，保持原意，只输出改写后的文字。",
     ),
     SUMMARIZE(
         R.string.ai_action_summarize,
-        "Summarize the text below in at most three short bullet points.",
+        "用不超过三条短句总结下面的内容。",
     ),
     EXPLAIN(
         R.string.ai_action_explain,
-        "Explain the text below in plain language for a general reader.",
+        "用通俗易懂的话解释下面的内容。",
     ),
     REPLY(
         R.string.ai_action_reply,
-        "Write three short reply options for the conversation below. Keep each under 30 characters.",
+        "针对下面的对话写三条简短回复，每条不超过 30 个字。",
     ),
     CONTINUE(
         R.string.ai_action_continue,
-        "Continue the text below in the same tone. Output at most 50 characters, no explanation.",
+        "按下面的语气续写，最多 50 个字，不要解释。",
     ),
 }

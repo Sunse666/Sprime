@@ -14,6 +14,7 @@ import com.osfans.trime.ai.privacy.PiiFilter
 import com.osfans.trime.ai.prompt.AiAction
 import com.osfans.trime.ai.prompt.InsertParser
 import com.osfans.trime.ai.prompt.PromptBuilder
+import com.osfans.trime.ai.prompt.ScreenHints
 import com.osfans.trime.ai.provider.OpenAiCompatibleProvider
 import com.osfans.trime.core.RimeKeyMapping
 import com.osfans.trime.core.RimeMessage
@@ -250,7 +251,7 @@ class AiController : InputBroadcastReceiver {
         }
         val safe = PiiFilter.sanitize(prompt, settings.piiOptions).trim()
         session.addUser(safe)
-        if (settings.allowScreenshot && wantsScreen(safe) && SprimeAccessibilityService.canCapture) {
+        if (settings.allowScreenshot && ScreenHints.matches(safe) && SprimeAccessibilityService.canCapture) {
             requestJob?.cancel()
             _state.value = AiPanelState.Streaming("")
             requestJob =
