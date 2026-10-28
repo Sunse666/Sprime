@@ -6,6 +6,15 @@
 > 参考实现：[trime](https://github.com/osfans/trime)（GPL-3.0-or-later，基线 v3.3.12）
 > 许可证：本项目同样以 **GPL-3.0-or-later** 发布
 
+
+## 进度
+
+| 里程碑 | 状态 | 说明 |
+|---|---|---|
+| M0 基线 | ✅ | trime v3.3.12 导入、submodule 固定、可构建、MuMu 上可打字 |
+| M1 骨架 | ✅ | 48dp 常驻顶栏（组合文本 + AI 按钮）、AI 占位页、`ai_assistant` 命令；切换页面时 IME 高度不变 |
+| M2 AI 链路 | ⏳ | 设置页 + OpenAI 兼容流式 |
+
 ## 文档
 
 | 文档 | 内容 |
