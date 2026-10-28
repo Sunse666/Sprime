@@ -5,6 +5,7 @@
 
 package com.osfans.trime.ai
 
+import com.osfans.trime.ai.privacy.PiiFilter
 import com.osfans.trime.ai.provider.AiRequestConfig
 import com.osfans.trime.ai.provider.ProviderPresets
 import com.osfans.trime.data.prefs.AppPrefs
@@ -28,6 +29,21 @@ class AiSettings {
 
     val systemPrompt: String
         get() = prefs.systemPrompt.getValue()
+
+    val persona: String
+        get() = prefs.persona.getValue()
+
+    val showThinking: Boolean
+        get() = prefs.showThinking.getValue()
+
+    val piiOptions: PiiFilter.Options
+        get() =
+            PiiFilter.Options(
+                phone = prefs.piiPhone.getValue(),
+                idCard = prefs.piiIdCard.getValue(),
+                bankCard = prefs.piiBankCard.getValue(),
+                email = prefs.piiEmail.getValue(),
+            )
 
     val isConfigured: Boolean
         get() = apiKey.isNotBlank() || baseUrl.startsWith("http://127.0.0.1")

@@ -7,11 +7,13 @@ package com.osfans.trime.ime.ai
 
 import android.graphics.Color
 import android.graphics.Typeface
+import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.lifecycleScope
 import com.osfans.trime.R
 import com.osfans.trime.ai.AiController
@@ -41,11 +43,12 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
     private lateinit var primaryButton: TextView
     private lateinit var secondaryButton: TextView
     private lateinit var chipsView: View
+    private lateinit var thinkingView: TextView
     private var renderJob: Job? = null
 
     override fun onCreateView(): View {
         val textColor = color("key_text_color", Color.WHITE)
-        val dimColor = color("comment_text_color", textColor)
+        val dimColor = ColorUtils.setAlphaComponent(textColor, 0x99)
         val background = color("keyboard_back_color", Color.BLACK)
 
         val root =
@@ -55,13 +58,32 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
                 setPadding(context.dp(16), context.dp(12), context.dp(16), context.dp(12))
             }
 
-        root.addView(
+        val header =
+            LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+            }
+        header.addView(
             TextView(context).apply {
                 text = context.getString(R.string.ai_panel_title)
                 textSize = 17f
                 typeface = Typeface.DEFAULT_BOLD
                 setTextColor(textColor)
             },
+            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f),
+        )
+        header.addView(
+            actionButton(textColor) { aiController.newConversation() }.apply {
+                text = context.getString(R.string.ai_new_chat)
+                textSize = 13f
+            },
+        )
+        root.addView(
+            header,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ),
         )
 
         chipsView = buildChips(textColor)
@@ -71,6 +93,22 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
             ).also { it.topMargin = context.dp(6) },
+        )
+
+        thinkingView =
+            TextView(context).apply {
+                textSize = 12f
+                maxLines = 3
+                ellipsize = TextUtils.TruncateAt.END
+                setTextColor(dimColor)
+                visibility = View.GONE
+            }
+        root.addView(
+            thinkingView,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ).also { it.topMargin = context.dp(4) },
         )
 
         bodyView =
@@ -173,6 +211,7 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
         if (!::bodyView.isInitialized) return
         secondaryButton.visibility = View.GONE
         chipsView.visibility = if (state is AiPanelState.Idle) View.VISIBLE else View.GONE
+        thinkingView.visibility = View.GONE
         when (state) {
             is AiPanelState.Idle -> {
                 bodyView.text = context.getString(R.string.ai_panel_hint)
@@ -182,12 +221,14 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
 
             is AiPanelState.Streaming -> {
                 bodyView.text = state.text
+                renderThinking(state.thinking)
                 statusView.text = context.getString(R.string.ai_status_streaming)
                 primaryButton.text = context.getString(R.string.ai_stop)
             }
 
             is AiPanelState.Done -> {
                 bodyView.text = state.text
+                renderThinking(state.thinking)
                 statusView.text = context.getString(R.string.ai_status_done)
                 primaryButton.text = context.getString(R.string.ai_insert)
                 secondaryButton.text = context.getString(R.string.ai_copy)
@@ -206,6 +247,12 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
                 primaryButton.text = context.getString(R.string.ai_undo)
             }
         }
+    }
+
+    private fun renderThinking(text: String) {
+        if (text.isBlank()) return
+        thinkingView.text = text
+        thinkingView.visibility = View.VISIBLE
     }
 
     private fun onPrimaryAction() {

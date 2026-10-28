@@ -99,9 +99,33 @@ class OpenAiCompatibleProvider {
             val line = source.readUtf8Line() ?: break
             val payload = parser.feed(line) ?: continue
             if (payload == "[DONE]") break
-            val content = parseContent(json.parseToJsonElement(payload).jsonObject) ?: continue
-            if (content.isNotEmpty()) collector.emit(AiDelta.Text(content))
+            val root = json.parseToJsonElement(payload).jsonObject
+            val delta = root.choicesDelta()
+            delta?.reasoning?.takeIf { it.isNotEmpty() }?.let { collector.emit(AiDelta.Reasoning(it)) }
+            delta?.content?.takeIf { it.isNotEmpty() }?.let { collector.emit(AiDelta.Text(it)) }
         }
+    }
+
+    private data class Delta(
+        val content: String?,
+        val reasoning: String?,
+    )
+
+    private fun JsonObject.choicesDelta(): Delta? {
+        val choices = this["choices"]?.jsonArray ?: return null
+        val first = choices.firstOrNull()?.jsonObject ?: return null
+        val delta = first["delta"]?.jsonObject
+        if (delta != null) {
+            return Delta(
+                content = delta["content"]?.jsonPrimitive?.contentOrNull,
+                reasoning = delta["reasoning_content"]?.jsonPrimitive?.contentOrNull,
+            )
+        }
+        val message = first["message"]?.jsonObject ?: return null
+        return Delta(
+            content = message["content"]?.jsonPrimitive?.contentOrNull,
+            reasoning = null,
+        )
     }
 
     private fun parseContent(root: JsonObject): String? {

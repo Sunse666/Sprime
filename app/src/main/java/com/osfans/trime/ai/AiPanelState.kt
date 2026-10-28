@@ -8,9 +8,15 @@ package com.osfans.trime.ai
 sealed interface AiPanelState {
     data object Idle : AiPanelState
 
-    data class Streaming(val text: String) : AiPanelState
+    data class Streaming(
+        val text: String,
+        val thinking: String = "",
+    ) : AiPanelState
 
-    data class Done(val text: String) : AiPanelState
+    data class Done(
+        val text: String,
+        val thinking: String = "",
+    ) : AiPanelState
 
     data class Error(val message: String) : AiPanelState
 

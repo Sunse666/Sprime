@@ -475,6 +475,12 @@ class AppPrefs(
             const val MAX_TOKENS = "ai_max_tokens"
             const val SYSTEM_PROMPT = "ai_system_prompt"
             const val STREAM = "ai_stream"
+            const val PERSONA = "ai_persona"
+            const val SHOW_THINKING = "ai_show_thinking"
+            const val PII_PHONE = "ai_pii_phone"
+            const val PII_ID_CARD = "ai_pii_id_card"
+            const val PII_BANK_CARD = "ai_pii_bank_card"
+            const val PII_EMAIL = "ai_pii_email"
         }
 
         val enabled = switch(R.string.ai_enabled, ENABLED, true)
@@ -519,5 +525,16 @@ class AppPrefs(
             R.string.ai_system_prompt_hint,
         )
         val stream = switch(R.string.ai_stream, STREAM, true)
+        val persona = editText(
+            R.string.ai_persona,
+            PERSONA,
+            "",
+            R.string.ai_persona_hint,
+        )
+        val showThinking = switch(R.string.ai_show_thinking, SHOW_THINKING, true)
+        val piiPhone = switch(R.string.ai_pii_phone, PII_PHONE, true)
+        val piiIdCard = switch(R.string.ai_pii_id_card, PII_ID_CARD, true)
+        val piiBankCard = switch(R.string.ai_pii_bank_card, PII_BANK_CARD, true)
+        val piiEmail = switch(R.string.ai_pii_email, PII_EMAIL, false)
     }
 }

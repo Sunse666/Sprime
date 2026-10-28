@@ -8,9 +8,9 @@ package com.osfans.trime.ai
 import android.view.KeyEvent
 import androidx.lifecycle.lifecycleScope
 import com.osfans.trime.R
+import com.osfans.trime.ai.chat.ChatSession
 import com.osfans.trime.ai.model.AiDelta
-import com.osfans.trime.ai.model.ChatMessage
-import com.osfans.trime.ai.model.ChatRole
+import com.osfans.trime.ai.privacy.PiiFilter
 import com.osfans.trime.ai.prompt.AiAction
 import com.osfans.trime.ai.prompt.PromptBuilder
 import com.osfans.trime.ai.provider.OpenAiCompatibleProvider
@@ -50,6 +50,9 @@ class AiController : InputBroadcastReceiver {
 
     private val settings = AiSettings()
     private val provider = OpenAiCompatibleProvider()
+
+    private val session =
+        ChatSession { PromptBuilder.systemMessage(settings.persona, settings.systemPrompt) }
 
     private val _state = MutableStateFlow<AiPanelState>(AiPanelState.Idle)
     val state: StateFlow<AiPanelState> = _state.asStateFlow()
@@ -157,6 +160,7 @@ class AiController : InputBroadcastReceiver {
             }
 
             else -> {
+                session.reset()
                 ask(PromptBuilder.build(action, context))
             }
         }
@@ -201,26 +205,35 @@ class AiController : InputBroadcastReceiver {
             _state.value = AiPanelState.Error(service.getString(R.string.ai_error_not_configured))
             return
         }
+        session.addUser(PiiFilter.sanitize(prompt, settings.piiOptions).trim())
+        startRequest()
+    }
+
+    private fun startRequest() {
         requestJob?.cancel()
         _state.value = AiPanelState.Streaming("")
+        val messages = session.messages()
         requestJob =
             service.lifecycleScope.launch {
-                val messages =
-                    buildList {
-                        if (settings.systemPrompt.isNotBlank()) {
-                            add(ChatMessage(ChatRole.SYSTEM, settings.systemPrompt))
-                        }
-                        add(ChatMessage(ChatRole.USER, prompt))
-                    }
                 val text = StringBuilder()
+                val thinking = StringBuilder()
                 provider.chat(settings.requestConfig(), messages).collect { delta ->
                     when (delta) {
                         is AiDelta.Text -> {
                             text.append(delta.value)
-                            _state.value = AiPanelState.Streaming(text.toString())
+                            _state.value = AiPanelState.Streaming(text.toString(), thinking.toString())
                         }
 
-                        is AiDelta.Done -> _state.value = AiPanelState.Done(text.toString())
+                        is AiDelta.Reasoning -> {
+                            if (!settings.showThinking) return@collect
+                            thinking.append(delta.value)
+                            _state.value = AiPanelState.Streaming(text.toString(), thinking.toString())
+                        }
+
+                        is AiDelta.Done -> {
+                            session.addAssistant(text.toString())
+                            _state.value = AiPanelState.Done(text.toString(), thinking.toString())
+                        }
 
                         is AiDelta.Failure -> _state.value = AiPanelState.Error(delta.message)
                     }
@@ -235,7 +248,14 @@ class AiController : InputBroadcastReceiver {
     }
 
     fun retry() {
-        if (lastPrompt.isNotBlank()) ask(lastPrompt)
+        if (session.hasUserTurn) startRequest()
+    }
+
+    fun newConversation() {
+        requestJob?.cancel()
+        requestJob = null
+        session.reset()
+        _state.value = AiPanelState.Idle
     }
 
     fun currentAnswer(): String? = (state.value as? AiPanelState.Done)?.text?.takeIf { it.isNotBlank() }
