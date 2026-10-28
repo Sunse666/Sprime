@@ -44,6 +44,9 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
     private lateinit var primaryButton: TextView
     private lateinit var secondaryButton: TextView
     private lateinit var chipsView: View
+    private lateinit var contentScroll: ScrollView
+    private lateinit var followUpButton: TextView
+    private var transcript = ""
     private var screenChars = 0
     private var thinkingExpanded = false
     private var lastState: AiPanelState? = null
@@ -134,7 +137,7 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
                 addView(thinkingBody, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
                 addView(bodyView, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             }
-        root.addView(
+        contentScroll =
             ScrollView(context).apply {
                 isFillViewport = true
                 addView(
@@ -144,7 +147,9 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                     ),
                 )
-            },
+            }
+        root.addView(
+            contentScroll,
             LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 0,
@@ -167,6 +172,12 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
             }
         primaryButton = actionButton(textColor) { onPrimaryAction() }
         secondaryButton = actionButton(textColor) { onSecondaryAction() }.apply { visibility = View.GONE }
+        followUpButton =
+            actionButton(textColor) { aiController.startInputFromPanel() }.apply {
+                text = context.getString(R.string.ai_follow_up)
+                visibility = View.GONE
+            }
+        actions.addView(followUpButton)
         actions.addView(secondaryButton)
         actions.addView(primaryButton)
         actions.addView(
@@ -230,6 +241,12 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
                         render(aiController.state.value)
                     }
                 }
+                launch {
+                    aiController.transcript.collect {
+                        transcript = it
+                        render(aiController.state.value)
+                    }
+                }
                 aiController.state.collect { render(it) }
             }
     }
@@ -242,6 +259,7 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
     private fun render(state: AiPanelState) {
         if (!::bodyView.isInitialized) return
         secondaryButton.visibility = View.GONE
+        followUpButton.visibility = View.GONE
         chipsView.visibility = if (state is AiPanelState.Idle) View.VISIBLE else View.GONE
         if (state is AiPanelState.Streaming && lastState !is AiPanelState.Streaming) {
             thinkingExpanded = false
@@ -262,19 +280,20 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
             }
 
             is AiPanelState.Streaming -> {
-                bodyView.text = state.text
+                bodyView.text = combine(transcript, state.text)
                 setThinking(state.thinking)
                 statusView.text = context.getString(R.string.ai_status_streaming)
                 primaryButton.text = context.getString(R.string.ai_stop)
             }
 
             is AiPanelState.Done -> {
-                bodyView.text = state.text
+                bodyView.text = combine(transcript, state.text)
                 setThinking(state.thinking)
                 statusView.text = context.getString(R.string.ai_status_done)
                 primaryButton.text = context.getString(R.string.ai_insert)
                 secondaryButton.text = context.getString(R.string.ai_copy)
                 secondaryButton.visibility = View.VISIBLE
+                followUpButton.visibility = View.VISIBLE
             }
 
             is AiPanelState.Error -> {
@@ -291,6 +310,15 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
                 primaryButton.text = context.getString(R.string.ai_undo)
             }
         }
+    }
+
+    private fun combine(
+        prefix: String,
+        current: String,
+    ): CharSequence {
+        val text = if (prefix.isBlank()) current else prefix + "\n\n" + current
+        contentScroll.post { contentScroll.fullScroll(View.FOCUS_DOWN) }
+        return text
     }
 
     private fun setThinking(text: String) {

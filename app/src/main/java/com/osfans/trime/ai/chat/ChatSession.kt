@@ -42,6 +42,14 @@ class ChatSession(
         trim()
     }
 
+    fun history(): List<ChatMessage> = history.toList()
+
+    /** Plain text transcript of the conversation, used by the panel. */
+    fun transcript(): String = history.joinToString("\n\n") { message ->
+        val prefix = if (message.role == ChatRole.USER) "你：" else "AI："
+        prefix + message.content.trim()
+    }
+
     fun messages(): List<ChatMessage> {
         val system = systemPrompt().trim()
         return if (system.isEmpty()) {

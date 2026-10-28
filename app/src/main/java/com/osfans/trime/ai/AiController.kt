@@ -58,6 +58,9 @@ class AiController : InputBroadcastReceiver {
     private val settings = AiSettings()
     private val provider = OpenAiCompatibleProvider()
 
+    private val _transcript = MutableStateFlow("")
+    val transcript: StateFlow<String> = _transcript.asStateFlow()
+
     private val _screenText = MutableStateFlow<String?>(null)
     val screenText: StateFlow<String?> = _screenText.asStateFlow()
 
@@ -305,6 +308,7 @@ class AiController : InputBroadcastReceiver {
         val insert = parsed.insert ?: if (askedFromAction) parsed.display else null
         lastInsertText = insert
         session.addAssistant(parsed.display)
+        _transcript.value = buildTranscript()
         if (settings.autoInsert && !insert.isNullOrBlank()) {
             service.commitTextToEditor(insert)
             _state.value = AiPanelState.Inserted(parsed.display.ifBlank { insert })
@@ -327,8 +331,15 @@ class AiController : InputBroadcastReceiver {
         requestJob?.cancel()
         requestJob = null
         session.reset()
+        _transcript.value = ""
         _screenText.value = null
         _state.value = AiPanelState.Idle
+    }
+
+    private fun buildTranscript(): String = session.history().joinToString("\n\n") { message ->
+        val prefix =
+            if (message.role == com.osfans.trime.ai.model.ChatRole.USER) "你：" else "AI："
+        prefix + message.content.trim()
     }
 
     fun currentAnswer(): String? = (state.value as? AiPanelState.Done)?.text?.takeIf { it.isNotBlank() }
