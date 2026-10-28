@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.annotation.Keep
 import com.osfans.trime.R
+import com.osfans.trime.ai.provider.ProviderPresets
 import com.osfans.trime.data.sync.DataStorageMode
 import com.osfans.trime.ime.candidates.compact.CompactCandidateMode
 import com.osfans.trime.ime.candidates.popup.PopupCandidatesLayout
@@ -46,6 +47,7 @@ class AppPrefs(
     val candidates = Candidates(shared).register()
     val clipboard = Clipboard(shared).register()
     val advanced = Advanced(shared).register()
+    val ai = Ai(shared).register()
 
     @Keep
     private val onSharedPreferenceChangeListener =
@@ -459,5 +461,63 @@ class AppPrefs(
             IGNORE_SYSTEM_GESTURE_INSETS,
             false,
         )
+    }
+
+    class Ai(
+        shared: SharedPreferences,
+    ) : PreferenceDelegateOwner(shared, R.string.ai_assistant) {
+        companion object {
+            const val ENABLED = "ai_enabled"
+            const val PROVIDER = "ai_provider"
+            const val BASE_URL = "ai_base_url"
+            const val MODEL = "ai_model"
+            const val TEMPERATURE = "ai_temperature"
+            const val MAX_TOKENS = "ai_max_tokens"
+            const val SYSTEM_PROMPT = "ai_system_prompt"
+            const val STREAM = "ai_stream"
+        }
+
+        val enabled = switch(R.string.ai_enabled, ENABLED, true)
+        val provider = list(
+            R.string.ai_provider,
+            PROVIDER,
+            ProviderPresets.DEFAULT_ID,
+            { ProviderPresets.all.map { it.id } },
+            { ProviderPresets.all.map { it.label } },
+        )
+        val baseUrl = editText(
+            R.string.ai_base_url,
+            BASE_URL,
+            "",
+            R.string.ai_base_url_hint,
+        )
+        val model = editText(
+            R.string.ai_model,
+            MODEL,
+            "",
+            R.string.ai_model_hint,
+        )
+        val temperature = int(
+            R.string.ai_temperature,
+            TEMPERATURE,
+            30,
+            0,
+            100,
+            "%",
+        )
+        val maxTokens = int(
+            R.string.ai_max_tokens,
+            MAX_TOKENS,
+            1024,
+            64,
+            8192,
+        )
+        val systemPrompt = editText(
+            R.string.ai_system_prompt,
+            SYSTEM_PROMPT,
+            "",
+            R.string.ai_system_prompt_hint,
+        )
+        val stream = switch(R.string.ai_stream, STREAM, true)
     }
 }

@@ -16,7 +16,33 @@
     <string name="ai_panel_hint">可以自由提问，或者选一个快捷动作。</string>
     <string name="ai_back_to_keyboard">返回键盘</string>
     <string name="ai_back_to_keyboard_short">&#9000;</string>
-    <string name="qq_group_1">同文 QQ 群 1</string>
+    <!-- AI 设置 -->
+    <string name="ai_enabled">启用 AI 助手</string>
+    <string name="ai_provider">服务商</string>
+    <string name="ai_base_url">接口地址</string>
+    <string name="ai_base_url_hint">留空则使用所选服务商的默认地址</string>
+    <string name="ai_model">模型</string>
+    <string name="ai_model_hint">留空则使用所选服务商的默认模型</string>
+    <string name="ai_temperature">随机性</string>
+    <string name="ai_max_tokens">最大长度</string>
+    <string name="ai_system_prompt">系统提示词</string>
+    <string name="ai_system_prompt_hint">每次请求都会带上，可留空</string>
+    <string name="ai_stream">流式输出</string>
+    <string name="ai_api_key">API Key</string>
+    <string name="ai_api_key_hint">加密保存在本机</string>
+    <string name="ai_key_set">已保存</string>
+    <string name="ai_key_unset">尚未设置</string>
+    <string name="ai_test_run">问一句</string>
+    <string name="ai_test_prompt">用一句话介绍你自己。</string>
+    <string name="ai_stop">停止</string>
+    <string name="ai_retry">重试</string>
+    <string name="ai_status_streaming">正在生成…</string>
+    <string name="ai_status_done">完成</string>
+    <string name="ai_status_error">失败</string>
+    <string name="ai_error_disabled">AI 助手已关闭</string>
+    <string name="ai_error_not_configured">请先在设置里填写 API Key</string>
+
+<string name="qq_group_1">同文 QQ 群 1</string>
     <string name="qq_group_2">同文 QQ 群 2</string>
     <string name="rime_qq_group">中州韵 QQ 群</string>
     <string name="librime_version">RIME 版本</string>

@@ -16,6 +16,32 @@
     <string name="ai_panel_hint">Ask anything, or pick a quick action.</string>
     <string name="ai_back_to_keyboard">Back to keyboard</string>
     <string name="ai_back_to_keyboard_short">&#9000;</string>
+<!-- AI settings -->
+    <string name="ai_enabled">Enable AI assistant</string>
+    <string name="ai_provider">Provider</string>
+    <string name="ai_base_url">API base URL</string>
+    <string name="ai_base_url_hint">Leave empty to use the provider default</string>
+    <string name="ai_model">Model</string>
+    <string name="ai_model_hint">Leave empty to use the provider default</string>
+    <string name="ai_temperature">Temperature</string>
+    <string name="ai_max_tokens">Max tokens</string>
+    <string name="ai_system_prompt">System prompt</string>
+    <string name="ai_system_prompt_hint">Optional instructions sent with every request</string>
+    <string name="ai_stream">Stream responses</string>
+    <string name="ai_api_key">API key</string>
+    <string name="ai_api_key_hint">Stored encrypted on this device</string>
+    <string name="ai_key_set">Key saved</string>
+    <string name="ai_key_unset">No key yet</string>
+    <string name="ai_test_run">Ask AI</string>
+    <string name="ai_test_prompt">Introduce yourself in one sentence.</string>
+    <string name="ai_stop">Stop</string>
+    <string name="ai_retry">Retry</string>
+    <string name="ai_status_streaming">Streaming…</string>
+    <string name="ai_status_done">Done</string>
+    <string name="ai_status_error">Failed</string>
+    <string name="ai_error_disabled">AI assistant is disabled</string>
+    <string name="ai_error_not_configured">Set an API key in Settings first</string>
+
     <!-- Preference settings -->
     <string name="qq_group_1">Trime QQ group 1</string>
     <string name="qq_group_2">Trime QQ group 2</string>

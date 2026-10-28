@@ -11,6 +11,7 @@ import androidx.navigation.createGraph
 import androidx.navigation.fragment.fragment
 import com.osfans.trime.R
 import com.osfans.trime.ui.main.settings.AdvancedSettingsFragment
+import com.osfans.trime.ui.main.settings.AiSettingsFragment
 import com.osfans.trime.ui.main.settings.CandidatesSettingsFragment
 import com.osfans.trime.ui.main.settings.ClipboardSettingsFragment
 import com.osfans.trime.ui.main.settings.GeneralSettingsFragment
@@ -56,6 +57,9 @@ sealed class NavigationRoute : Parcelable {
     data object Advanced : NavigationRoute()
 
     @Serializable
+    data object Ai : NavigationRoute()
+
+    @Serializable
     data object Developer : NavigationRoute()
 
     @Serializable
@@ -99,6 +103,9 @@ sealed class NavigationRoute : Parcelable {
             }
             fragment<AdvancedSettingsFragment, Advanced> {
                 label = ctx.getString(R.string.advanced)
+            }
+            fragment<AiSettingsFragment, Ai> {
+                label = ctx.getString(R.string.ai_panel_title)
             }
             fragment<DeveloperFragment, Developer> {
                 label = ctx.getString(R.string.developer)
