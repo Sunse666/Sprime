@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ SPDX-FileCopyrightText: 2015 - 2025 Rime community
+  ~ SPDX-FileCopyrightText: 2026 Sprime contributors
   ~ SPDX-License-Identifier: GPL-3.0-or-later
   -->
 
@@ -10,13 +10,12 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-  <group android:scaleX="0.4004963"
-      android:scaleY="0.4004963"
-      android:translateX="25.477318"
-      android:translateY="21.442587">
-    <group android:translateY="134.87401">
-      <path android:pathData="M128.15625,-0L15.078125,-0L15.078125,-11.8125L65.703125,-11.8125L65.703125,-41.046875L32.515625,-41.046875Q28.015625,-41.046875,24.921875,-44.140625Q21.828125,-47.234375,21.828125,-52.296875L21.828125,-96.75L35.328125,-96.75L35.328125,-58.484375Q35.328125,-53.421875,39.828125,-53.421875L65.703125,-53.421875L65.703125,-106.875L78.65625,-106.875L78.65625,-53.421875L102.28125,-53.421875Q107.90625,-53.421875,107.90625,-58.484375L107.90625,-96.75L120.84375,-96.75L120.84375,-52.296875Q120.84375,-47.234375,117.75,-44.140625Q114.65625,-41.046875,109.59375,-41.046875L78.65625,-41.046875L78.65625,-11.8125L128.15625,-11.8125L128.15625,-0Z"
-          android:fillColor="#000000"/>
-    </group>
-  </group>
+    <!-- speech bubble -->
+    <path
+        android:fillColor="#F2F4F8"
+        android:pathData="M36,34 H72 A8,8 0 0 1 80,42 V60 A8,8 0 0 1 72,68 H58 L46,78 V68 H36 A8,8 0 0 1 28,60 V42 A8,8 0 0 1 36,34 Z" />
+    <!-- sparkle -->
+    <path
+        android:fillColor="#12151A"
+        android:pathData="M54,40 L57.4,47.6 L65,51 L57.4,54.4 L54,62 L50.6,54.4 L43,51 L50.6,47.6 Z" />
 </vector>
