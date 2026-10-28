@@ -38,6 +38,15 @@
     <string name="ai_stop">Stop</string>
     <string name="ai_retry">Retry</string>
     <string name="ai_insert">Insert</string>
+    <string name="ai_action_translate">Translate</string>
+    <string name="ai_action_polish">Polish</string>
+    <string name="ai_action_summarize">Summarize</string>
+    <string name="ai_action_explain">Explain</string>
+    <string name="ai_action_reply">Reply</string>
+    <string name="ai_action_continue">Continue</string>
+    <string name="ai_error_password">AI is unavailable in password fields</string>
+    <string name="ai_error_no_text">Nothing to work on: select some text first</string>
+    <string name="ai_compose_entry">Type a question</string>
     <string name="ai_copy">Copy</string>
     <string name="ai_undo">Undo</string>
     <string name="ai_status_inserted">Inserted</string>

@@ -38,6 +38,15 @@
     <string name="ai_stop">停止</string>
     <string name="ai_retry">重試</string>
     <string name="ai_insert">插入</string>
+    <string name="ai_action_translate">翻譯</string>
+    <string name="ai_action_polish">潤飾</string>
+    <string name="ai_action_summarize">總結</string>
+    <string name="ai_action_explain">解釋</string>
+    <string name="ai_action_reply">回覆</string>
+    <string name="ai_action_continue">續寫</string>
+    <string name="ai_error_password">密碼輸入框不可使用 AI</string>
+    <string name="ai_error_no_text">沒有可處理的文字，請先選取一段</string>
+    <string name="ai_compose_entry">輸入問題</string>
     <string name="ai_copy">複製</string>
     <string name="ai_undo">復原</string>
     <string name="ai_status_inserted">已插入</string>

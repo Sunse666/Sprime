@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import com.osfans.trime.R
 import com.osfans.trime.ai.AiController
 import com.osfans.trime.ai.AiPanelState
+import com.osfans.trime.ai.prompt.AiAction
 import com.osfans.trime.data.theme.ColorManager
 import com.osfans.trime.ime.core.TrimeInputMethodService
 import com.osfans.trime.ime.keyboard.KeyboardWindow
@@ -39,6 +40,7 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
     private lateinit var statusView: TextView
     private lateinit var primaryButton: TextView
     private lateinit var secondaryButton: TextView
+    private lateinit var chipsView: View
     private var renderJob: Job? = null
 
     override fun onCreateView(): View {
@@ -60,6 +62,15 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
                 typeface = Typeface.DEFAULT_BOLD
                 setTextColor(textColor)
             },
+        )
+
+        chipsView = buildChips(textColor)
+        root.addView(
+            chipsView,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ).also { it.topMargin = context.dp(6) },
         )
 
         bodyView =
@@ -113,6 +124,22 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
         return root
     }
 
+    private fun buildChips(textColor: Int): View {
+        val row = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
+        AiAction.entries.forEach { action ->
+            row.addView(
+                TextView(context).apply {
+                    text = context.getString(action.labelRes)
+                    textSize = 14f
+                    setTextColor(textColor)
+                    setPadding(context.dp(12), context.dp(6), context.dp(12), context.dp(6))
+                    setOnClickListener { aiController.runAction(action) }
+                },
+            )
+        }
+        return row
+    }
+
     private fun actionButton(
         color: Int,
         onClick: () -> Unit,
@@ -145,11 +172,12 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
     private fun render(state: AiPanelState) {
         if (!::bodyView.isInitialized) return
         secondaryButton.visibility = View.GONE
+        chipsView.visibility = if (state is AiPanelState.Idle) View.VISIBLE else View.GONE
         when (state) {
             is AiPanelState.Idle -> {
                 bodyView.text = context.getString(R.string.ai_panel_hint)
                 statusView.text = ""
-                primaryButton.text = context.getString(R.string.ai_test_run)
+                primaryButton.text = context.getString(R.string.ai_compose_entry)
             }
 
             is AiPanelState.Streaming -> {
@@ -183,7 +211,7 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
     private fun onPrimaryAction() {
         when (aiController.state.value) {
             is AiPanelState.Streaming -> aiController.stop()
-            is AiPanelState.Idle -> aiController.ask(service.getString(R.string.ai_test_prompt))
+            is AiPanelState.Idle -> aiController.startInputFromPanel()
             is AiPanelState.Done -> aiController.insertAnswer()
             is AiPanelState.Inserted -> aiController.undoLastCommit()
             else -> aiController.retry()

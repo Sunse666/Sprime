@@ -36,6 +36,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import com.osfans.trime.ai.AiController
+import com.osfans.trime.ai.context.EditorContext
 import com.osfans.trime.core.KeyModifiers
 import com.osfans.trime.core.KeyValue
 import com.osfans.trime.core.RimeApi
@@ -609,6 +610,38 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
         lastCommittedText = text
         composingText = ""
         InputFeedbackManager.textCommitSpeak(text)
+    }
+
+    /** Captures what the user can see around the cursor, never from password fields. */
+    fun captureEditorContext(): EditorContext {
+        val info = currentInputEditorInfo
+        val password = info.isPasswordField()
+        if (password) {
+            return EditorContext(null, "", "", true, info?.packageName.orEmpty())
+        }
+        val ic = currentInputConnection
+        if (ic == null) {
+            return EditorContext(null, "", "", false, info?.packageName.orEmpty())
+        }
+        val selection = ic.getSelectedText(0)?.toString()
+        val before = ic.getTextBeforeCursor(1024, 0)?.toString().orEmpty()
+        val after = ic.getTextAfterCursor(256, 0)?.toString().orEmpty()
+        return EditorContext(selection, before, after, false, info?.packageName.orEmpty())
+    }
+
+    private fun EditorInfo?.isPasswordField(): Boolean {
+        val type = this?.inputType ?: return false
+        val variation = type and InputType.TYPE_MASK_VARIATION
+        val cls = type and InputType.TYPE_MASK_CLASS
+        return when (cls) {
+            InputType.TYPE_CLASS_TEXT ->
+                variation == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
+                    variation == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD ||
+                    variation == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD
+            InputType.TYPE_CLASS_NUMBER ->
+                variation == InputType.TYPE_NUMBER_VARIATION_PASSWORD
+            else -> false
+        }
     }
 
     fun copyToClipboard(text: String) {

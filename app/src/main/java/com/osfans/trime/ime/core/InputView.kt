@@ -108,7 +108,13 @@ class InputView(
     private val aiStrip: AiStripView =
         AiStripView(
             context,
-            onAction = { if (aiController.isOpen) aiController.close() else aiController.submitDraft() },
+            onAction = {
+                when {
+                    aiController.isOpen -> aiController.close()
+                    aiController.isComposing -> aiController.submitDraft()
+                    else -> aiController.open()
+                }
+            },
             onActivate = { if (!aiController.isOpen) aiController.startCompose() },
             onCursorChange = { aiController.setCursor(it) },
         )

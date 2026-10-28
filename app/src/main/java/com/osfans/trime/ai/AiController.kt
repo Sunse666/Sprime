@@ -11,6 +11,8 @@ import com.osfans.trime.R
 import com.osfans.trime.ai.model.AiDelta
 import com.osfans.trime.ai.model.ChatMessage
 import com.osfans.trime.ai.model.ChatRole
+import com.osfans.trime.ai.prompt.AiAction
+import com.osfans.trime.ai.prompt.PromptBuilder
 import com.osfans.trime.ai.provider.OpenAiCompatibleProvider
 import com.osfans.trime.core.RimeKeyMapping
 import com.osfans.trime.core.RimeMessage
@@ -128,12 +130,36 @@ class AiController : InputBroadcastReceiver {
 
     fun submitDraft() {
         if (!isComposing) return
-        val prompt = _draft.value.text.trim()
+        val question = _draft.value.text.trim()
         stopCompose()
         _draft.value = Draft()
-        if (prompt.isEmpty()) return
+        if (question.isEmpty()) return
         open()
-        ask(prompt)
+        ask(PromptBuilder.buildCustom(question, service.captureEditorContext()))
+    }
+
+    fun startInputFromPanel() {
+        close()
+        startCompose()
+    }
+
+    /** Runs a quick action on the current selection (or the text before the cursor). */
+    fun runAction(action: AiAction) {
+        val context = service.captureEditorContext()
+        open()
+        when {
+            context.isPassword -> {
+                _state.value = AiPanelState.Error(service.getString(R.string.ai_error_password))
+            }
+
+            !context.hasContent -> {
+                _state.value = AiPanelState.Error(service.getString(R.string.ai_error_no_text))
+            }
+
+            else -> {
+                ask(PromptBuilder.build(action, context))
+            }
+        }
     }
 
     /**
