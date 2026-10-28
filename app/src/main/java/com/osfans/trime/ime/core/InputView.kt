@@ -17,12 +17,14 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
+import com.osfans.trime.ai.AiController
 import com.osfans.trime.core.CompositionProto
 import com.osfans.trime.core.RimeMessage
 import com.osfans.trime.daemon.RimeSession
 import com.osfans.trime.data.prefs.AppPrefs
 import com.osfans.trime.data.theme.ColorManager
 import com.osfans.trime.data.theme.Theme
+import com.osfans.trime.ime.ai.AiStripView
 import com.osfans.trime.ime.bar.InputBarDelegate
 import com.osfans.trime.ime.broadcast.EnterKeyDisplayDelegate
 import com.osfans.trime.ime.broadcast.InputBroadcaster
@@ -102,6 +104,8 @@ class InputView(
     private val inputBar: InputBarDelegate by di.instance()
     private val keyboardWindow: KeyboardWindow by di.instance()
     private val liquidWindow: LiquidWindow by di.instance()
+    private val aiController: AiController by di.instance()
+    private val aiStrip: AiStripView = AiStripView(context) { aiController.toggle() }
 
     private val candidatesMode by AppPrefs.defaultInstance().candidates.mode
 
@@ -160,9 +164,16 @@ class InputView(
                     },
                 )
                 add(
+                    aiStrip,
+                    lParams(matchParent, dp(AiStripView.HEIGHT_DP)) {
+                        topOfParent()
+                        centerHorizontally()
+                    },
+                )
+                add(
                     inputBar.view,
                     lParams(matchParent, dp(inputBar.themedHeight)) {
-                        topOfParent()
+                        below(aiStrip)
                         centerHorizontally()
                     },
                 )
@@ -198,6 +209,8 @@ class InputView(
                     },
                 )
             }
+
+        aiController.onStateChanged = { aiStrip.setAiPage(it) }
 
         updateWindowViewHeightJob =
             service.lifecycleScope.launch {
@@ -317,6 +330,7 @@ class InputView(
                     it.data
                 }
                 broadcaster.onCompositionUpdate(data)
+                aiStrip.setComposition(data.preedit)
             }
             is RimeMessage.BulkCandidatesMessage -> {
                 broadcaster.onCandidateListUpdate(it.data)

@@ -12,6 +12,7 @@ import android.view.KeyEvent
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.osfans.trime.R
+import com.osfans.trime.ai.AiController
 import com.osfans.trime.core.KeyModifiers
 import com.osfans.trime.core.RimeApi
 import com.osfans.trime.core.RimeKeyEvent
@@ -54,6 +55,7 @@ class CommonKeyboardActionListener {
     private val windowManager: BoardWindowManager by di.instance()
     private val keyboardWindow: KeyboardWindow by di.instance()
     private val liquidWindow: LiquidWindow by di.instance()
+    private val aiController: AiController by di.instance()
 
     private val prefs = AppPrefs.defaultInstance()
 
@@ -176,6 +178,7 @@ class CommonKeyboardActionListener {
                 val arg = expandActiveText(action.option)
 
                 when (action.command) {
+                    "ai_assistant" -> aiController.toggle()
                     "liquid_keyboard" -> handleLiquidKeyboard(arg)
                     "menu_keyboard" -> windowManager.attachWindow(SwitchOptionWindow())
                     "clipboard_window" -> handleClipboardWindow(arg)

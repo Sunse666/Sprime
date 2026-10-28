@@ -9,6 +9,13 @@
     <!-- Input Method Platform Tittle  -->
     <string name="app_name_release">Sprime</string>
     <string name="app_name_debug">Sprime (Debug)</string>
+    <!-- AI assistant -->
+    <string name="ai_assistant">AI</string>
+    <string name="ai_strip_placeholder">Tap AI to ask</string>
+    <string name="ai_panel_title">AI assistant</string>
+    <string name="ai_panel_hint">Ask anything, or pick a quick action.</string>
+    <string name="ai_back_to_keyboard">Back to keyboard</string>
+    <string name="ai_back_to_keyboard_short">&#9000;</string>
     <!-- Preference settings -->
     <string name="qq_group_1">Trime QQ group 1</string>
     <string name="qq_group_2">Trime QQ group 2</string>
@@ -65,7 +72,7 @@
     <string name="open_source_licenses">Open Source Licenses</string>
     <string name="system_default">System default</string>
     <string name="key_swipe_travel">Min travel for gesture</string>
-    <string name="trime_app_slogan">Rimes with Your Keystrokes on Android</string>
+    <string name="trime_app_slogan">Rime driven, AI assisted</string>
     <string name="custom_sound_effect_name">Custom key Sound Effect</string>
     <string name="setup__next">Next</string>
     <string name="done">Done</string>

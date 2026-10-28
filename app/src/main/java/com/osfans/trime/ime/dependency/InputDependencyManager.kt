@@ -6,6 +6,7 @@
 package com.osfans.trime.ime.dependency
 
 import android.content.Context
+import com.osfans.trime.ai.AiController
 import com.osfans.trime.daemon.RimeSession
 import com.osfans.trime.data.theme.Theme
 import com.osfans.trime.ime.bar.InputBarDelegate
@@ -45,6 +46,7 @@ class InputDependencyManager(
         bindSingleton { PreeditDelegate() }
         bindSingleton { CommonKeyboardActionListener() }
         bindSingleton { BoardWindowManager() }
+        bindSingleton { AiController() }
         bindSingleton { InputBarDelegate() }
         bindSingleton { CompactCandidateDelegate() }
         bindSingleton { KeyboardWindow() }
