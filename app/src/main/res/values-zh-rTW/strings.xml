@@ -7,8 +7,15 @@
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- 輸入法平臺名稱  -->
-    <string name="app_name_release">同文輸入法</string>
-    <string name="app_name_debug">同文輸入法（除錯模式）</string>
+    <string name="app_name_release">Sprime</string>
+    <string name="app_name_debug">Sprime（偵錯）</string>
+    <!-- AI 助理 -->
+    <string name="ai_assistant">AI</string>
+    <string name="ai_strip_placeholder">點 AI 提問</string>
+    <string name="ai_panel_title">AI 助理</string>
+    <string name="ai_panel_hint">可以自由提問，或選一個快捷動作。</string>
+    <string name="ai_back_to_keyboard">返回鍵盤</string>
+    <string name="ai_back_to_keyboard_short">&#9000;</string>
     <!-- Preference settings -->
     <string name="qq_group_1">同文 QQ 羣 1</string>
     <string name="qq_group_2">同文 QQ 羣 2</string>
@@ -65,7 +72,7 @@
     <string name="open_source_licenses">開放源代碼軟體許可</string>
     <string name="system_default">系統預設</string>
     <string name="key_swipe_travel">觸發滑動手勢的最短距離</string>
-    <string name="trime_app_slogan">擊響中文之韻</string>
+    <string name="trime_app_slogan">Rime 驅動 · AI 輔助</string>
     <string name="custom_sound_effect_name">自訂按鍵音效</string>
     <string name="setup__next">下一步</string>
     <string name="done">完成</string>
