@@ -32,6 +32,7 @@
     <string name="ai_pii_bank_card">Mask bank cards</string>
     <string name="ai_pii_email">Mask email addresses</string>
     <string name="ai_new_chat">New</string>
+    <string name="ai_secure_keyboard">Block screenshots of the keyboard</string>
     <string name="ai_use_clipboard">Use clipboard as context</string>
     <string name="ai_auto_insert">Insert the answer automatically</string>
     <string name="ai_thinking_label">Reasoning</string>

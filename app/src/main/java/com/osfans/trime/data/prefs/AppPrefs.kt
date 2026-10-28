@@ -481,6 +481,7 @@ class AppPrefs(
             const val PII_EMAIL = "ai_pii_email"
             const val USE_CLIPBOARD = "ai_use_clipboard"
             const val AUTO_INSERT = "ai_auto_insert"
+            const val SECURE_KEYBOARD = "ai_secure_keyboard"
         }
 
         val enabled = switch(R.string.ai_enabled, ENABLED, true)
@@ -532,5 +533,6 @@ class AppPrefs(
         val piiEmail = switch(R.string.ai_pii_email, PII_EMAIL, false)
         val useClipboard = switch(R.string.ai_use_clipboard, USE_CLIPBOARD, false)
         val autoInsert = switch(R.string.ai_auto_insert, AUTO_INSERT, false)
+        val secureKeyboard = switch(R.string.ai_secure_keyboard, SECURE_KEYBOARD, true)
     }
 }

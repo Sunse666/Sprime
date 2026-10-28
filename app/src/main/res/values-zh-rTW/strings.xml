@@ -32,6 +32,7 @@
     <string name="ai_pii_bank_card">遮蔽銀行卡號</string>
     <string name="ai_pii_email">遮蔽信箱</string>
     <string name="ai_new_chat">新對話</string>
+    <string name="ai_secure_keyboard">鍵盤防截圖</string>
     <string name="ai_use_clipboard">把剪貼簿內容作為上下文</string>
     <string name="ai_auto_insert">回答完成後自動填入</string>
     <string name="ai_thinking_label">思考過程</string>

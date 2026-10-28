@@ -514,6 +514,11 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
         isCandidatesOnly: Boolean,
     ) {
         win.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        if (prefs.ai.secureKeyboard.getValue()) {
+            win.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        } else {
+            win.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
     }
 
     override fun onStartInput(
