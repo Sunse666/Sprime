@@ -6,6 +6,7 @@
 package com.osfans.trime.ime.edit
 
 import android.content.Context
+import android.graphics.Color
 import android.text.InputType
 import android.view.Gravity
 import android.view.View
@@ -13,7 +14,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
+import android.widget.Toast
 import com.osfans.trime.data.theme.ColorManager
 import com.osfans.trime.ime.core.TrimeInputMethodService
 import com.osfans.trime.ime.keyboard.KeyboardWindow
@@ -22,15 +23,17 @@ import com.osfans.trime.ime.window.BoardWindowManager
 import org.kodein.di.instance
 import splitties.dimensions.dp
 
-/** User managed phrases: tap to type, long press to delete, plus a button to add new ones. */
+/** User managed phrases: tap to type, long press to delete, inline field to add new ones. */
 class PhraseWindow : BoardWindow.NoBarBoardWindow() {
     private val service: TrimeInputMethodService by di.instance()
     private val windowManager: BoardWindowManager by di.instance()
 
     private val prefs by lazy { context.getSharedPreferences("sprime_phrases", Context.MODE_PRIVATE) }
     private var list: LinearLayout? = null
+    private var input: EditText? = null
 
-    private fun phrases(): MutableList<String> = prefs.getString(KEY, "")!!.split(SEPARATOR).filter { it.isNotBlank() }.toMutableList()
+    private fun phrases(): MutableList<String> =
+        prefs.getString(KEY, "")!!.split(SEPARATOR).filter { it.isNotBlank() }.toMutableList()
 
     private fun save(items: List<String>) {
         prefs.edit().putString(KEY, items.joinToString(SEPARATOR)).apply()
@@ -50,12 +53,17 @@ class PhraseWindow : BoardWindow.NoBarBoardWindow() {
         setPadding(context.dp(12), context.dp(10), context.dp(12), context.dp(10))
         setTextColor(color("key_text_color", 0xFF1F2937.toInt()))
         background = roundRect(color("key_back_color", 0xFFE7EEF7.toInt()), context.dp(10))
+        isClickable = true
+    }
+
+    private fun toast(text: String) {
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
     }
 
     private fun addRow(text: String) {
         val row = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
-            setPadding(0, context.dp(4), 0, context.dp(4))
+            setPadding(0, context.dp(3), 0, context.dp(3))
         }
         val content = styled(text).apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -64,14 +72,9 @@ class PhraseWindow : BoardWindow.NoBarBoardWindow() {
                 windowManager.attachWindow(KeyboardWindow)
             }
             setOnLongClickListener {
-                AlertDialog.Builder(context)
-                    .setMessage("删除这条短语？")
-                    .setPositiveButton("删除") { _, _ ->
-                        save(phrases().filterNot { it == text })
-                        refresh()
-                    }
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show()
+                save(phrases().filterNot { it == text })
+                refresh()
+                toast("已删除：$text")
                 true
             }
         }
@@ -84,29 +87,21 @@ class PhraseWindow : BoardWindow.NoBarBoardWindow() {
         container.removeAllViews()
         val items = phrases()
         if (items.isEmpty()) {
-            container.addView(styled("还没有短语，点右上角「新增」添加"))
+            container.addView(styled("还没有短语，在上方输入后点「新增」").apply { isClickable = false })
         } else {
             items.forEach { addRow(it) }
         }
     }
 
-    private fun addPhrase() {
-        val input = EditText(context).apply {
-            inputType = InputType.TYPE_CLASS_TEXT
-            hint = "输入短语内容"
+    private fun addFromInput() {
+        val text = input?.text?.toString()?.trim().orEmpty()
+        if (text.isEmpty()) {
+            toast("先输入内容")
+            return
         }
-        AlertDialog.Builder(context)
-            .setTitle("新增短语")
-            .setView(input)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                val text = input.text?.toString()?.trim().orEmpty()
-                if (text.isNotEmpty()) {
-                    save(phrases() + text)
-                    refresh()
-                }
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+        save(phrases() + text)
+        input?.setText("")
+        refresh()
     }
 
     override fun onCreateView(): View {
@@ -115,17 +110,32 @@ class PhraseWindow : BoardWindow.NoBarBoardWindow() {
             setPadding(context.dp(6), context.dp(6), context.dp(6), context.dp(6))
             setBackgroundColor(color("keyboard_back_color", 0xFFEEF2F7.toInt()))
         }
+
         val header = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
+            setPadding(0, 0, 0, context.dp(4))
         }
-        val add = styled("新增").apply {
+        val field = EditText(context).apply {
+            inputType = InputType.TYPE_CLASS_TEXT
+            hint = "输入新短语"
+            textSize = 16f
+            setTextColor(color("key_text_color", 0xFF1F2937.toInt()))
+            setHintTextColor(Color.GRAY)
+            setBackground(roundRect(color("key_back_color", 0xFFE7EEF7.toInt()), context.dp(10)))
+            setPadding(context.dp(10), context.dp(8), context.dp(10), context.dp(8))
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            setOnClickListener { addPhrase() }
+        }
+        input = field
+
+        val add = styled("新增").apply {
+            layoutParams = LinearLayout.LayoutParams(context.dp(72), LinearLayout.LayoutParams.WRAP_CONTENT)
+            setOnClickListener { addFromInput() }
         }
         val back = styled("返回").apply {
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            layoutParams = LinearLayout.LayoutParams(context.dp(72), LinearLayout.LayoutParams.WRAP_CONTENT)
             setOnClickListener { windowManager.attachWindow(KeyboardWindow) }
         }
+        header.addView(field)
         header.addView(add)
         header.addView(back)
         root.addView(header)
