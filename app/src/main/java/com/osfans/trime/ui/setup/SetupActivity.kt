@@ -25,6 +25,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.osfans.trime.R
+import com.osfans.trime.data.prefs.AppPrefs
 import com.osfans.trime.data.sync.RimeDataSync
 import com.osfans.trime.databinding.ActivitySetupBinding
 import com.osfans.trime.ui.main.MainActivity
@@ -78,6 +79,8 @@ class SetupActivity : FragmentActivity() {
     }
 
     private fun completeSetup() {
+        // Remember the decision so skipping the wizard does not show it again on the next launch.
+        AppPrefs.defaultInstance().profile.setupCompleted.setValue(true)
         startActivity<MainActivity>()
         finish()
     }
@@ -87,7 +90,7 @@ class SetupActivity : FragmentActivity() {
         private const val CHANNEL_ID = "setup"
         private const val NOTIFY_ID = 87463
 
-        fun shouldShowUp() = !shown && SetupPage.hasUndonePage()
+        fun shouldShowUp() = !shown && !AppPrefs.defaultInstance().profile.setupCompleted.getValue() && SetupPage.hasUndonePage()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -65,6 +65,13 @@ style:
   key_height: *jpgd4 #键高
   keyboard_height: 250 #锁定键盘高度，缺省会算成 0 导致按键区不显示
   keyboard_height_land: 200 #横屏锁定高度
+  enter_labels:
+    default: Enter
+    go: 前往
+    done: 完成
+    next: 下一个
+    search: 搜索
+    send: 发送
   key_long_text_size: 25 #长标签字号
   key_text_size: 25 #键字号
   key_width: 10.0 #键宽,占屏幕宽的百分比
@@ -175,11 +182,11 @@ preset_keyboards:
     - {click: 'a', label: F a, long_click: '；', width: 28, key_back_color: 0xffc7d9e9, hilited_key_back_color: 0xffb3c3d2, key_text_color: 0xff1f2937}
     - {click: 's', label: SʰS ia, long_click: '……', width: 22, key_back_color: 0xffc7dbdb, hilited_key_back_color: 0xffb3c5c5, key_text_color: 0xff1f2937}
 
-    - {click: Return, width: 20, height: 40, key_back_color: 0xffc7d0d1, hilited_key_back_color: 0xffb3bcbd, key_text_color: 0xff1f2937}
+    - {click: Return, label: Enter, width: 20, height: 40, key_back_color: 0xffc7d0d1, hilited_key_back_color: 0xffb3bcbd, key_text_color: 0xff1f2937}
     - {click: '，', long_click: '？', composing: "h", width: 10, key_back_color: 0xffc7cfd7, hilited_key_back_color: 0xffb3bbc1, key_text_color: 0xff1f2937}
-    - {click: space, long_click: Escape, swipe_right: Keyboard_letter, swipe_left: Keyboard_number, label: 西戈拼音, width: 40, key_back_color: 0xffc7cfd7, hilited_key_back_color: 0xffb3bbc1, key_text_color: 0xff1f2937}
+    - {click: space, long_click: Escape, swipe_right: Keyboard_letter, swipe_left: Keyboard_number, label: 空格, width: 40, key_back_color: 0xffc7cfd7, hilited_key_back_color: 0xffb3bbc1, key_text_color: 0xff1f2937}
     - {click: '。', long_click: '！', composing: "'", width: 10, key_back_color: 0xffc7cfd7, hilited_key_back_color: 0xffb3bbc1, key_text_color: 0xff1f2937}
-    - {click: BackSpace, width: 20, key_back_color: 0xffc7d0d1, hilited_key_back_color: 0xffb3bcbd, key_text_color: 0xff1f2937}
+    - {click: BackSpace, label: ⌫, width: 20, key_back_color: 0xffc7d0d1, hilited_key_back_color: 0xffb3bcbd, key_text_color: 0xff1f2937}
 
   letter:
     ascii_mode: 1
@@ -210,11 +217,11 @@ preset_keyboards:
     - {click: 'm', width: 12, key_back_color: 0xffc7e9e9, hilited_key_back_color: 0xffb3d2d2, key_text_color: 0xff1f2937}
     - {click: 'n', width: 16, key_back_color: 0xffc7e9e9, hilited_key_back_color: 0xffb3d2d2, key_text_color: 0xff1f2937}
 
-    - {click: Return, width: 20, key_back_color: 0xffc7cfd7, hilited_key_back_color: 0xffb3bbc1, key_text_color: 0xff1f2937}
+    - {click: Return, label: Enter, width: 20, key_back_color: 0xffc7cfd7, hilited_key_back_color: 0xffb3bbc1, key_text_color: 0xff1f2937}
     - {click: Shift_L, width: 10, key_back_color: 0xffc7cfd7, hilited_key_back_color: 0xffb3bbc1, key_text_color: 0xff1f2937}
-    - {click: space, long_click: Escape, swipe_right: Keyboard_number, swipe_left: Keyboard_default, label: 西戈拼音, width: 40, key_back_color: 0xffc7d4df, hilited_key_back_color: 0xffb3bec9, key_text_color: 0xff1f2937}
+    - {click: space, long_click: Escape, swipe_right: Keyboard_number, swipe_left: Keyboard_default, label: 空格, width: 40, key_back_color: 0xffc7d4df, hilited_key_back_color: 0xffb3bec9, key_text_color: 0xff1f2937}
     - {click: Shift_R, width: 10, key_back_color: 0xffc7cfd7, hilited_key_back_color: 0xffb3bbc1, key_text_color: 0xff1f2937}
-    - {click: BackSpace, width: 20, key_back_color: 0xffc7cfd7, hilited_key_back_color: 0xffb3bbc1, key_text_color: 0xff1f2937}
+    - {click: BackSpace, label: ⌫, width: 20, key_back_color: 0xffc7cfd7, hilited_key_back_color: 0xffb3bbc1, key_text_color: 0xff1f2937}
 
     - {click: 'o', width: 16, height: 55, key_back_color: 0xffcadcff, hilited_key_back_color: 0xffb6c6e5, key_text_color: 0xff1f2937}
     - {click: 'p', width: 12, key_back_color: 0xffcadcff, hilited_key_back_color: 0xffb6c6e5, key_text_color: 0xff1f2937}
@@ -278,8 +285,13 @@ preset_keyboards:
     - {click: '/', width: 12, long_click: '\', key_back_color: 0xffeaccd9, hilited_key_back_color: 0xffd2b8c3, key_text_color: 0xff1f2937}
     - {click: '&', width: 12, long_click: '{}{Left}', key_back_color: 0xffeaccd9, hilited_key_back_color: 0xffd2b8c3, key_text_color: 0xff1f2937}
 
-    - {click: Return, long_click: Escape, width: 20, height: 40, key_back_color: 0xffd9c8c9, hilited_key_back_color: 0xffc3b4b5, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
+    - {click: Return, label: Enter, long_click: Escape, width: 20, height: 40, key_back_color: 0xffd9c8c9, hilited_key_back_color: 0xffc3b4b5, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
     - {click: ',', long_click: '，', composing: "h", width: 10, key_back_color: 0xffd2cbdc, hilited_key_back_color: 0xffbdb7c6, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
-    - {click: space, long_click: Escape, swipe_right: Keyboard_default, swipe_left: Keyboard_letter, label: 西戈拼音, width: 40, key_back_color: 0xffd2cbdc, hilited_key_back_color: 0xffbdb7c6, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
+    - {click: space, long_click: Escape, swipe_right: Keyboard_default, swipe_left: Keyboard_letter, label: 空格, width: 40, key_back_color: 0xffd2cbdc, hilited_key_back_color: 0xffbdb7c6, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
     - {click: '.', long_click: '。', composing: "'", width: 10, key_back_color: 0xffd2cbdc, hilited_key_back_color: 0xffbdb7c6, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
-    - {click: BackSpace, long_click: Escape, width: 20, key_back_color: 0xffd9c8c9, hilited_key_back_color: 0xffc3b4b5, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
+    - {click: BackSpace, label: ⌫, long_click: Escape, width: 20, key_back_color: 0xffd9c8c9, hilited_key_back_color: 0xffc3b4b5, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
+
+preset_keys:
+  Keyboard_default: {send: Eisu_toggle, select: default}
+  Keyboard_letter: {send: Eisu_toggle, select: letter}
+  Keyboard_number: {send: Eisu_toggle, select: number}
