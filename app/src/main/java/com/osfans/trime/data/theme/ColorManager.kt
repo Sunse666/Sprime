@@ -124,8 +124,12 @@ object ColorManager {
 
     private fun colorScheme(id: String) = theme.colorSchemes.find { it.id == id }
 
+    private val hasTheme: Boolean
+        get() = ::theme.isInitialized
+
     fun init(configuration: Configuration) {
         isNightMode = configuration.isNightMode()
+        if (!hasTheme) return
         activeColorScheme = evaluateActiveColorScheme()
 
         val maxMemory = Runtime.getRuntime().maxMemory() / 1024
@@ -141,6 +145,8 @@ object ColorManager {
 
     fun onSystemNightModeChange(isNight: Boolean) {
         isNightMode = isNight
+        // The theme is loaded by the input method; a config change can arrive before that.
+        if (!hasTheme) return
         activeColorScheme = evaluateActiveColorScheme()
     }
 

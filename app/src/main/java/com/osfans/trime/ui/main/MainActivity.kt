@@ -34,6 +34,7 @@ import com.osfans.trime.R
 import com.osfans.trime.daemon.launchOnReady
 import com.osfans.trime.data.prefs.AppPrefs
 import com.osfans.trime.data.soundeffect.SoundEffectManager
+import com.osfans.trime.data.theme.ThemeManager
 import com.osfans.trime.databinding.ActivityMainBinding
 import com.osfans.trime.ui.setup.SetupActivity
 import com.osfans.trime.util.isStorageAvailable
@@ -60,6 +61,9 @@ open class MainActivity : AppCompatActivity() {
             }
         AppCompatDelegate.setDefaultNightMode(uiMode)
         super.onCreate(savedInstanceState)
+        // The input method normally loads the theme; make sure it is ready when only
+        // the settings UI starts, otherwise color lookups crash on config changes.
+        runCatching { ThemeManager.init(resources.configuration) }
         if (SetupActivity.shouldShowUp()) {
             startActivity<SetupActivity>()
             finish()
