@@ -297,7 +297,7 @@ preset_keys:
   liquid_keyboard_switch: {label: 更多, send: FUNCTION, command: liquid_keyboard, option: "更多"}
   liquid_keyboard_exit: {label: 返回, send: FUNCTION, command: liquid_keyboard, option: "-1"}
   Tool_symbols: {label: 符号, send: FUNCTION, command: liquid_keyboard, option: "符号表"}
-  Tool_emoji: {label: 表情, send: FUNCTION, command: liquid_keyboard, option: "emoji"}
+  Tool_emoji: {label: 表情, send: FUNCTION, command: liquid_keyboard, option: "emoji_full"}
   Tool_phrases: {label: 短语, send: FUNCTION, command: phrase_panel}
   Tool_edit: {label: 编辑, send: FUNCTION, command: edit_panel}
   Tool_paste: {label: 粘贴, send: FUNCTION, command: clipboard}
@@ -323,11 +323,10 @@ liquid_keyboard:
     keys:  # 按键（显示名称为对应的label，不能放太多）
       - liquid_keyboard_exit
       - space1
-      - BackSpace
       - Return2
       - clipboard_window
       - liquid_keyboard_switch
-  keyboards: [emoji, math, ascii, cn, history, symbollist, list, ids, symbol, tabs, pinyin, script_symbols, jp, grease, rusa, korea, lation, yinbiao, unit, yanwenzi, combing, emoji_full]  #tab列表
+  keyboards: [emoji_full, emoji, math, ascii, cn, history, symbollist, list, ids, symbol, tabs, pinyin, script_symbols, jp, grease, rusa, korea, lation, yinbiao, unit, yanwenzi, combing, emoji_full]  #tab列表
   tabs:
     name: 更多
     type: TABS
