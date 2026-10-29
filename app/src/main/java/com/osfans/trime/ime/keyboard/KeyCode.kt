@@ -45,7 +45,24 @@ object KeyCode {
         return null
     }
 
+    // Fixed captions for the keys users expect to read as words rather than key names.
+    private val FIXED_LABELS =
+        mapOf(
+            KeyEvent.KEYCODE_ENTER to "Enter",
+            KeyEvent.KEYCODE_DEL to "⌫",
+            KeyEvent.KEYCODE_SHIFT_LEFT to "Shift",
+            KeyEvent.KEYCODE_SHIFT_RIGHT to "Shift",
+        )
+
     fun getDisplayLabel(
+        code: Int,
+        mask: Int,
+    ): String {
+        FIXED_LABELS[code]?.let { return it }
+        return getRawDisplayLabel(code, mask)
+    }
+
+    private fun getRawDisplayLabel(
         code: Int,
         mask: Int,
     ): String = if (isStandardKey(code)) {

@@ -108,6 +108,16 @@ object DataManager {
             }
         }
 
+        // Bundled themes are authoritative: overwrite stale copies that would otherwise
+        // shadow them through the rime user configuration.
+        runCatching {
+            appContext.assets.list("shared")
+                ?.filter { it.endsWith(".trime.yaml") }
+                ?.forEach { name ->
+                    ResourceUtils.copyFile("shared/$name", sharedDataDir.resolve(name).absolutePath)
+                }
+        }.onFailure { Timber.w(it, "Failed to refresh bundled themes") }
+
         ResourceUtils.copyFile(DATA_CHECKSUMS_NAME, dataDir.resolve(DATA_CHECKSUMS_NAME).absolutePath)
 
         val custom = userDataDir.resolve(DEFAULT_CUSTOM_FILE_NAME)

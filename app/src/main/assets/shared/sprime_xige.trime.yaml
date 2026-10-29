@@ -286,7 +286,9 @@ preset_keyboards:
     - {click: '&', width: 12, long_click: '{}{Left}', key_back_color: 0xffeaccd9, hilited_key_back_color: 0xffd2b8c3, key_text_color: 0xff1f2937}
 
     - {click: Return, label: Enter, long_click: Escape, width: 20, height: 40, key_back_color: 0xffd9c8c9, hilited_key_back_color: 0xffc3b4b5, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
-    - {click: space, long_click: Escape, swipe_right: Keyboard_default, swipe_left: Keyboard_letter, label: 空格, width: 60, key_back_color: 0xffd2cbdc, hilited_key_back_color: 0xffbdb7c6, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
+    - {click: ',', long_click: '，', composing: "h", label: ',', width: 10, key_back_color: 0xffd2cbdc, hilited_key_back_color: 0xffbdb7c6, key_text_color: 0xff1f2937}
+    - {click: space, long_click: Escape, swipe_right: Keyboard_default, swipe_left: Keyboard_letter, label: 空格, width: 40, key_back_color: 0xffd2cbdc, hilited_key_back_color: 0xffbdb7c6, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
+    - {click: '.', long_click: '。', composing: "'", label: '.', width: 10, key_back_color: 0xffd2cbdc, hilited_key_back_color: 0xffbdb7c6, key_text_color: 0xff1f2937}
     - {click: BackSpace, label: ⌫, long_click: Escape, width: 20, key_back_color: 0xffd9c8c9, hilited_key_back_color: 0xffc3b4b5, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
 preset_keys:
   space1: {label: 空格, repeatable: false, functional: false, send: space}
