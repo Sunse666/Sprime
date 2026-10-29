@@ -72,8 +72,15 @@ object ThemeManager {
     )
 
     private fun loadThemeByIdOrNull(id: String): Theme? {
-        // Themes bundled with the app are read from the synced shared directory so that a
-        // stale copy in the user directory (or an external sync folder) cannot override them.
+        // Themes bundled in the APK are always authoritative: read them straight from assets so
+        // that stale copies in the shared or user directory cannot override them.
+        runCatching {
+            appContext.assets.open("shared/$id.trime.yaml").use { it.reader().readText() }
+        }.getOrNull()?.let { text ->
+            return runCatching {
+                Yaml.parseToYamlNode(text).mapping?.let { Theme.decode(it) }
+            }.onFailure { Timber.w(it, "Failed to load bundled theme '$id'") }.getOrNull()
+        }
         val bundled = File(DataManager.sharedDataDir, "$id.trime.yaml")
         if (bundled.exists()) {
             return runCatching {

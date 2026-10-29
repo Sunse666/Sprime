@@ -84,6 +84,19 @@ object DataManager {
         return defaultPath.absolutePath
     }
 
+    /** Bundled themes are authoritative: stale copies would otherwise shadow them. */
+    fun refreshBundledThemes() = runCatching {
+        appContext.assets.list("shared")
+            ?.filter { it.endsWith(".trime.yaml") }
+            ?.forEach { name ->
+                val dest = sharedDataDir.resolve(name)
+                val asset = appContext.assets.open("shared/$name").use { it.readBytes() }
+                if (!dest.exists() || !dest.readBytes().contentEquals(asset)) {
+                    dest.writeBytes(asset)
+                }
+            }
+    }.onFailure { Timber.w(it, "Failed to refresh bundled themes") }
+
     fun sync() = lock.withLock {
         val oldChecksumsFile = File(dataDir, DATA_CHECKSUMS_NAME)
         val oldChecksums =
@@ -108,15 +121,7 @@ object DataManager {
             }
         }
 
-        // Bundled themes are authoritative: overwrite stale copies that would otherwise
-        // shadow them through the rime user configuration.
-        runCatching {
-            appContext.assets.list("shared")
-                ?.filter { it.endsWith(".trime.yaml") }
-                ?.forEach { name ->
-                    ResourceUtils.copyFile("shared/$name", sharedDataDir.resolve(name).absolutePath)
-                }
-        }.onFailure { Timber.w(it, "Failed to refresh bundled themes") }
+        refreshBundledThemes()
 
         ResourceUtils.copyFile(DATA_CHECKSUMS_NAME, dataDir.resolve(DATA_CHECKSUMS_NAME).absolutePath)
 
