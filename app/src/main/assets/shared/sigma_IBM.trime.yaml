@@ -1,0 +1,283 @@
+# Trime custom style settings
+# encoding: utf-8
+
+config_version: "1.0"
+name: 西戈拼音          #方案名称
+author: 西戈        #作者信息
+
+#键盘高度
+height:
+  1: &jpgd1 30 #表情键盘
+  2: &jpgd2 24 #颜文字键盘1
+  3: &jpgd3 24 #颜文字键盘2
+  4: &jpgd4 48 #主键盘
+  5: &jpgd5 39.5 #符号键盘
+  6: &hgap 4 #键盘横缝大小
+  7: &sgap 3 #键盘竖缝大小
+
+#键盘高度
+round_corner:
+  1: &round1 12 #按键圆角半径
+  2: &round2 0 #候选窗口圆角
+  3: &round3 12 #回车键圆角
+  
+#界面风格、功能开关
+style:
+  auto_caps: false #自動句首大寫:true|false|ascii
+  background_dim_amount: 0.5
+  candidate_padding: 5  #候选项内边距
+  candidate_spacing: 0.5  #候选间距
+  candidate_text_size: 18  #候选字号
+  candidate_use_cursor: true #高亮候选项
+  candidate_view_height: 28 #候选区高度
+  color_scheme: default #配色方案
+  comment_height: 14 #编码提示区高度
+  comment_on_top: true #编码提示在上方或右侧
+  comment_text_size: 12 #编码提示字号
+  horizontal: true #水平模式
+  horizontal_gap: *hgap #键水平间距
+  layout:
+    position: fixed #候选窗口位置：left|right|left_up|right_up|fixed|bottom_left|bottom_right|top_left|top_right(left、right需要Android5.0以上)
+    min_length: 10 #候选窗口最小词长
+    max_length: 14 #超过字数则换行
+    sticky_lines: 1 #固顶行数
+    max_entries: 5 #候选窗口最大词条数
+    border: 0 #候选窗口边框宽度
+    max_width: 360 #最大宽度,超过则自动换行
+    max_height: 300 #最大高度
+    min_width: 0 #最小宽度
+    min_height: 50 #最小高度
+    margin_x: 5 #水平边距
+    margin_y: 5 #竖直边距
+    line_spacing: 0 #候选词的行间距(px)
+    line_spacing_multiplier: 1.2 #候选词的行间距(倍数)
+    spacing: 1 #与预编辑或边缘的距离
+    round_corner: *round2 #候选窗口圆角
+    alpha: 0xff #透明度(0-255)
+    elevation: 0 #阴影(>=Android5.0)
+    background: background.png #颜色或者backgrounds目录下的图片文档名
+    movable: false #是否可移动窗口,或仅移动一次 true|false|once
+    all_phrases: false #显示所有长词
+  window: #悬浮窗口组件
+#    - {start: "", move: 'ㄓ ', end: ""}
+    - {start: "", composition: "%s", end: "", letter_spacing: 0.12} #letter_spacing需要Android5.0
+    - {start: "\n", label: "%s.", candidate: "%s", comment: "%s", end: "", sep: "☁️️"}
+  key_height: *jpgd4 #键高
+  key_long_text_size: 25 #长标签字号
+  key_text_size: 25 #键字号
+  key_width: 10.0 #键宽,占屏幕宽的百分比
+  keyboards: [.default, letter, default, number] #键盘配置
+  label_text_size: 20 #标签字号
+  latin_locale: en_US #西文语言
+  locale: zh_CN #缺省语言 zh_TW,zh_CN,zh_HK,""
+  preview_height: 56 #按键提示高度
+  preview_offset: -32 #按键提示纵向偏移
+  preview_text_size: 40 #按键提示字号
+  proximity_correction: true #按键纠错
+  reset_ascii_mode: false #显示键盘时重置为中文状态
+  round_corner: *round1 #按键圆角半径
+  shadow_radius: 0.0 #按键阴影半径
+  speech_opencc_config: none #语音输入简繁转换
+  symbol_text_size: 12 #符号字号
+  #text_height: 32 #编码区高度
+  text_size: 15 #编码区字号
+  vertical_correction: -5
+  vertical_gap: *sgap #键盘行距
+
+
+#颜色
+colors:
+  1: &color1 0xff1d4ed8 #编码颜色
+  2: &color2 0xff1f2937
+  3: &color3 0xff334155 #标签，云联想候选文本
+  4: &color4 0xff64748b
+  5: &color5 0xff1d4ed8
+  6: &color6 0xff64748b
+  7: &color7 0xff2563eb
+  8: &color8 0xffeef2f7 #编码区背景
+  9: &color9 0xffeef2f7 #键盘区背景
+  10: &button1
+  11: &button2
+  12: &button3
+  13: &button4
+  14: &color10 0xff8a94a6
+  15: &color11 0xff64748b
+  16: &color12 0xff0b1220
+  17: &color13 0xffe2e8f0
+  18: &color14 0xff1f2937
+  19: &color15 0xffdc2626
+  20: &color16 0xff94a3b8
+  21: &color17 0xff1f2937
+  22: &color18 0xffffffff
+
+#配色方案
+preset_color_schemes:
+  default:
+    name: "浅色"  #方案名称
+    author: 西戈 #作者信息
+    back_color: *color8 #候选区背景状态栏
+    candidate_separator_color: *color13 #候选分割线
+    candidate_background: *color8 #候选区整体背景
+    text_back_color: *color18 #编码区背景
+    hilited_back_color: *color18 #高亮编码背景
+    hilited_candidate_back_color: *color8 #高亮候选背景
+    key_back_color: *color1 #按键背景
+    candidate_text_color: *color2 #候选文本
+    comment_text_color: *color10 #提示
+    text_color: *color7 #正在输入未转码的编码
+    label_color: *color3 #标签，云联想候选文本
+    hilited_text_color: *color5 #高亮编码，已经转码的编码
+    hilited_candidate_text_color: *color1 #高亮候选文本
+    hilited_comment_text_color: *color6 #高亮提示
+    hilited_key_back_color: *color8 #高亮按键背景
+    key_symbol_color: *color16 #按键符号助记
+    hilited_key_symbol_color: *color1 #高亮按键符号
+    key_text_color: *color14 #按键文本
+    hilited_key_text_color: 0xff262626 #高亮按键文本
+    off_key_back_color: *color8  #按键关闭状态背景，候选下方翻页键背景
+    off_key_text_color: *color1 #按键关闭状态文本
+    hilited_off_key_back_color: *color8 #高亮按键关闭状态背景
+    hilited_off_key_text_color: *color10 #高亮按键关闭状态文本
+    preview_back_color: *color8 #按键提示背景
+    preview_text_color: *color14 #按键提示文本
+    keyboard_back_color: *color8 #键盘背景
+
+preset_keyboards:
+  default:
+    ascii_mode: 0
+    width: 20
+    height: 40
+    key_symbol_offset_x: 0
+    key_symbol_offset_y: -5000
+    key_text_offset_x: 0
+    key_text_offset_y: 0
+    key_hint_offset_x: 0
+    key_hint_offset_y: -5000
+    key_press_offset_x: 2
+    key_press_offset_y: 2
+    keys:
+    - {click: 'q', label: QKP, long_click: '（）{Left}', width: 18, height: 75, key_back_color: 0xffc7e9e9, hilited_key_back_color: 0xffb3d2d2, key_text_color: 0xff1f2937}
+    - {click: 't', label: T ng, long_click: '！', width: 23, key_back_color: 0xffcbe7fa, hilited_key_back_color: 0xffb6d0e1, key_text_color: 0xff1f2937}
+    - {click: 'l', label: L, long_click: '·', width: 18, key_back_color: 0xffc9f0f0, hilited_key_back_color: 0xffb5d8d8, key_text_color: 0xff1f2937}
+    - {click: 'n', label: Nü  ͥ ͦ, long_click: '‘’{Left}', width: 23, key_back_color: 0xffcbe7fa, hilited_key_back_color: 0xffb6d0e1, key_text_color: 0xff1f2937}
+    - {click: 'c', label: CʰC, long_click: '【】{Left}', width: 18, key_back_color: 0xffc7e9e9, hilited_key_back_color: 0xffb3d2d2, key_text_color: 0xff1f2937}
+
+    - {click: 'j', label: JGM, long_click: '：', width: 16, height: 80, key_back_color: 0xffc7e2e2, hilited_key_back_color: 0xffb3cccb, key_text_color: 0xff1f2937}
+    - {click: 'e', label: D e, long_click: '、', width: 20, key_back_color: 0xffc7e0f2, hilited_key_back_color: 0xffb3cada, key_text_color: 0xff1f2937}
+    - {click: 'o', label: B o  ͮ ͣ, long_click: '《》{Left}', width: 28, key_back_color: 0xffc7e0f2, hilited_key_back_color: 0xffb3cada, key_text_color: 0xff1f2937}
+    - {click: 'y', label: Y i, long_click: '“”{Left}', width: 20, key_back_color: 0xffc7e0f2, hilited_key_back_color: 0xffb3cada, key_text_color: 0xff1f2937}
+    - {click: 'z', label: ZʰZ, long_click: '——', width: 16, key_back_color: 0xffc7e2e2, hilited_key_back_color: 0xffb3cccb, key_text_color: 0xff1f2937}
+
+    - {click: 'x', label: XHR ua, long_click: '{}{Left}', width: 22, height: 75, key_back_color: 0xffc7dbdb, hilited_key_back_color: 0xffb3c5c5, key_text_color: 0xff1f2937}
+    - {click: 'w', label: W u, long_click: '？', width: 28, key_back_color: 0xffc7d9e9, hilited_key_back_color: 0xffb3c3d2, key_text_color: 0xff1f2937}
+    - {click: 'a', label: F a, long_click: '；', width: 28, key_back_color: 0xffc7d9e9, hilited_key_back_color: 0xffb3c3d2, key_text_color: 0xff1f2937}
+    - {click: 's', label: SʰS ia, long_click: '……', width: 22, key_back_color: 0xffc7dbdb, hilited_key_back_color: 0xffb3c5c5, key_text_color: 0xff1f2937}
+
+    - {click: Return, width: 20, height: 40, key_back_color: 0xffc7d0d1, hilited_key_back_color: 0xffb3bcbd, key_text_color: 0xff1f2937}
+    - {click: '，', long_click: '？', composing: "h", width: 10, key_back_color: 0xffc7cfd7, hilited_key_back_color: 0xffb3bbc1, key_text_color: 0xff1f2937}
+    - {click: space, long_click: Escape, swipe_right: Keyboard_letter, swipe_left: Keyboard_number, label: 西戈拼音, width: 40, key_back_color: 0xffc7cfd7, hilited_key_back_color: 0xffb3bbc1, key_text_color: 0xff1f2937}
+    - {click: '。', long_click: '！', composing: "'", width: 10, key_back_color: 0xffc7cfd7, hilited_key_back_color: 0xffb3bbc1, key_text_color: 0xff1f2937}
+    - {click: BackSpace, width: 20, key_back_color: 0xffc7d0d1, hilited_key_back_color: 0xffb3bcbd, key_text_color: 0xff1f2937}
+
+  letter:
+    ascii_mode: 1
+    width: 10
+    height: 40
+    key_symbol_offset_x: 0
+    key_symbol_offset_y: -5000
+    key_text_offset_x: 0
+    key_text_offset_y: 0
+    key_hint_offset_x: 0
+    key_hint_offset_y: 0
+    key_press_offset_x: 2
+    key_press_offset_y: 2
+    keys:
+    - {click: 'a', width: 18, height: 65, key_back_color: 0xffe1ecff, hilited_key_back_color: 0xffcbd4e6, key_text_color: 0xff1f2937}
+    - {click: 'b', width: 12, key_back_color: 0xffe1ecff, hilited_key_back_color: 0xffcbd4e6, key_text_color: 0xff1f2937}
+    - {click: 'c', width: 12, key_back_color: 0xffe1ecff, hilited_key_back_color: 0xffcbd4e6, key_text_color: 0xff1f2937}
+    - {click: 'd', width: 15, key_back_color: 0xffd2eeff, hilited_key_back_color: 0xffbdd6e6, key_text_color: 0xff1f2937}
+    - {click: 'e', width: 19, key_back_color: 0xffc9f0f0, hilited_key_back_color: 0xffb5d8d8, key_text_color: 0xff1f2937}
+    - {click: 'f', width: 12, key_back_color: 0xffc9f0f0, hilited_key_back_color: 0xffb5d8d8, key_text_color: 0xff1f2937}
+    - {click: 'g', width: 12, key_back_color: 0xffc9f0f0, hilited_key_back_color: 0xffb5d8d8, key_text_color: 0xff1f2937}
+
+    - {click: 'h', width: 18, height: 50, key_back_color: 0xffd6e5ff, hilited_key_back_color: 0xffc1cee6, key_text_color: 0xff1f2937}
+    - {click: 'i', width: 18, key_back_color: 0xffd6e5ff, hilited_key_back_color: 0xffc1cee6, key_text_color: 0xff1f2937}
+    - {click: 'j', width: 12, key_back_color: 0xffd6e5ff, hilited_key_back_color: 0xffc1cee6, key_text_color: 0xff1f2937}
+    - {click: 'k', width: 10, key_back_color: 0xffcbe7fa, hilited_key_back_color: 0xffb6d0e1, key_text_color: 0xff1f2937}
+    - {click: 'l', width: 14, key_back_color: 0xffc7e9e9, hilited_key_back_color: 0xffb3d2d2, key_text_color: 0xff1f2937}
+    - {click: 'm', width: 12, key_back_color: 0xffc7e9e9, hilited_key_back_color: 0xffb3d2d2, key_text_color: 0xff1f2937}
+    - {click: 'n', width: 16, key_back_color: 0xffc7e9e9, hilited_key_back_color: 0xffb3d2d2, key_text_color: 0xff1f2937}
+
+    - {click: Return, width: 20, key_back_color: 0xffc7cfd7, hilited_key_back_color: 0xffb3bbc1, key_text_color: 0xff1f2937}
+    - {click: Shift_L, width: 10, key_back_color: 0xffc7cfd7, hilited_key_back_color: 0xffb3bbc1, key_text_color: 0xff1f2937}
+    - {click: space, long_click: Escape, swipe_right: Keyboard_number, swipe_left: Keyboard_default, label: 西戈拼音, width: 40, key_back_color: 0xffc7d4df, hilited_key_back_color: 0xffb3bec9, key_text_color: 0xff1f2937}
+    - {click: Shift_R, width: 10, key_back_color: 0xffc7cfd7, hilited_key_back_color: 0xffb3bbc1, key_text_color: 0xff1f2937}
+    - {click: BackSpace, width: 20, key_back_color: 0xffc7cfd7, hilited_key_back_color: 0xffb3bbc1, key_text_color: 0xff1f2937}
+
+    - {click: 'o', width: 16, height: 55, key_back_color: 0xffcadcff, hilited_key_back_color: 0xffb6c6e5, key_text_color: 0xff1f2937}
+    - {click: 'p', width: 12, key_back_color: 0xffcadcff, hilited_key_back_color: 0xffb6c6e5, key_text_color: 0xff1f2937}
+    - {click: 'q', width: 10, key_back_color: 0xffcadcff, hilited_key_back_color: 0xffb6c6e5, key_text_color: 0xff1f2937}
+    - {click: 'r', width: 18, key_back_color: 0xffc7e0f2, hilited_key_back_color: 0xffb3cada, key_text_color: 0xff1f2937}
+    - {click: 's', width: 14, key_back_color: 0xffc7e2e2, hilited_key_back_color: 0xffb3cccb, key_text_color: 0xff1f2937}
+    - {click: 't', width: 18, key_back_color: 0xffc7e2e2, hilited_key_back_color: 0xffb3cccb, key_text_color: 0xff1f2937}
+    - {click: "'", long_click: '-', width: 12, key_back_color: 0xffcce3d3, hilited_key_back_color: 0xffb8ccbe, key_text_color: 0xff1f2937}
+
+    - {click: 'u', width: 16, height: 60, key_back_color: 0xffc7d6f4, hilited_key_back_color: 0xffb3c0dc, key_text_color: 0xff1f2937}
+    - {click: 'v', long_click: 'ü', width: 12, key_back_color: 0xffc7d6f4, hilited_key_back_color: 0xffb3c0dc, key_text_color: 0xff1f2937}
+    - {click: 'w', width: 14, key_back_color: 0xffc7d6f4, hilited_key_back_color: 0xffb3c0dc, key_text_color: 0xff1f2937}
+    - {click: 'x', width: 10, key_back_color: 0xffc7d9e9, hilited_key_back_color: 0xffb3c3d2, key_text_color: 0xff1f2937}
+    - {click: 'y', width: 14, key_back_color: 0xffc7dbdb, hilited_key_back_color: 0xffb3c5c5, key_text_color: 0xff1f2937}
+    - {click: 'z', width: 10, key_back_color: 0xffc7dbdb, hilited_key_back_color: 0xffb3c5c5, key_text_color: 0xff1f2937}
+    - {click: ',', long_click: ':', width: 12, key_back_color: 0xffcadccf, hilited_key_back_color: 0xffb6c6bb, key_text_color: 0xff1f2937}
+    - {click: '.', long_click: '?', width: 12, key_back_color: 0xffcadccf, hilited_key_back_color: 0xffb6c6bb, key_text_color: 0xff1f2937}
+
+  number:
+    ascii_mode: 1
+    width: 10
+    height: 40 
+    key_symbol_offset_x: 0
+    key_symbol_offset_y: 1
+    key_text_offset_x: 0
+    key_text_offset_y: 1
+    key_hint_offset_x: 0
+    key_hint_offset_y: 0
+    key_press_offset_x: 2
+    key_press_offset_y: 2
+    keys:
+    - {click: '“”{Left}', width: 12, long_click: '‘’{Left}', height: 60, key_back_color:  0xffff7eb6, hilited_key_back_color: 0xffe4e3e3, key_text_color: 0xff1f2937}
+    - {click: '（）{Left}', width: 12, long_click: '(){Left}', key_back_color: 0xffffe3ef, hilited_key_back_color: 0xffe6ccd7, key_text_color: 0xff1f2937}
+    - {click: '7', width: 17, key_back_color: 0xfff1e8ff, hilited_key_back_color: 0xffd9d1e6, key_text_color: 0xff1f2937, key_text_offset_y: 0}
+    - {click: '8', width: 18, key_back_color: 0xfff1e8ff, hilited_key_back_color: 0xffd9d1e6, key_text_color: 0xff1f2937, key_text_offset_y: 0}
+    - {click: '9', width: 17, key_back_color: 0xfff1e8ff, hilited_key_back_color: 0xffd9d1e6, key_text_color: 0xff1f2937, key_text_offset_y: 0}
+    - {click: '+', width: 12, long_click: '、', key_back_color: 0xffffe3ef, hilited_key_back_color: 0xffe6ccd7, key_text_color: 0xff1f2937}
+    - {click: '@', width: 12, long_click: '【】{Left}', key_back_color:  0xffff7eb6, hilited_key_back_color: 0xffe4e3e3, key_text_color: 0xff1f2937}
+
+    - {click: '…', width: 12, long_click: '·', height: 55, key_back_color: 0xfffbd9e8, hilited_key_back_color: 0xffe2c3d1, key_text_color: 0xff1f2937}
+    - {click: '《》{Left}', width: 12, long_click: '<>{Left}', key_back_color: 0xfffbd9e8, hilited_key_back_color: 0xffe2c3d1, key_text_color: 0xff1f2937}
+    - {click: '4', width: 17, key_back_color: 0xffebdfff, hilited_key_back_color: 0xffd4c9e6, key_text_color: 0xff1f2937, key_text_offset_y: 0}
+    - {click: '5', width: 18, key_back_color: 0xffebdfff, hilited_key_back_color: 0xffd4c9e6, key_text_color: 0xff1f2937, key_text_offset_y: 0}
+    - {click: '6', width: 17, key_back_color: 0xffebdfff, hilited_key_back_color: 0xffd4c9e6, key_text_color: 0xff1f2937, key_text_offset_y: 0}
+    - {click: '-', width: 12, long_click: '—', key_back_color: 0xfffbd9e8, hilited_key_back_color: 0xffe2c3d1, key_text_color: 0xff1f2937}
+    - {click: '_', width: 12, long_click: '|', key_back_color: 0xfffbd9e8, hilited_key_back_color: 0xffe2c3d1, key_text_color: 0xff1f2937}
+
+    - {click: '？', width: 12, long_click: '?', height: 55, key_back_color: 0xfff5cfe0, hilited_key_back_color: 0xffdcbbc9, key_text_color: 0xff1f2937}
+    - {click: '；', width: 12, long_click: ';', key_back_color: 0xfff5cfe0, hilited_key_back_color: 0xffdcbbc9, key_text_color: 0xff1f2937}
+    - {click: '1', width: 17, key_back_color: 0xffe5d5fe, hilited_key_back_color: 0xffcebfe5, key_text_color: 0xff1f2937, key_text_offset_y: 0}
+    - {click: '2', width: 18, key_back_color: 0xffe5d5fe, hilited_key_back_color: 0xffcebfe5, key_text_color: 0xff1f2937, key_text_offset_y: 0}
+    - {click: '3', width: 17, key_back_color: 0xffe5d5fe, hilited_key_back_color: 0xffcebfe5, key_text_color: 0xff1f2937, key_text_offset_y: 0}
+    - {click: '*', width: 12, long_click: '~', key_back_color: 0xfff5cfe0, hilited_key_back_color: 0xffdcbbc9, key_text_color: 0xff1f2937}
+    - {click: '#', width: 12, long_click: '[]{Left}', key_back_color: 0xfff5cfe0, hilited_key_back_color: 0xffdcbbc9, key_text_color: 0xff1f2937}
+
+    - {click: '！', width: 12, long_click: '!', height: 60, key_back_color: 0xffeaccd9, hilited_key_back_color: 0xffd2b8c3, key_text_color: 0xff1f2937}
+    - {click: '：', width: 12, long_click: ':', key_back_color: 0xffeaccd9, hilited_key_back_color: 0xffd2b8c3, key_text_color: 0xff1f2937}
+    - {click: '%', width: 17, long_click: '$', key_back_color: 0xffded0f2, hilited_key_back_color: 0xffc8bbda, key_text_color: 0xff1f2937}
+    - {click: '0', width: 18, key_back_color: 0xffded0f2, hilited_key_back_color: 0xffc8bbda, key_text_color: 0xff1f2937, key_text_offset_y: 0}
+    - {click: '=', width: 17, long_click: '￥', key_back_color: 0xffded0f2, hilited_key_back_color: 0xffc8bbda, key_text_color: 0xff1f2937}
+    - {click: '/', width: 12, long_click: '\', key_back_color: 0xffeaccd9, hilited_key_back_color: 0xffd2b8c3, key_text_color: 0xff1f2937}
+    - {click: '&', width: 12, long_click: '{}{Left}', key_back_color: 0xffeaccd9, hilited_key_back_color: 0xffd2b8c3, key_text_color: 0xff1f2937}
+
+    - {click: Return, long_click: Escape, width: 20, height: 40, key_back_color: 0xffd9c8c9, hilited_key_back_color: 0xffc3b4b5, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
+    - {click: ',', long_click: '，', composing: "h", width: 10, key_back_color: 0xffd2cbdc, hilited_key_back_color: 0xffbdb7c6, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
+    - {click: space, long_click: Escape, swipe_right: Keyboard_default, swipe_left: Keyboard_letter, label: 西戈拼音, width: 40, key_back_color: 0xffd2cbdc, hilited_key_back_color: 0xffbdb7c6, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
+    - {click: '.', long_click: '。', composing: "'", width: 10, key_back_color: 0xffd2cbdc, hilited_key_back_color: 0xffbdb7c6, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
+    - {click: BackSpace, long_click: Escape, width: 20, key_back_color: 0xffd9c8c9, hilited_key_back_color: 0xffc3b4b5, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
