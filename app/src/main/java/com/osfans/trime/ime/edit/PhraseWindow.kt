@@ -32,8 +32,7 @@ class PhraseWindow : BoardWindow.NoBarBoardWindow() {
     private var list: LinearLayout? = null
     private var input: EditText? = null
 
-    private fun phrases(): MutableList<String> =
-        prefs.getString(KEY, "")!!.split(SEPARATOR).filter { it.isNotBlank() }.toMutableList()
+    private fun phrases(): MutableList<String> = prefs.getString(KEY, "")!!.split(SEPARATOR).filter { it.isNotBlank() }.toMutableList()
 
     private fun save(items: List<String>) {
         prefs.edit().putString(KEY, items.joinToString(SEPARATOR)).apply()

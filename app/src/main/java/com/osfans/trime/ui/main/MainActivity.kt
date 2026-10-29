@@ -138,12 +138,7 @@ open class MainActivity : AppCompatActivity() {
         }
         navController.addOnDestinationChangedListener { _, dest, _ ->
             dest.label?.let { viewModel.setToolbarTitle(it.toString()) }
-            binding.mainToolbar.toolbar.subtitle =
-                if (dest.hasRoute<NavigationRoute.Main>()) {
-                    getString(R.string.trime_app_slogan)
-                } else {
-                    ""
-                }
+            binding.mainToolbar.toolbar.subtitle = ""
         }
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

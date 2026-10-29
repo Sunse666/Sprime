@@ -44,9 +44,9 @@ class AiController : InputBroadcastReceiver {
         private val SCREEN_HINTS =
             listOf("截图", "截屏", "看屏幕", "看下屏幕", "看看屏幕", "屏幕内容", "screenshot", "screen")
         private const val SCREEN_LOOK_PROMPT =
-            "Here is a screenshot of the current screen. Answer the previous question with it."
+            "这是当前屏幕的截图，请结合它回答刚才的问题。"
         private const val SCREEN_LOOK_FAILED =
-            "The screenshot could not be captured. Answer with the information you already have."
+            "截图失败了，请只用已有信息回答。"
         private const val NEWLINE = '\n'
     }
 
