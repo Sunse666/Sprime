@@ -63,6 +63,8 @@ style:
     - {start: "", composition: "%s", end: "", letter_spacing: 0.12} #letter_spacing需要Android5.0
     - {start: "\n", label: "%s.", candidate: "%s", comment: "%s", end: "", sep: "☁️️"}
   key_height: *jpgd4 #键高
+  keyboard_height: 250 #锁定键盘高度，缺省会算成 0 导致按键区不显示
+  keyboard_height_land: 200 #横屏锁定高度
   key_long_text_size: 25 #长标签字号
   key_text_size: 25 #键字号
   key_width: 10.0 #键宽,占屏幕宽的百分比
