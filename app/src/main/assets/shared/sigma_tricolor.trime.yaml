@@ -96,36 +96,36 @@ style:
 
 #颜色
 colors:
-  1: &color1 0xfff2f0ff #编码颜色
-  2: &color2 0xffebae6b
-  3: &color3 0xffffd5a9 #标签，云联想候选文本
-  4: &color4 0xffcec7ff
-  5: &color5 0xffb3a7fe
-  6: &color6 0xff6c6783
-  7: &color7 0xffcec7ff
-  8: &color8 0xff2d2b38 #编码区背景
-  9: &color9 0xff161616 #键盘区背景
+  1: &color1 0xff1d4ed8 #高亮候选文本
+  2: &color2 0xff1f2937 #候选文本
+  3: &color3 0xff334155 #标签/特殊键文本
+  4: &color4 0xff64748b
+  5: &color5 0xff1d4ed8 #高亮编码
+  6: &color6 0xff64748b #高亮提示
+  7: &color7 0xff2563eb #正在输入的编码
+  8: &color8 0xffffffff #候选区背景
+  9: &color9 0xffeef2f7 #键盘区背景
   10: &button1 tricolor/white1.png
   11: &button2 tricolor/white2.png
   12: &button3 tricolor/orange1.png
   13: &button4 tricolor/orange2.png
   14: &button5 tricolor/grey1.png
   15: &button6 tricolor/grey2.png
-  16: &color10 0xff8f8881
-  17: &color11 0xff5a5652
-  18: &color12 0xff67fecc
-  19: &color13 0xffebe1d6
-  20: &color14 0xfff59e47
-  21: &color15 0xffff0000
-  22: &color16 0xffa93c40
+  16: &color10 0xff8a94a6 #提示文本
+  17: &color11 0xff64748b
+  18: &color12 0xff0b1220 #高亮按键文本
+  19: &color13 0xffe2e8f0
+  20: &color14 0xff1f2937 #按键文本
+  21: &color15 0xffdc2626
+  22: &color16 0xff94a3b8 #按键符号
 
 #配色方案
 preset_color_schemes:
   default:
-    name: "标准配色！"  #方案名称
+    name: "雾蓝（浅色）"  #方案名称
     author: 西戈 #作者信息
     back_color: *color8 #候选区背景状态栏
-    candidate_separator_color: *color8 #候选分割背景
+    candidate_separator_color: *color13 #候选分割线
     candidate_background: *color8 #候选区整体背景
     text_back_color: *color8 #编码区背景
     hilited_back_color: *color8 #高亮编码背景
