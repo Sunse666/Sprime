@@ -27,7 +27,7 @@ class AboutFragment : PaddingPreferenceFragment() {
         rootKey: String?,
     ) {
         preferenceScreen = preferenceManager.createPreferenceScreen(requireContext()).apply {
-            addPreference(R.string.current_version, Const.VERSION_NAME) {
+            addPreference(R.string.current_version, "${Const.VERSION_NAME} (${BuildConfig.VERSION_CODE})") {
                 startActivity(
                     Intent(
                         Intent.ACTION_VIEW,
