@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 config_version: "1.0"
-name: 西戈拼音          #方案名称
+name: 西戈拼音（浅色）
 author: 西戈        #作者信息
 
 #键盘高度
