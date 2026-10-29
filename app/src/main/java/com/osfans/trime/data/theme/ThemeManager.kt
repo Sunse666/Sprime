@@ -11,12 +11,16 @@ import com.osfans.trime.data.base.DataManager
 import com.osfans.trime.data.prefs.AppPrefs
 import com.osfans.trime.ime.symbol.LiquidData
 import com.osfans.trime.util.WeakHashSet
+import com.osfans.trime.util.appContext
 import com.osfans.trime.util.yaml.Yaml
 import com.osfans.trime.util.yaml.mapping
 import timber.log.Timber
 import java.io.File
 
 object ThemeManager {
+    private const val LEGACY_XIGE_THEME_ID = "sigma_IBM"
+    private const val XIGE_THEME_ID = "sprime_xige"
+
     fun interface OnThemeChangeListener {
         fun onThemeChange(theme: Theme)
     }
@@ -111,7 +115,20 @@ object ThemeManager {
         error("No valid theme available")
     }
 
+    // The xige theme used to ship as "sigma_IBM"; that id collides with copies kept by
+    // the user, so it moved to its own name. Move existing selections over once.
+    private fun migrateLegacyThemeSelection() {
+        if (prefs.selectedTheme.getValue() != LEGACY_XIGE_THEME_ID) return
+        val bundled =
+            appContext.assets.list("shared")?.contains("$XIGE_THEME_ID.trime.yaml") == true
+        if (bundled) {
+            prefs.selectedTheme.setValue(XIGE_THEME_ID)
+            Timber.i("Migrated the selected theme to $XIGE_THEME_ID")
+        }
+    }
+
     private fun evaluateActiveTheme(): Theme {
+        migrateLegacyThemeSelection()
         val selectedThemeId = prefs.selectedTheme.getValue()
         val resolvedTheme = getThemeById(selectedThemeId)
         val newTheme = resolvedTheme.theme
