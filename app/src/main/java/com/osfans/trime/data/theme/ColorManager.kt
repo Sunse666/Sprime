@@ -270,10 +270,14 @@ object ColorManager {
 
     private fun resolveImageFilePath(value: String): String {
         val default = DataManager.userDataDir.resolve("backgrounds/$backgroundFolder/$value")
-        if (!default.exists()) {
-            val fallback = DataManager.userDataDir.resolve("backgrounds/$value")
-            if (fallback.exists()) return fallback.absolutePath
-        }
+        if (default.exists()) return default.absolutePath
+        val userFallback = DataManager.userDataDir.resolve("backgrounds/$value")
+        if (userFallback.exists()) return userFallback.absolutePath
+        // Themes bundled with the app keep their images in the shared data dir.
+        val sharedDefault = DataManager.sharedDataDir.resolve("backgrounds/$backgroundFolder/$value")
+        if (sharedDefault.exists()) return sharedDefault.absolutePath
+        val sharedFallback = DataManager.sharedDataDir.resolve("backgrounds/$value")
+        if (sharedFallback.exists()) return sharedFallback.absolutePath
         return default.absolutePath
     }
 

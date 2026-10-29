@@ -1,0 +1,292 @@
+# Trime custom style settings
+# encoding: utf-8
+
+config_version: "1.0"
+name: 西戈拼音          #方案名称
+author: 西戈        #作者信息
+
+#键盘高度
+height:
+  1: &jpgd1 30 #表情键盘
+  2: &jpgd2 24 #颜文字键盘1
+  3: &jpgd3 24 #颜文字键盘2
+  4: &jpgd4 48 #主键盘
+  5: &jpgd5 39.5 #符号键盘
+  6: &hgap 2 #键盘横缝大小
+  7: &sgap 2 #键盘竖缝大小
+
+#键盘高度
+round_corner:
+  1: &round1 12 #按键圆角半径
+  2: &round2 0 #候选窗口圆角
+  3: &round3 12 #回车键圆角
+  
+#界面风格、功能开关
+style:
+  auto_caps: false #自動句首大寫:true|false|ascii
+  background_dim_amount: 0.5
+  candidate_font: han.ttf  #候选字体
+  candidate_padding: 5  #候选项内边距
+  candidate_spacing: 0.5  #候选间距
+  candidate_text_size: 18  #候选字号
+  candidate_use_cursor: true #高亮候选项
+  candidate_view_height: 28 #候选区高度
+  color_scheme: default #配色方案
+  comment_font: comment.ttf #编码提示字体
+  comment_height: 14 #编码提示区高度
+  comment_on_top: true #编码提示在上方或右侧
+  comment_text_size: 12 #编码提示字号
+  hanb_font: hanb.ttf #扩充字体
+  horizontal: true #水平模式
+  horizontal_gap: *hgap #键水平间距
+  layout:
+    position: fixed #候选窗口位置：left|right|left_up|right_up|fixed|bottom_left|bottom_right|top_left|top_right(left、right需要Android5.0以上)
+    min_length: 10 #候选窗口最小词长
+    max_length: 14 #超过字数则换行
+    sticky_lines: 1 #固顶行数
+    max_entries: 5 #候选窗口最大词条数
+    border: 0 #候选窗口边框宽度
+    max_width: 360 #最大宽度,超过则自动换行
+    max_height: 300 #最大高度
+    min_width: 0 #最小宽度
+    min_height: 50 #最小高度
+    margin_x: 5 #水平边距
+    margin_y: 5 #竖直边距
+    line_spacing: 0 #候选词的行间距(px)
+    line_spacing_multiplier: 1.2 #候选词的行间距(倍数)
+    spacing: 1 #与预编辑或边缘的距离
+    round_corner: *round2 #候选窗口圆角
+    alpha: 0xff #透明度(0-255)
+    elevation: 0 #阴影(>=Android5.0)
+    background: background.png #颜色或者backgrounds目录下的图片文档名
+    movable: false #是否可移动窗口,或仅移动一次 true|false|once
+    all_phrases: false #显示所有长词
+  window: #悬浮窗口组件
+#    - {start: "", move: 'ㄓ ', end: ""}
+    - {start: "", composition: "%s", end: "", letter_spacing: 0.12} #letter_spacing需要Android5.0
+    - {start: "\n", label: "%s.", candidate: "%s", comment: "%s", end: "", sep: "☁️️"}
+  key_font: symbol.ttf #键盘字体
+  key_height: *jpgd4 #键高
+  key_long_text_size: 15 #长标签字号
+  key_text_size: 20 #键字号
+  key_width: 10.0 #键宽,占屏幕宽的百分比
+  keyboards: [.default, letter, default, number] #键盘配置
+  label_text_size: 14 #标签字号ddv
+  label_font: label.ttf #编标签字体
+  latin_font: latin.ttf #西文本体
+  latin_locale: en_US #西文语言
+  locale: zh_CN #缺省语言 zh_TW,zh_CN,zh_HK,""
+  preview_font: latin.ttf #按键提示字体
+  preview_height: 56 #按键提示高度
+  preview_offset: -32 #按键提示纵向偏移
+  preview_text_size: 40 #按键提示字号
+  proximity_correction: true #按键纠错
+  reset_ascii_mode: false #显示键盘时重置为中文状态
+  round_corner: *round1 #按键圆角半径
+  shadow_radius: 0.0 #按键阴影半径
+  speech_opencc_config: none #语音输入简繁转换
+  symbol_font: symbol.ttf #符号字体
+  symbol_text_size: 12 #符号字号
+  text_font: latin.ttf #编码字体
+  #text_height: 32 #编码区高度
+  text_size: 14 #编码区字号
+  vertical_correction: -5
+  vertical_gap: *sgap #键盘行距
+
+
+#颜色
+colors:
+  1: &color1 0xfff2f0ff #编码颜色
+  2: &color2 0xffebae6b
+  3: &color3 0xffffd5a9 #标签，云联想候选文本
+  4: &color4 0xffcec7ff
+  5: &color5 0xffb3a7fe
+  6: &color6 0xff6c6783
+  7: &color7 0xffcec7ff
+  8: &color8 0xff2d2b38 #编码区背景
+  9: &color9 0xff161616 #键盘区背景
+  10: &button1 tricolor/white1.png
+  11: &button2 tricolor/white2.png
+  12: &button3 tricolor/orange1.png
+  13: &button4 tricolor/orange2.png
+  14: &button5 tricolor/grey1.png
+  15: &button6 tricolor/grey2.png
+  16: &color10 0xff8f8881
+  17: &color11 0xff5a5652
+  18: &color12 0xff67fecc
+  19: &color13 0xffebe1d6
+  20: &color14 0xfff59e47
+  21: &color15 0xffff0000
+  22: &color16 0xffa93c40
+
+#配色方案
+preset_color_schemes:
+  default:
+    name: "标准配色！"  #方案名称
+    author: 西戈 #作者信息
+    back_color: *color8 #候选区背景状态栏
+    candidate_separator_color: *color8 #候选分割背景
+    candidate_background: *color8 #候选区整体背景
+    text_back_color: *color8 #编码区背景
+    hilited_back_color: *color8 #高亮编码背景
+    hilited_candidate_back_color: *color8 #高亮候选背景
+    key_back_color: *color8 #按键背景
+    candidate_text_color: *color2 #候选文本
+    comment_text_color: *color10 #提示
+    text_color: *color7 #正在输入未转码的编码
+    label_color: *color3 #标签，云联想候选文本
+    hilited_text_color: *color5 #高亮编码，已经转码的编码
+    hilited_candidate_text_color: *color1 #高亮候选文本
+    hilited_comment_text_color: *color6 #高亮提示
+    hilited_key_back_color: *color8 #高亮按键背景
+    key_symbol_color: *color16 #按键符号助记
+    hilited_key_symbol_color: *color1 #高亮按键符号
+    key_text_color: *color14 #按键文本
+    hilited_key_text_color: *color12 #高亮按键文本
+    off_key_back_color: *color8  #按键关闭状态背景，候选下方翻页键背景
+    off_key_text_color: *color1 #按键关闭状态文本
+    hilited_off_key_back_color: *color8 #高亮按键关闭状态背景
+    hilited_off_key_text_color: *color10 #高亮按键关闭状态文本
+    preview_back_color: *color8 #按键提示背景
+    preview_text_color: *color3 #按键提示文本
+    keyboard_back_color: *color9 #键盘背景
+
+preset_keyboards:
+  default:
+    ascii_mode: 0
+    width: 20
+    height: 40
+    key_symbol_offset_x: 0
+    key_symbol_offset_y: -5000
+    key_text_offset_x: 0
+    key_text_offset_y: -5000
+    key_hint_offset_x: 0
+    key_hint_offset_y: -5000
+    key_press_offset_x: 2
+    key_press_offset_y: 2
+    keys:
+    - {click: 'q', label: , long_click: '（）{Left}', width: 18.1, key_back_color: tricolor/q1.png, hilited_key_back_color: tricolor/q2.png, height: 75}
+    - {click: 't', label: , long_click: '！', width: 23, key_back_color: tricolor/t1.png, hilited_key_back_color: tricolor/t2.png}
+    - {click: 'l', label: , long_click: '·', width: 18, key_back_color: tricolor/l1.png, hilited_key_back_color: tricolor/l2.png}
+    - {click: 'n', label: , long_click: '‘’{Left}', width: 23, key_back_color: tricolor/n1.png, hilited_key_back_color: tricolor/n2.png}
+    - {click: 'c', label: , long_click: '【】{Left}', width: 17.9, key_back_color: tricolor/c1.png, hilited_key_back_color: tricolor/c2.png}
+
+    - {click: 'j', label: , long_click: '：', width: 16.1, key_back_color: tricolor/j1.png, hilited_key_back_color: tricolor/j2.png, height: 80}
+    - {click: 'e', label: , long_click: '、', width: 20, key_back_color: tricolor/e1.png, hilited_key_back_color: tricolor/e2.png}
+    - {click: 'o', label: , long_click: '《》{Left}', width: 28, key_back_color: tricolor/o1.png, hilited_key_back_color: tricolor/o2.png}
+    - {click: 'y', label: , long_click: '“”{Left}', width: 20, key_back_color: tricolor/y1.png, hilited_key_back_color: tricolor/y2.png}
+    - {click: 'z', label: , long_click: '——', width: 15.9, key_back_color: tricolor/z1.png, hilited_key_back_color: tricolor/z2.png}
+
+    - {click: 'x', label: , long_click: '{}{Left}', width: 22.1, key_back_color: tricolor/x1.png, hilited_key_back_color: tricolor/x2.png, height: 75}
+    - {click: 'w', label: , long_click: '？', width: 28, key_back_color: tricolor/w1.png, hilited_key_back_color: tricolor/w2.png}
+    - {click: 'a', label: , long_click: '；', width: 28, key_back_color: tricolor/a1.png, hilited_key_back_color: tricolor/a2.png}
+    - {click: 's', label: , long_click: '……', width: 21.9, key_back_color: tricolor/s1.png, hilited_key_back_color: tricolor/s2.png}
+
+    - {click: Return, width: 20, key_back_color: tricolor/huiche1.png, hilited_key_back_color: tricolor/huiche2.png, key_text_color: *color3, key_text_offset_y: 0, width: 20}
+    - {click: '，', long_click: '？', composing: "h", key_back_color: tricolor/douhao1.png, hilited_key_back_color: tricolor/douhao2.png, key_text_color: *color3, key_text_offset_y: 0, key_text_offset_x: 3, width: 10}
+    - {click: space, long_click: Escape, swipe_right: Keyboard_letter, swipe_left: Keyboard_number, label: 西戈拼音, key_back_color: tricolor/kongge1.png, hilited_key_back_color: tricolor/kongge2.png, width: 40}
+    - {click: '。', long_click: "！", composing: "'", key_back_color: tricolor/juhao1.png, hilited_key_back_color: tricolor/juhao2.png, key_text_color: *color3, key_text_offset_y: 0, key_text_offset_x: 3, width: 10}
+    - {click: BackSpace, key_back_color: tricolor/tuige1.png, hilited_key_back_color: tricolor/tuige2.png, key_text_color: *color3, key_text_offset_y: 0, width: 20}
+
+  letter:
+    ascii_mode: 1
+    width: 10
+    height: 40
+    key_symbol_offset_x: 0
+    key_symbol_offset_y: -5000
+    key_text_offset_x: 0
+    key_text_offset_y: 0
+    key_hint_offset_x: 0
+    key_hint_offset_y: 0
+    key_press_offset_x: 2
+    key_press_offset_y: 2
+    keys:
+    - {click: 'a', width: 18, key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11, height: 65}
+    - {click: 'b', width: 12, key_back_color: *button5, hilited_key_back_color: *button6, key_text_color: *color13}
+    - {click: 'c', width: 12, key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: 'd', width: 15, key_back_color: *button5, hilited_key_back_color: *button6, key_text_color: *color13}
+    - {click: 'e', width: 19, key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: 'f', width: 12, key_back_color: *button5, hilited_key_back_color: *button6, key_text_color: *color13}
+    - {click: 'g', width: 12, key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+
+    - {click: 'h', width: 18, key_back_color: *button5, hilited_key_back_color: *button6, key_text_color: *color13, height: 50}
+    - {click: 'i', width: 18, key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: 'j', width: 12, key_back_color: *button5, hilited_key_back_color: *button6, key_text_color: *color13}
+    - {click: 'k', width: 10, key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: 'l', width: 14, key_back_color: *button5, hilited_key_back_color: *button6, key_text_color: *color13}
+    - {click: 'm', width: 12, key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: 'n', width: 16, key_back_color: *button5, hilited_key_back_color: *button6, key_text_color: *color13}
+
+    - {click: Return, key_back_color: tricolor/huiche1.png, hilited_key_back_color: tricolor/huiche2.png, key_text_offset_y: 0, key_symbol_offset_y: -5000, key_text_color: *color3, width: 20}
+    - {click: Shift_L, key_back_color: tricolor/douhao1.png, hilited_key_back_color: tricolor/douhao2.png, key_text_offset_y: 0, key_symbol_offset_y: -5000, key_text_color: *color3, width: 10}
+    - {click: space, long_click: Escape, swipe_right: Keyboard_number, swipe_left: Keyboard_default, key_back_color: tricolor/kongge1.png, hilited_key_back_color: tricolor/kongge2.png, width: 40, key_text_offset_y: -5000}
+    - {click: Shift_R, key_back_color: tricolor/juhao1.png, hilited_key_back_color: tricolor/juhao2.png, key_text_offset_y: 0, key_symbol_offset_y: -5000, key_text_color: *color3, width: 10}
+    - {click: BackSpace, key_back_color: tricolor/tuige1.png, hilited_key_back_color: tricolor/tuige2.png, key_text_offset_y: 0, key_text_color: *color3, width: 20}
+
+    - {click: 'o', width: 16, key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11, height: 55}
+    - {click: 'p', width: 12, key_back_color: *button5, hilited_key_back_color: *button6, key_text_color: *color13}
+    - {click: 'q', width: 10, key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: 'r', width: 18, key_back_color: *button5, hilited_key_back_color: *button6, key_text_color: *color13}
+    - {click: 's', width: 14, key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: 't', width: 18, key_back_color: *button5, hilited_key_back_color: *button6, key_text_color: *color13}
+    - {click: "'", long_click: '-', width: 12, key_back_color: *button3, hilited_key_back_color: *button4, key_text_color: *color13, hilited_key_text_color: *color12}
+
+    - {click: 'u', width: 16, key_back_color: *button5, hilited_key_back_color: *button6, key_text_color: *color13, height: 60}
+    - {click: 'v', long_click: 'ü', width: 12, key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: 'w', width: 14, key_back_color: *button5, hilited_key_back_color: *button6, key_text_color: *color13}
+    - {click: 'x', width: 10, key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: 'y', width: 14, key_back_color: *button5, hilited_key_back_color: *button6, key_text_color: *color13}
+    - {click: 'z', width: 10, key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: ',', long_click: ':', width: 12, key_back_color: *button3, hilited_key_back_color: *button4, key_text_color: *color13, hilited_key_text_color: *color12}
+    - {click: '.', long_click: '?', width: 12, key_back_color: *button3, hilited_key_back_color: *button4, key_text_color: *color13, hilited_key_text_color: *color12}
+
+  number:
+    ascii_mode: 1
+    width: 10
+    height: 40
+    key_symbol_offset_x: 0
+    key_symbol_offset_y: 2.5
+    key_text_offset_x: 0
+    key_text_offset_y: 1.5
+    key_hint_offset_x: 0
+    key_hint_offset_y: 0
+    key_press_offset_x: 2
+    key_press_offset_y: 2
+    keys:
+    - {click: '“”{Left}', width: 12, long_click: '‘’{Left}', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11, height: 60}
+    - {click: '（）{Left}', width: 12, long_click: '(){Left}', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: '7', width: 17, long_click: '', key_back_color: *button3, hilited_key_back_color: *button4, key_text_color: *color13, hilited_key_text_color: *color12, key_text_offset_y: 0}
+    - {click: '8', width: 18, long_click: '', key_back_color: *button3, hilited_key_back_color: *button4, key_text_color: *color13, hilited_key_text_color: *color12, key_text_offset_y: 0}
+    - {click: '9', width: 17, long_click: '', key_back_color: *button3, hilited_key_back_color: *button4, key_text_color: *color13, hilited_key_text_color: *color12, key_text_offset_y: 0}
+    - {click: '+', width: 12, long_click: '、', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: '@', width: 12, long_click: '【】{Left}', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+
+    - {click: '…', width: 12, long_click: '·', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11, height: 55}
+    - {click: '《》{Left}', width: 12, long_click: '<>{Left}', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: '4', width: 17, long_click: '', key_back_color: *button3, hilited_key_back_color: *button4, key_text_color: *color13, hilited_key_text_color: *color12, key_text_offset_y: 0}
+    - {click: '5', width: 18, long_click: '', key_back_color: *button3, hilited_key_back_color: *button4, key_text_color: *color13, hilited_key_text_color: *color12, key_text_offset_y: 0}
+    - {click: '6', width: 17, long_click: '', key_back_color: *button3, hilited_key_back_color: *button4, key_text_color: *color13, hilited_key_text_color: *color12, key_text_offset_y: 0}
+    - {click: '-', width: 12, long_click: '—', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: '_', width: 12, long_click: '|', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+
+    - {click: '？', width: 12, long_click: '?', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11, height: 55}
+    - {click: '；', width: 12, long_click: ';', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: '1', width: 17, long_click: '', key_back_color: *button3, hilited_key_back_color: *button4, key_text_color: *color13, hilited_key_text_color: *color12, key_text_offset_y: 0}
+    - {click: '2', width: 18, long_click: '', key_back_color: *button3, hilited_key_back_color: *button4, key_text_color: *color13, hilited_key_text_color: *color12, key_text_offset_y: 0}
+    - {click: '3', width: 17, long_click: '', key_back_color: *button3, hilited_key_back_color: *button4, key_text_color: *color13, hilited_key_text_color: *color12, key_text_offset_y: 0}
+    - {click: '*', width: 12, long_click: '~', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: '#', width: 12, long_click: '[]{Left}', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+
+    - {click: '！', width: 12, long_click: '!', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11, height: 60}
+    - {click: '：', width: 12, long_click: ':', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: '%', width: 17, long_click: '$', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: '0', width: 18, long_click: '', key_back_color: *button3, hilited_key_back_color: *button4, key_text_color: *color13, hilited_key_text_color: *color12, key_text_offset_y: 0}
+    - {click: '=', width: 17, long_click: '￥', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: '/', width: 12, long_click: '\', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+    - {click: '&', width: 12, long_click: '{}{Left}', key_back_color: *button1, hilited_key_back_color: *button2, key_text_color: *color11}
+
+    - {click: Return, width: 20, key_back_color: tricolor/huiche1.png, hilited_key_back_color: tricolor/huiche2.png, key_text_color: *color3, key_text_offset_y: 0, key_symbol_offset_y: -5000, width: 20}
+    - {click: ',', long_click: '，', key_back_color: tricolor/douhao1.png, hilited_key_back_color: tricolor/douhao2.png, key_text_color: *color3, key_text_offset_y: 0, key_symbol_offset_y: -5000, key_text_offset_x: 3, width: 10}
+    - {click: space, long_click: Escape, swipe_right: Keyboard_default, swipe_left: Keyboard_letter, label: 西戈拼音, key_back_color: tricolor/kongge1.png, hilited_key_back_color: tricolor/kongge2.png, key_symbol_offset_y: -5000, key_text_offset_y: -5000, width: 40}
+    - {click: '.', long_click: "。", key_back_color: tricolor/juhao1.png, hilited_key_back_color: tricolor/juhao2.png, key_text_color: *color3, key_text_offset_y: 0, key_text_offset_x: 3, key_symbol_offset_y: -5000, width: 10}
+    - {click: BackSpace, key_back_color: tricolor/tuige1.png, hilited_key_back_color: tricolor/tuige2.png, key_text_color: *color3, key_text_offset_y: 0, key_symbol_offset_y: -5000, width: 20}
