@@ -72,6 +72,14 @@ object ThemeManager {
     )
 
     private fun loadThemeByIdOrNull(id: String): Theme? {
+        // Themes bundled with the app are read from the synced shared directory so that a
+        // stale copy in the user directory (or an external sync folder) cannot override them.
+        val bundled = File(DataManager.sharedDataDir, "$id.trime.yaml")
+        if (bundled.exists()) {
+            return runCatching {
+                Yaml.parseToYamlNode(bundled.readText()).mapping?.let { Theme.decode(it) }
+            }.onFailure { Timber.w(it, "Failed to load bundled theme '$id'") }.getOrNull()
+        }
         if (!Rime.deployRimeConfigFile(id, "config_version")) {
             Timber.w("Failed to deploy theme config file '$id.yaml'")
         }
