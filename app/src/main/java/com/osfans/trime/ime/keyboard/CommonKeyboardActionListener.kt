@@ -192,6 +192,8 @@ class CommonKeyboardActionListener {
                     "apply" -> handleApplyCommand(arg)
                     "share_text" -> service.shareText()
                     "select_candidate" -> handleSelectCandidate(arg)
+                    "edit_panel" -> windowManager.attachWindow(com.osfans.trime.ime.edit.EditWindow())
+                    "phrase_panel" -> windowManager.attachWindow(com.osfans.trime.ime.edit.PhraseWindow())
                     "switch_hide_key_symbol" -> switchHideKeySymbol()
                     "switch_hide_key_hint" -> switchHideKeyHint()
                     else -> handleIntentAction(action.command, arg)

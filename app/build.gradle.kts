@@ -35,7 +35,7 @@ android {
         applicationId = "com.sprime.ime"
         minSdk = 21
         targetSdk = 36
-        versionCode = 24
+        versionCode = 25
         versionName = "1.0.0"
 
         multiDexEnabled = true
