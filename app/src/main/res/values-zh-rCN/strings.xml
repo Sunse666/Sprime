@@ -320,4 +320,13 @@
     <string name="sprime_privacy_body">Sprime 不收集、不上传、不出售你的任何数据。\n\n只有你点发送时，文字才会从本机直接发给你自己配置的模型接口。\n\n本地不保存聊天历史；剪贴板、整段输入框和页面文字，只在你主动操作或打开对应开关后才会被读取。\n\nPII 脱敏和键盘防截图默认开启；密码框会被直接拒绝，不会发送。\n\n无障碍权限只用于「读页面」和可选的静默截图，不点击、不输入、不后台监听，随时可以在系统设置里关闭。</string>
     <string name="sprime_intro_ok">知道了</string>
     <string name="ai_follow_up">追问</string>
+    <string name="ai_prompt_translate">翻译提示词</string>
+    <string name="ai_prompt_polish">润色提示词</string>
+    <string name="ai_prompt_summarize">总结提示词</string>
+    <string name="ai_prompt_explain">解释提示词</string>
+    <string name="ai_prompt_reply">回复提示词</string>
+    <string name="ai_prompt_continue">续写提示词</string>
+    <string name="ai_prompt_screen_look">看屏幕提示词</string>
+    <string name="ai_prompt_screen_failed">截图失败提示词</string>
+    <string name="ai_prompt_hint">留空则使用内置默认提示词</string>
 </resources>

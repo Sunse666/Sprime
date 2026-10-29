@@ -43,10 +43,6 @@ class AiController : InputBroadcastReceiver {
         private const val SCREEN_SENTINEL = "[screenshot]"
         private val SCREEN_HINTS =
             listOf("截图", "截屏", "看屏幕", "看下屏幕", "看看屏幕", "屏幕内容", "screenshot", "screen")
-        private const val SCREEN_LOOK_PROMPT =
-            "这是当前屏幕的截图，请结合它回答刚才的问题。"
-        private const val SCREEN_LOOK_FAILED =
-            "截图失败了，请只用已有信息回答。"
         private const val NEWLINE = '\n'
     }
 
@@ -184,7 +180,7 @@ class AiController : InputBroadcastReceiver {
             else -> {
                 session.reset()
                 askedFromAction = true
-                ask(PromptBuilder.build(action, screen ?: context.content.orEmpty()))
+                ask(PromptBuilder.build(settings.actionInstruction(action), screen ?: context.content.orEmpty()))
             }
         }
     }
@@ -258,7 +254,7 @@ class AiController : InputBroadcastReceiver {
                 service.lifecycleScope.launch {
                     val image =
                         captureWithSecureFlagOff()
-                    if (image != null) session.addUser(SCREEN_LOOK_PROMPT, image)
+                    if (image != null) session.addUser(settings.screenLookPrompt, image)
                     runConversation()
                 }
             return
@@ -323,10 +319,10 @@ class AiController : InputBroadcastReceiver {
                     captureWithSecureFlagOff()
                 rounds++
                 if (image != null) {
-                    session.addUser(SCREEN_LOOK_PROMPT, image)
+                    session.addUser(settings.screenLookPrompt, image)
                     continue
                 }
-                session.addUser(SCREEN_LOOK_FAILED)
+                session.addUser(settings.screenFailedPrompt)
                 continue
             }
             finishAnswer(raw.replace(SCREEN_SENTINEL, "").trim(), thinking.toString())

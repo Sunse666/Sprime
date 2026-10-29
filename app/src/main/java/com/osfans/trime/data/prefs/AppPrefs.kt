@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.annotation.Keep
 import com.osfans.trime.R
+import com.osfans.trime.ai.prompt.DefaultPrompts
 import com.osfans.trime.ai.provider.ProviderPresets
 import com.osfans.trime.data.sync.DataStorageMode
 import com.osfans.trime.ime.candidates.compact.CompactCandidateMode
@@ -476,6 +477,14 @@ class AppPrefs(
             const val TEMPERATURE = "ai_temperature"
             const val MAX_TOKENS = "ai_max_tokens"
             const val SYSTEM_PROMPT = "ai_system_prompt"
+            const val PROMPT_TRANSLATE = "ai_prompt_translate"
+            const val PROMPT_POLISH = "ai_prompt_polish"
+            const val PROMPT_SUMMARIZE = "ai_prompt_summarize"
+            const val PROMPT_EXPLAIN = "ai_prompt_explain"
+            const val PROMPT_REPLY = "ai_prompt_reply"
+            const val PROMPT_CONTINUE = "ai_prompt_continue"
+            const val PROMPT_SCREEN_LOOK = "ai_prompt_screen_look"
+            const val PROMPT_SCREEN_FAILED = "ai_prompt_screen_failed"
             const val STREAM = "ai_stream"
             const val PII_PHONE = "ai_pii_phone"
             const val PII_ID_CARD = "ai_pii_id_card"
@@ -525,9 +534,17 @@ class AppPrefs(
         val systemPrompt = editText(
             R.string.ai_system_prompt,
             SYSTEM_PROMPT,
-            "",
+            DefaultPrompts.SYSTEM,
             R.string.ai_system_prompt_hint,
         )
+        val promptTranslate = editText(R.string.ai_prompt_translate, PROMPT_TRANSLATE, DefaultPrompts.TRANSLATE, R.string.ai_prompt_hint)
+        val promptPolish = editText(R.string.ai_prompt_polish, PROMPT_POLISH, DefaultPrompts.POLISH, R.string.ai_prompt_hint)
+        val promptSummarize = editText(R.string.ai_prompt_summarize, PROMPT_SUMMARIZE, DefaultPrompts.SUMMARIZE, R.string.ai_prompt_hint)
+        val promptExplain = editText(R.string.ai_prompt_explain, PROMPT_EXPLAIN, DefaultPrompts.EXPLAIN, R.string.ai_prompt_hint)
+        val promptReply = editText(R.string.ai_prompt_reply, PROMPT_REPLY, DefaultPrompts.REPLY, R.string.ai_prompt_hint)
+        val promptContinue = editText(R.string.ai_prompt_continue, PROMPT_CONTINUE, DefaultPrompts.CONTINUE, R.string.ai_prompt_hint)
+        val promptScreenLook = editText(R.string.ai_prompt_screen_look, PROMPT_SCREEN_LOOK, DefaultPrompts.SCREEN_LOOK, R.string.ai_prompt_hint)
+        val promptScreenFailed = editText(R.string.ai_prompt_screen_failed, PROMPT_SCREEN_FAILED, DefaultPrompts.SCREEN_FAILED, R.string.ai_prompt_hint)
         val stream = switch(R.string.ai_stream, STREAM, true)
 
         val piiPhone = switch(R.string.ai_pii_phone, PII_PHONE, true)

@@ -20,14 +20,18 @@ class PromptBuilderTest :
             prompt shouldContain "[screenshot]"
         }
 
+        "a user provided system prompt replaces the default" {
+            PromptBuilder.systemMessage("自定义") shouldBe "自定义"
+        }
+
         "every action instruction is chinese" {
             AiAction.entries.forEach { action ->
-                chinese.containsMatchIn(action.instruction) shouldBe true
+                chinese.containsMatchIn(action.defaultInstruction) shouldBe true
             }
         }
 
         "action prompt keeps the content after the instruction" {
-            PromptBuilder.build(AiAction.TRANSLATE, " hello ") shouldBe
-                AiAction.TRANSLATE.instruction + "\n\nhello"
+            PromptBuilder.build(DefaultPrompts.TRANSLATE, " hello ") shouldBe
+                DefaultPrompts.TRANSLATE + "\n\nhello"
         }
     })

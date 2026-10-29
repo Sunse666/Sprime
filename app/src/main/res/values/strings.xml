@@ -322,4 +322,13 @@
     <string name="sprime_privacy_body">Sprime does not collect, upload or sell your data.\n\nText is sent only when you send it, and only to the endpoint you configured, directly from this device.\n\nNo chat history is stored locally. The clipboard, the whole input field and the screen text are read only after your explicit action or switch.\n\nPII masking and screenshot blocking are on by default. Password fields are refused and never sent.\n\nAccessibility is used only for reading the screen and the optional silent screenshot; it never taps, types or listens in the background, and can be revoked in system settings at any time.</string>
     <string name="sprime_intro_ok">Got it</string>
     <string name="ai_follow_up">Ask again</string>
+    <string name="ai_prompt_translate">翻译提示词</string>
+    <string name="ai_prompt_polish">润色提示词</string>
+    <string name="ai_prompt_summarize">总结提示词</string>
+    <string name="ai_prompt_explain">解释提示词</string>
+    <string name="ai_prompt_reply">回复提示词</string>
+    <string name="ai_prompt_continue">续写提示词</string>
+    <string name="ai_prompt_screen_look">看屏幕提示词</string>
+    <string name="ai_prompt_screen_failed">截图失败提示词</string>
+    <string name="ai_prompt_hint">留空则使用内置默认提示词</string>
 </resources>

@@ -6,6 +6,8 @@
 package com.osfans.trime.ai
 
 import com.osfans.trime.ai.privacy.PiiFilter
+import com.osfans.trime.ai.prompt.AiAction
+import com.osfans.trime.ai.prompt.DefaultPrompts
 import com.osfans.trime.ai.provider.AiRequestConfig
 import com.osfans.trime.ai.provider.ProviderPresets
 import com.osfans.trime.data.prefs.AppPrefs
@@ -28,7 +30,25 @@ class AiSettings {
         get() = prefs.model.getValue().ifBlank { preset.model }
 
     val systemPrompt: String
-        get() = prefs.systemPrompt.getValue()
+        get() = prefs.systemPrompt.getValue().ifBlank { DefaultPrompts.SYSTEM }
+
+    fun actionInstruction(action: AiAction): String {
+        val raw = when (action) {
+            AiAction.TRANSLATE -> prefs.promptTranslate.getValue()
+            AiAction.POLISH -> prefs.promptPolish.getValue()
+            AiAction.SUMMARIZE -> prefs.promptSummarize.getValue()
+            AiAction.EXPLAIN -> prefs.promptExplain.getValue()
+            AiAction.REPLY -> prefs.promptReply.getValue()
+            AiAction.CONTINUE -> prefs.promptContinue.getValue()
+        }
+        return raw.ifBlank { action.defaultInstruction }
+    }
+
+    val screenLookPrompt: String
+        get() = prefs.promptScreenLook.getValue().ifBlank { DefaultPrompts.SCREEN_LOOK }
+
+    val screenFailedPrompt: String
+        get() = prefs.promptScreenFailed.getValue().ifBlank { DefaultPrompts.SCREEN_FAILED }
 
     val useClipboard: Boolean
         get() = prefs.useClipboard.getValue()
