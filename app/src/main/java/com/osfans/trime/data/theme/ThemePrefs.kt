@@ -19,7 +19,8 @@ class ThemePrefs(
         string(
             R.string.selected_theme,
             SELECTED_THEME,
-            "trime",
+            // Ship the fork's own theme on fresh installs; it falls back to "trime" when absent.
+            "sprime_xige",
             R.string.selected_theme_summary,
         )
 
