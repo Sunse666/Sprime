@@ -71,6 +71,22 @@ class AiSettings {
     val isConfigured: Boolean
         get() = apiKey.isNotBlank() || baseUrl.startsWith("http://127.0.0.1")
 
+    /** Store the built-in text for every blank prompt so the settings always show it. */
+    fun fillEmptyPrompts() {
+        fun ensure(delegate: com.osfans.trime.data.prefs.PreferenceDelegate<String>, default: String) {
+            if (delegate.getValue().isBlank()) delegate.setValue(default)
+        }
+        ensure(prefs.systemPrompt, DefaultPrompts.SYSTEM)
+        ensure(prefs.promptTranslate, DefaultPrompts.TRANSLATE)
+        ensure(prefs.promptPolish, DefaultPrompts.POLISH)
+        ensure(prefs.promptSummarize, DefaultPrompts.SUMMARIZE)
+        ensure(prefs.promptExplain, DefaultPrompts.EXPLAIN)
+        ensure(prefs.promptReply, DefaultPrompts.REPLY)
+        ensure(prefs.promptContinue, DefaultPrompts.CONTINUE)
+        ensure(prefs.promptScreenLook, DefaultPrompts.SCREEN_LOOK)
+        ensure(prefs.promptScreenFailed, DefaultPrompts.SCREEN_FAILED)
+    }
+
     fun requestConfig(): AiRequestConfig = AiRequestConfig(
         baseUrl = baseUrl,
         apiKey = apiKey,

@@ -14,6 +14,7 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+import com.osfans.trime.ai.AiSettings
 import com.osfans.trime.data.base.DataManager
 import com.osfans.trime.data.db.ClipboardHelper
 import com.osfans.trime.data.db.CollectionHelper
@@ -138,6 +139,7 @@ class TrimeApplication : Application() {
                 setValue(currentPid)
             }
             DataManager.refreshBundledThemes()
+            runCatching { AiSettings().fillEmptyPrompts() }
             ClipboardHelper.init(applicationContext)
             CollectionHelper.init(applicationContext)
             registerBroadcastReceiver()
