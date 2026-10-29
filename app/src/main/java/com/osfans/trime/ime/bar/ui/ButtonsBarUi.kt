@@ -57,7 +57,7 @@ class ButtonsBarUi(
         val buttons = theme.toolBar.buttons
         firstButton = buttons.firstOrNull()?.let { toolButton(it) }
 
-        buttons.drop(1).forEach { config ->
+        buttons.forEach { config ->
             val button = toolButton(config)
             val size = getButtonSize(config)
             val lParams = FlexboxLayout.LayoutParams(size.first, size.second).apply {

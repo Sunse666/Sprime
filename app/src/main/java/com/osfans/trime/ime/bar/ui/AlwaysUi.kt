@@ -71,7 +71,6 @@ class AlwaysUi(
     private val rightMostButton =
         ViewAnimator(ctx).apply {
             add(hideKeyboardButton, lParams(matchParent, matchParent))
-            buttonsUi.firstButton?.let { add(it, lParams(matchParent, matchParent)) }
         }
 
     private val leftMostButton = toolButton(
@@ -138,9 +137,8 @@ class AlwaysUi(
     }
 
     private fun updateRightMostButton(state: State) {
-        val hasFirstButton = buttonsUi.firstButton != null
-        val showFirst = hasFirstButton && (theme.toolBar.buttons.isNotEmpty() || state != State.Toolbar)
-        rightMostButton.displayedChild = if (showFirst) 1 else 0
+        // The hide-keyboard button always stays on the far right.
+        rightMostButton.displayedChild = 0
     }
 
     private fun updateLeftMostButton(state: State) {
