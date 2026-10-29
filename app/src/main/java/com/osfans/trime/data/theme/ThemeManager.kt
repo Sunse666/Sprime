@@ -133,6 +133,16 @@ object ThemeManager {
     // The xige theme used to ship as "sigma_IBM"; that id collides with copies kept by
     // the user, so it moved to its own name. Move existing selections over once.
     private fun migrateLegacyThemeSelection() {
+        // A selection that is not shipped in the APK points at a stale copy; move it back.
+        val selected = prefs.selectedTheme.getValue()
+        val assetThemes =
+            runCatching { appContext.assets.list("shared")?.toSet() ?: emptySet() }.getOrDefault(emptySet())
+        val isStale = "$selected.trime.yaml" !in assetThemes
+        if (isStale && "$XIGE_THEME_ID.trime.yaml" in assetThemes) {
+            prefs.selectedTheme.setValue(XIGE_THEME_ID)
+            Timber.i("Stale theme '$selected' replaced with $XIGE_THEME_ID")
+            return
+        }
         if (prefs.selectedTheme.getValue() != LEGACY_XIGE_THEME_ID) return
         val bundled =
             appContext.assets.list("shared")?.contains("$XIGE_THEME_ID.trime.yaml") == true
