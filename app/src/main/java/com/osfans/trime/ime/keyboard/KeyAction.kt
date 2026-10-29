@@ -114,7 +114,7 @@ class KeyAction(
             }
         }
         // 仅在为空格键且 label 为空时才去查询 schema 名称，先检查键码以减少无谓计算
-        val displayLabel = takeIf { code == KeyEvent.KEYCODE_SPACE && label.isEmpty() }?.let { getSpaceKeySchemaName() } ?: label
+        val displayLabel = takeIf { code == KeyEvent.KEYCODE_SPACE && label.isEmpty() }?.let { "空格" } ?: label
         return adjustCase(displayLabel, keyboard)
     }
 

@@ -130,7 +130,7 @@ preset_color_schemes:
     text_back_color: *color18 #编码区背景
     hilited_back_color: *color18 #高亮编码背景
     hilited_candidate_back_color: *color8 #高亮候选背景
-    key_back_color: *color1 #按键背景
+    key_back_color: 0xffe7eef7 #按键背景
     candidate_text_color: *color2 #候选文本
     comment_text_color: *color10 #提示
     text_color: *color7 #正在输入未转码的编码
@@ -286,9 +286,7 @@ preset_keyboards:
     - {click: '&', width: 12, long_click: '{}{Left}', key_back_color: 0xffeaccd9, hilited_key_back_color: 0xffd2b8c3, key_text_color: 0xff1f2937}
 
     - {click: Return, label: Enter, long_click: Escape, width: 20, height: 40, key_back_color: 0xffd9c8c9, hilited_key_back_color: 0xffc3b4b5, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
-    - {click: ',', long_click: '，', composing: "h", label: ',', width: 10, key_back_color: 0xffd2cbdc, hilited_key_back_color: 0xffbdb7c6, key_text_color: 0xff1f2937}
-    - {click: space, long_click: Escape, swipe_right: Keyboard_default, swipe_left: Keyboard_letter, label: 空格, width: 40, key_back_color: 0xffd2cbdc, hilited_key_back_color: 0xffbdb7c6, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
-    - {click: '.', long_click: '。', composing: "'", label: '.', width: 10, key_back_color: 0xffd2cbdc, hilited_key_back_color: 0xffbdb7c6, key_text_color: 0xff1f2937}
+    - {click: space, long_click: Escape, swipe_right: Keyboard_default, swipe_left: Keyboard_letter, label: 空格, width: 60, key_back_color: 0xffd2cbdc, hilited_key_back_color: 0xffbdb7c6, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
     - {click: BackSpace, label: ⌫, long_click: Escape, width: 20, key_back_color: 0xffd9c8c9, hilited_key_back_color: 0xffc3b4b5, key_text_color: 0xff1f2937, key_symbol_offset_y: -5000}
 preset_keys:
   space1: {label: 空格, repeatable: false, functional: false, send: space}
