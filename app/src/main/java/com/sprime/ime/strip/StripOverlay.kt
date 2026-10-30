@@ -368,6 +368,10 @@ object StripOverlay {
         }
     }
 
+    private fun idleColor(): Int = 0xFF22C55E.toInt()
+
+    private fun isIdle(): Boolean = phase == Phase.IDLE
+
     private fun lampColor(on: Boolean): Int =
         if (on) 0xFFF59E0B.toInt() else 0x33F59E0B.toInt()
 
@@ -406,13 +410,21 @@ object StripOverlay {
             val h = height.toFloat()
             val slotValue = StripOverlay.slotValue()
             val centerX = w / 2f
+            val idle = StripOverlay.isIdle()
             for (index in 0 until 4) {
                 // index 0 is the top lamp, 3 is the bottom one
                 val cy = h * (index + 0.5f) / 4f
                 val bit = 3 - index
                 val on = (slotValue shr bit) and 1 == 1
                 paint.style = Paint.Style.FILL
-                paint.color = if (index == 3) StripOverlay.lightColor() else StripOverlay.lampColor(on)
+                paint.color =
+                    when {
+                        // While a request is running the bottom lamp reports its state.
+                        index == 3 && !idle -> StripOverlay.lightColor()
+                        // Value 0 keeps a single green lamp so it never reads as "1".
+                        index == 3 && slotValue == 0 -> StripOverlay.idleColor()
+                        else -> StripOverlay.lampColor(on)
+                    }
                 canvas.drawCircle(centerX, cy, StripOverlay.dp(3).toFloat(), paint)
             }
         }

@@ -347,5 +347,5 @@
     <string name="ai_quick_strip">答题细条</string>
     <string name="ai_quick_strip_secure">答题时禁止被截图</string>
     <string name="ai_strip_legend_title">Indicator legend</string>
-    <string name="ai_strip_legend_summary">Lamps top to bottom: plus, minus, clear, run (all tappable). A lit lamp means the binary bit is 1. After run the value resets and the bottom lamp shows status: blue = running, green = ready, red = failed, purple = unbound or error</string>
+    <string name="ai_strip_legend_summary">Lamps top to bottom: plus, minus, clear, run (all tappable). A lit orange lamp means the bit is 1. At value 0 the bottom lamp turns green. After run the value resets and the bottom lamp shows status: blue = running, green = ready, red = failed, purple = unbound or error</string>
 </resources>
