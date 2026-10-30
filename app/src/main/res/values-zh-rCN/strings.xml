@@ -345,5 +345,5 @@
     <string name="ai_quick_strip">答题细条</string>
     <string name="ai_quick_strip_secure">答题时禁止被截图</string>
     <string name="ai_strip_legend_title">指示灯含义</string>
-    <string name="ai_strip_legend_summary">灯从上到下依次是：加、减、清、执行（都可点击）；橙色亮=二进制位为 1，四个灯组成当前数值；数值为 0 时最下面的灯为绿色；按执行后数值归零，最下面的灯显示状态：蓝=请求中，绿=有结果，红=失败，紫=未绑定或异常</string>
+    <string name="ai_strip_legend_summary">灯从上到下：加、减、清、执行（都可点击）；橙色亮=二进制位为 1；数值为 0 时最下面的灯为绿色；执行后数值归零，最下面的灯显示状态（蓝=请求中，绿=有结果，红=失败，紫=未绑定或异常）；有答案后，加/减用来切换上一条/下一条，长按执行展开答案气泡</string>
 </resources>

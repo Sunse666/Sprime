@@ -134,14 +134,39 @@ object StripOverlay {
     // ---- behaviour ----
 
     private fun onPlus() {
+        if (answers.isNotEmpty()) {
+            stepAnswer(+1)
+            return
+        }
         slot = if (slot >= 15) 0 else slot + 1
         phase = Phase.IDLE
         strip?.invalidate()
     }
 
     private fun onMinus() {
+        if (answers.isNotEmpty()) {
+            stepAnswer(-1)
+            return
+        }
         slot = if (slot <= 0) 15 else slot - 1
         phase = Phase.IDLE
+        strip?.invalidate()
+    }
+
+    /** While answers exist the two lamps walk the list; at the ends they stop and flash. */
+    private fun stepAnswer(delta: Int) {
+        val target = answerIndex + delta
+        if (target !in answers.indices) {
+            phase = Phase.ODD
+            haptic(false)
+            strip?.invalidate()
+            return
+        }
+        answerIndex = target
+        answer = formatEntry(answers[answerIndex])
+        phase = Phase.READY
+        haptic(true)
+        refreshBubble()
         strip?.invalidate()
     }
 
