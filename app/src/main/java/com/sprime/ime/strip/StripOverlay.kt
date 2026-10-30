@@ -26,6 +26,7 @@ import com.osfans.trime.ai.AiSettings
 import com.osfans.trime.ai.model.AiDelta
 import com.osfans.trime.ai.model.ChatMessage
 import com.osfans.trime.ai.model.ChatRole
+import com.osfans.trime.ai.agent.ToolRegistry
 import com.osfans.trime.ai.provider.OpenAiCompatibleProvider
 import com.osfans.trime.util.appContext
 import com.sprime.ime.access.SprimeAccessibilityService
@@ -48,6 +49,8 @@ object StripOverlay {
     private const val LONG_PRESS_MS = 400L
     private const val MAX_ANSWERS = 20
     private const val MAX_SCREEN_ROUNDS = 2
+    private const val MAX_AGENT_STEPS = 20
+    private const val MAX_HISTORY = 24
     private val SCREEN_ASK = listOf("截图", "截屏", "看不到", "无法查看", "需要图片", "screenshot", "screen")
 
     private var service: AccessibilityService? = null
@@ -62,6 +65,10 @@ object StripOverlay {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val handler = Handler(Looper.getMainLooper())
     private val provider = OpenAiCompatibleProvider()
+    private val tools = ToolRegistry { SprimeAccessibilityService.captureScreenshot(imeBottom()) }
+
+    /** Kept across executions so follow-ups stay in context; 清 drops it. */
+    private val history = mutableListOf<ChatMessage>()
     private val settings get() = AiSettings()
 
     private var phase = Phase.IDLE
@@ -177,6 +184,7 @@ object StripOverlay {
         answers.clear()
         answer = ""
         answerIndex = 0
+        history.clear()
         phase = Phase.IDLE
         hideBubble()
         strip?.invalidate()
@@ -226,7 +234,7 @@ object StripOverlay {
     private fun formatEntry(entry: Pair<Int, String>): String =
         if (entry.first <= 0) entry.second else "" + entry.first + entry.second
 
-    /** One strip action: read the screen, ask the model, and follow up with a screenshot when needed. */
+    /** Runs a rule: optional screen read, optional tools, and keeps the conversation for follow-ups. */
     private suspend fun runRule(rule: StripRule): List<Pair<Int, String>>? {
         val screenText =
             if (rule.readScreen) {
@@ -239,41 +247,96 @@ object StripOverlay {
         if (rule.useScreenshot) {
             image = SprimeAccessibilityService.captureScreenshot(imeBottom())
         }
-        if (screenText.isNullOrBlank() && image == null) return null
+        if (screenText.isNullOrBlank() && image == null && !rule.useTools) return null
 
-        val messages = mutableListOf<ChatMessage>()
-        messages += ChatMessage(ChatRole.SYSTEM, rule.prompt)
-        val firstContent =
-            buildString {
-                if (!screenText.isNullOrBlank()) {
-                    append("以下是屏幕上的文字：\n")
-                    append(screenText.take(rule.maxChars))
-                } else {
-                    append("请根据截图完成回答。")
-                }
+        val systemPrompt =
+            if (rule.useTools) {
+                rule.prompt + "\n你可以调用工具查看或操作屏幕，需要时直接调用，完成后给出结果。"
+            } else {
+                rule.prompt
             }
-        messages += ChatMessage(ChatRole.USER, firstContent, image = image)
+        val turn = mutableListOf<ChatMessage>()
+        turn += ChatMessage(ChatRole.SYSTEM, systemPrompt)
+        turn +=
+            ChatMessage(
+                ChatRole.USER,
+                buildString {
+                    if (!screenText.isNullOrBlank()) {
+                        append("以下是屏幕上的文字：\n")
+                        append(screenText.take(rule.maxChars))
+                    } else if (image == null) {
+                        append("请根据当前屏幕完成上面的要求。")
+                    }
+                },
+                image = image,
+            )
 
-        var raw = request(messages)?.trim().orEmpty()
-        if (raw.isEmpty()) return null
-
-        // The model may answer that it has to look at the screen first; give it the screenshot once.
-        var rounds = 0
-        while (rounds < MAX_SCREEN_ROUNDS && needsScreenshot(raw) && image == null) {
-            image = SprimeAccessibilityService.captureScreenshot(imeBottom())
-            if (image == null) break
-            messages += ChatMessage(ChatRole.ASSISTANT, raw)
-            messages += ChatMessage(ChatRole.USER, "这是当前屏幕的截图，请据此完成回答。", image = image)
-            raw = request(messages)?.trim().orEmpty()
-            rounds++
-            if (raw.isEmpty()) return null
+        var finalText: String? = null
+        var steps = 0
+        while (true) {
+            if (steps >= MAX_AGENT_STEPS) break
+            val (text, calls) = requestOnce(rule, history + turn)
+            if (calls.isEmpty()) {
+                finalText = text
+                turn += ChatMessage(ChatRole.ASSISTANT, text)
+                break
+            }
+            turn += ChatMessage(ChatRole.ASSISTANT, text, toolCalls = calls)
+            var produced = false
+            for (call in parseToolCalls(calls)) {
+                val result = tools.execute(call)
+                turn.addAll(result.toMessage(call.id, call.name))
+                produced = true
+            }
+            steps++
+            if (!produced) break
         }
 
+        // Keep the conversation for the next run, trimmed.
+        history += turn.filter { it.role != ChatRole.SYSTEM }
+        while (history.size > MAX_HISTORY) history.removeAt(0)
+
+        val raw = finalText?.trim().orEmpty()
+        if (raw.isEmpty()) return null
         return when (rule.resultMode) {
             ResultMode.ANSWER_TABLE -> parseAnswers(raw) ?: listOf(0 to raw.take(3))
             ResultMode.PLAIN_TEXT -> listOf(0 to raw.take(rule.maxOutputChars.coerceIn(20, 20000)))
             ResultMode.INSERT_TEXT -> listOf(0 to raw.take(rule.maxOutputChars.coerceIn(20, 20000)))
         }
+    }
+
+    private suspend fun requestOnce(
+        rule: StripRule,
+        messages: List<ChatMessage>,
+    ): Pair<String, String> {
+        val specs = if (rule.useTools) tools.specs() else emptyList()
+        val text = StringBuilder()
+        var calls = ""
+        provider.chat(settings.requestConfig(), messages, specs).collect { delta ->
+            when (delta) {
+                is AiDelta.Text -> text.append(delta.value)
+                is AiDelta.ToolCalls -> calls = delta.json
+                else -> Unit
+            }
+        }
+        return text.toString() to calls
+    }
+
+    private fun parseToolCalls(raw: String): List<com.osfans.trime.ai.agent.ToolCall> {
+        if (raw.isBlank()) return emptyList()
+        val array = runCatching { org.json.JSONArray(raw) }.getOrNull() ?: return emptyList()
+        val calls = mutableListOf<com.osfans.trime.ai.agent.ToolCall>()
+        for (i in 0 until array.length()) {
+            val item = array.optJSONObject(i) ?: continue
+            val function = item.optJSONObject("function") ?: continue
+            calls +=
+                com.osfans.trime.ai.agent.ToolCall(
+                    id = item.optString("id", "call_" + i),
+                    name = function.optString("name"),
+                    arguments = function.optString("arguments", "{}"),
+                )
+        }
+        return calls
     }
 
     private suspend fun request(messages: List<ChatMessage>): String? {

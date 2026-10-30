@@ -29,6 +29,8 @@ data class StripRule(
     val maxChars: Int = 20000,
     /** How many characters of the answer are kept for PLAIN_TEXT / INSERT_TEXT. */
     val maxOutputChars: Int = 2000,
+    /** Whether the model may call tools (read screen, click, type ...) for this rule. */
+    val useTools: Boolean = true,
 )
 
 /** Slot table: index 0..14 maps to a rule id, null means empty. */

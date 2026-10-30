@@ -218,6 +218,10 @@ class StripSettingsActivity : AppCompatActivity() {
             text = "附带截图（拿不到文字时）"
             isChecked = existing?.useScreenshot ?: false
         }
+        val useTools = CheckBox(this).apply {
+            text = "允许调用工具（读屏 / 点击 / 输入，全自动）"
+            isChecked = existing?.useTools ?: true
+        }
         val modes = ResultMode.entries.map { it.name }.toTypedArray()
         var mode = existing?.resultMode ?: ResultMode.ANSWER_TABLE
         val modeView =
@@ -248,6 +252,7 @@ class StripSettingsActivity : AppCompatActivity() {
         column.addView(prompt)
         column.addView(readScreen)
         column.addView(useShot)
+        column.addView(useTools)
         column.addView(modeView)
         column.addView(maxChars)
         column.addView(maxOutput)
@@ -265,6 +270,7 @@ class StripSettingsActivity : AppCompatActivity() {
                         prompt = prompt.text.toString(),
                         readScreen = readScreen.isChecked,
                         useScreenshot = useShot.isChecked,
+                        useTools = useTools.isChecked,
                         resultMode = mode,
                         maxChars = maxChars.text.toString().toIntOrNull() ?: 20000,
                         maxOutputChars = maxOutput.text.toString().toIntOrNull() ?: 2000,
