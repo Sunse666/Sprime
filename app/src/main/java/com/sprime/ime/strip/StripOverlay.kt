@@ -44,7 +44,6 @@ object StripOverlay {
     private const val TOUCH_W_DP = 24
     private const val VISUAL_W_DP = 12
     private const val HEIGHT_DP = 96
-    private const val LIGHT_BAND_DP = 14
     private const val DRAG_SLOP_DP = 6
     private const val LONG_PRESS_MS = 400L
     private const val MAX_ANSWERS = 20
@@ -323,7 +322,7 @@ object StripOverlay {
             ).apply {
                 gravity = Gravity.TOP or if (right) Gravity.END else Gravity.START
                 x = dp(VISUAL_W_DP + 6)
-                y = (params?.y ?: 0) + dp(HEIGHT_DP) - dp(LIGHT_BAND_DP)
+                y = (params?.y ?: 0) + dp(HEIGHT_DP) / 2
             }
         runCatching { manager.addView(contentView, lp) }.onSuccess {
             bubble = contentView
@@ -363,11 +362,14 @@ object StripOverlay {
         StripStore.setY(appContext, lp.y)
         if (bubbleVisible) {
             bubbleParams?.let { bp ->
-                bp.y = lp.y + dp(HEIGHT_DP) - dp(LIGHT_BAND_DP)
+                bp.y = lp.y + dp(HEIGHT_DP) / 2
                 bubble?.let { runCatching { windowManager?.updateViewLayout(it, bp) } }
             }
         }
     }
+
+    private fun lampColor(on: Boolean): Int =
+        if (on) 0xFFF59E0B.toInt() else 0x33F59E0B.toInt()
 
     private fun lightColor(): Int =
         when (phase) {
@@ -384,11 +386,6 @@ object StripOverlay {
         context: Context,
     ) : View(context) {
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-        private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = 0xEEFFFFFF.toInt()
-            textAlign = Paint.Align.CENTER
-            typeface = Typeface.DEFAULT_BOLD
-        }
         private var downY = 0f
         private var originY = 0
         private var dragging = false
@@ -407,38 +404,16 @@ object StripOverlay {
         override fun onDraw(canvas: Canvas) {
             val w = StripOverlay.dp(StripOverlay.VISUAL_W_DP).toFloat()
             val h = height.toFloat()
-            val radius = StripOverlay.dp(6).toFloat()
-            paint.style = Paint.Style.FILL
-            paint.color = 0xCC1F2937.toInt()
-            canvas.drawRoundRect(RectF(0f, 0f, w, h), radius, radius, paint)
-
-            val buttonH = (h - StripOverlay.dp(StripOverlay.LIGHT_BAND_DP)) / 4f
-            textPaint.textSize = StripOverlay.dp(8).toFloat()
-            val labels = listOf("+", "−", "清", "执")
-            labels.forEachIndexed { index, label ->
-                val cy = buttonH * index + buttonH / 2f
-                canvas.drawText(label, w / 2f, cy - (textPaint.descent() + textPaint.ascent()) / 2f, textPaint)
-                if (index > 0) {
-                    paint.color = 0x33FFFFFF
-                    canvas.drawRect(0f, buttonH * index, w, buttonH * index + 1f, paint)
-                }
-            }
-
-            val lightTop = h - StripOverlay.dp(StripOverlay.LIGHT_BAND_DP)
-            paint.color = 0x22FFFFFF
-            canvas.drawRect(0f, lightTop, w, h, paint)
-            val value = StripOverlay.slotValue()
-            for (bit in 0 until 4) {
-                val cy = h - StripOverlay.dp(3) - bit * StripOverlay.dp(4)
-                paint.color =
-                    if (bit == 0) {
-                        StripOverlay.lightColor()
-                    } else if ((value shr bit) and 1 == 1) {
-                        0xFFF59E0B.toInt()
-                    } else {
-                        0x33F59E0B.toInt()
-                    }
-                canvas.drawCircle(w / 2f, cy, StripOverlay.dp(2).toFloat(), paint)
+            val slotValue = StripOverlay.slotValue()
+            val centerX = w / 2f
+            for (index in 0 until 4) {
+                // index 0 is the top lamp, 3 is the bottom one
+                val cy = h * (index + 0.5f) / 4f
+                val bit = 3 - index
+                val on = (slotValue shr bit) and 1 == 1
+                paint.style = Paint.Style.FILL
+                paint.color = if (index == 3) StripOverlay.lightColor() else StripOverlay.lampColor(on)
+                canvas.drawCircle(centerX, cy, StripOverlay.dp(3).toFloat(), paint)
             }
         }
 
@@ -487,7 +462,7 @@ object StripOverlay {
         }
 
         private fun segment(y: Float): Int {
-            val buttonH = (height - StripOverlay.dp(StripOverlay.LIGHT_BAND_DP)) / 4f
+            val buttonH = height / 4f
             return (y / buttonH).toInt().coerceIn(0, 3)
         }
     }

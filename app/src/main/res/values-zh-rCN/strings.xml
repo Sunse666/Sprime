@@ -345,5 +345,5 @@
     <string name="ai_quick_strip">答题细条</string>
     <string name="ai_quick_strip_secure">答题时禁止被截图</string>
     <string name="ai_strip_legend_title">指示灯含义</string>
-    <string name="ai_strip_legend_summary">上点：白=读屏文字，青=截图；下点：白=空闲，蓝=请求中，绿=有答案，红=失败，紫=已到最后一题</string>
+    <string name="ai_strip_legend_summary">灯从上到下依次是：加、减、清、执行（都可点击）；灯亮表示二进制位为 1，四个灯组成当前数值；按执行后数值归零，最下面的灯显示状态：蓝=请求中，绿=有结果，红=失败，紫=未绑定或异常</string>
 </resources>
