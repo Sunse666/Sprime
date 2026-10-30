@@ -41,6 +41,7 @@ class AiController : InputBroadcastReceiver {
     companion object {
         private val PRINTABLE_RANGE = 0x20..0x10FFFF
         private const val SCREEN_SENTINEL = "[screenshot]"
+        private const val MAX_SCREEN_ROUNDS = 3
         private val SCREEN_HINTS =
             listOf("截图", "截屏", "看屏幕", "看下屏幕", "看看屏幕", "屏幕内容", "screenshot", "screen")
         private const val NEWLINE = '\n'
@@ -313,7 +314,7 @@ class AiController : InputBroadcastReceiver {
             }
             if (failed) return
             val raw = text.toString()
-            if (rounds == 0 && settings.allowScreenshot && raw.contains(SCREEN_SENTINEL)) {
+            if (rounds < MAX_SCREEN_ROUNDS && settings.allowScreenshot && raw.contains(SCREEN_SENTINEL)) {
                 _state.value = AiPanelState.Streaming("", "")
                 val image =
                     captureWithSecureFlagOff()

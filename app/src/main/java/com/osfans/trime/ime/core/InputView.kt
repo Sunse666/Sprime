@@ -110,8 +110,9 @@ class InputView(
             context,
             onAction = {
                 when {
-                    aiController.isOpen -> aiController.close()
+                    // Sending wins over closing so a follow-up question is never swallowed.
                     aiController.isComposing -> aiController.submitDraft()
+                    aiController.isOpen -> aiController.close()
                     else -> aiController.open()
                 }
             },
