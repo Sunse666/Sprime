@@ -497,7 +497,6 @@ class AppPrefs(
             const val AGENT_ENABLED = "ai_agent_enabled"
             const val AGENT_MAX_STEPS = "ai_agent_max_steps"
             const val APPROVAL_POLICY = "ai_approval_policy"
-            const val TOOL_PERMISSIONS = "ai_tool_permissions"
         }
 
         val enabled = switch(R.string.ai_enabled, ENABLED, true)
@@ -569,6 +568,21 @@ class AppPrefs(
                 { com.osfans.trime.ai.agent.ApprovalPolicy.entries.map { it.name } },
                 { listOf("每步确认", "危险确认", "全自动") },
             )
-        val toolPermissions = editText(R.string.ai_tool_permissions, TOOL_PERMISSIONS, "", R.string.ai_tool_permissions_hint)
+        private fun permissionOptions() = listOf("", "ALLOW", "ASK", "FORBID")
+        private fun permissionLabels(ctx: android.content.Context) =
+            listOf("跟随策略", "允许", "确认", "禁止").map { it as CharSequence }
+
+        private fun toolPermission(
+            title: Int,
+            key: String,
+        ) = list(title, key, "", { permissionOptions() }, { permissionLabels(it) })
+
+        val permReadScreen = toolPermission(R.string.ai_perm_read_screen, "ai_perm_read_screen")
+        val permDescribeScreen = toolPermission(R.string.ai_perm_describe_screen, "ai_perm_describe_screen")
+        val permScreenshot = toolPermission(R.string.ai_perm_take_screenshot, "ai_perm_take_screenshot")
+        val permClick = toolPermission(R.string.ai_perm_click, "ai_perm_click")
+        val permScroll = toolPermission(R.string.ai_perm_scroll, "ai_perm_scroll")
+        val permTypeText = toolPermission(R.string.ai_perm_type_text, "ai_perm_type_text")
+        val permGesture = toolPermission(R.string.ai_perm_gesture, "ai_perm_gesture")
     }
 }

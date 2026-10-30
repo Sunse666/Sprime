@@ -335,4 +335,11 @@
     <string name="ai_approval_policy">审批策略</string>
     <string name="ai_tool_permissions">单个工具权限</string>
     <string name="ai_tool_permissions_hint">留空表示跟随审批策略</string>
+    <string name="ai_perm_read_screen">权限：读取屏幕文字</string>
+    <string name="ai_perm_describe_screen">权限：读取界面元素</string>
+    <string name="ai_perm_take_screenshot">权限：截图</string>
+    <string name="ai_perm_click">权限：点击</string>
+    <string name="ai_perm_scroll">权限：滑动</string>
+    <string name="ai_perm_type_text">权限：输入文字</string>
+    <string name="ai_perm_gesture">权限：系统操作</string>
 </resources>

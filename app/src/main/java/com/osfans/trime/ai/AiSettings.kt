@@ -72,19 +72,20 @@ class AiSettings {
     val approvalPolicy: ApprovalPolicy
         get() = ApprovalPolicy.parse(prefs.approvalPolicy.getValue()) ?: ApprovalPolicy.DANGEROUS_ONLY
 
-    /** Per tool override stored as "name=LEVEL" pairs. */
-    private val toolOverrides: Map<String, PermissionLevel>
-        get() =
-            prefs.toolPermissions.getValue()
-                .split(',')
-                .mapNotNull { entry ->
-                    val parts = entry.split('=')
-                    if (parts.size != 2) null else PermissionLevel.parse(parts[1].trim())?.let { parts[0].trim() to it }
-                }
-                .toMap()
+    private fun permissionValue(tool: String): String =
+        when (tool) {
+            "read_screen" -> prefs.permReadScreen.getValue()
+            "describe_screen" -> prefs.permDescribeScreen.getValue()
+            "take_screenshot" -> prefs.permScreenshot.getValue()
+            "click" -> prefs.permClick.getValue()
+            "scroll" -> prefs.permScroll.getValue()
+            "type_text" -> prefs.permTypeText.getValue()
+            "gesture" -> prefs.permGesture.getValue()
+            else -> ""
+        }
 
     fun permissionFor(tool: AiTool): PermissionLevel {
-        toolOverrides[tool.name]?.let { return it }
+        PermissionLevel.parse(permissionValue(tool.name))?.let { return it }
         return when (approvalPolicy) {
             ApprovalPolicy.AUTO -> PermissionLevel.ALLOW
             ApprovalPolicy.EVERY_STEP -> PermissionLevel.ASK
@@ -93,9 +94,15 @@ class AiSettings {
     }
 
     fun rememberAllow(tool: String) {
-        val current = toolOverrides.toMutableMap()
-        current[tool] = PermissionLevel.ALLOW
-        prefs.toolPermissions.setValue(current.entries.joinToString(",") { it.key + "=" + it.value.name })
+        when (tool) {
+            "read_screen" -> prefs.permReadScreen.setValue("ALLOW")
+            "describe_screen" -> prefs.permDescribeScreen.setValue("ALLOW")
+            "take_screenshot" -> prefs.permScreenshot.setValue("ALLOW")
+            "click" -> prefs.permClick.setValue("ALLOW")
+            "scroll" -> prefs.permScroll.setValue("ALLOW")
+            "type_text" -> prefs.permTypeText.setValue("ALLOW")
+            "gesture" -> prefs.permGesture.setValue("ALLOW")
+        }
     }
 
     val piiOptions: PiiFilter.Options
