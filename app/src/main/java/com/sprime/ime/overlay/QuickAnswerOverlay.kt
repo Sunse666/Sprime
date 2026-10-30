@@ -49,7 +49,7 @@ object QuickAnswerOverlay {
     private var service: AccessibilityService? = null
     private var windowManager: WindowManager? = null
     private var strip: StripView? = null
-    private var bubble: TextView? = null
+    private var bubble: View? = null
     private var bubbleParams: WindowManager.LayoutParams? = null
     private var params: WindowManager.LayoutParams? = null
 
@@ -59,7 +59,14 @@ object QuickAnswerOverlay {
     private val settings get() = AiSettings()
 
     private var state = State.IDLE
+    private enum class Source { NONE, TEXT, IMAGE }
+
     private var answer = ""
+    private val answers = mutableListOf<Pair<Int, String>>()
+    private var answerIndex = 0
+    private var source = Source.NONE
+    private var bubbleMode = 0
+
     private var bubbleVisible = false
     private var questionIndex = 1
     private var imeVisible = false
@@ -162,6 +169,14 @@ object QuickAnswerOverlay {
     // ---- helpers used by StripView ----
     private fun stateColor(): Int = colorFor(state)
 
+    /** White means the text came from accessibility, cyan means it came from a screenshot. */
+    private fun sourceColor(): Int =
+        when (source) {
+            Source.TEXT -> 0xEEFFFFFF.toInt()
+            Source.IMAGE -> 0xFF06B6D4.toInt()
+            Source.NONE -> 0x44FFFFFF.toInt()
+        }
+
     private fun currentY(): Int = params?.y ?: 0
 
     private fun postDelayed(
@@ -173,28 +188,47 @@ object QuickAnswerOverlay {
 
     private fun requestAnswer() {
         if (pendingRequest) return
+        if (answers.isNotEmpty()) {
+            // Answers were fetched in one batch; later taps just walk the list.
+            if (answerIndex < answers.lastIndex) {
+                answerIndex++
+                answer = formatEntry(answers[answerIndex])
+                setState(State.READY)
+                haptic(true)
+                refreshBubble()
+            } else {
+                setState(State.ODD)
+                haptic(false)
+            }
+            return
+        }
         pendingRequest = true
         setState(State.BUSY)
-        val target = questionIndex
         scope.launch {
-            val result = runCatching { askModel(target) }.getOrNull()
+            val result = runCatching { fetchAnswers() }.getOrNull()
             pendingRequest = false
-            if (result.isNullOrBlank()) {
+            if (result.isNullOrEmpty()) {
                 answer = "X"
                 setState(State.FAILED)
                 haptic(false)
             } else {
-                answer = result
+                answers.clear()
+                answers.addAll(result)
+                answerIndex = 0
+                answer = formatEntry(answers[0])
                 setState(State.READY)
                 haptic(true)
-                questionIndex++
+                refreshBubble()
             }
         }
     }
 
-    private suspend fun askModel(index: Int): String? {
+    private fun formatEntry(entry: Pair<Int, String>): String = "" + entry.first + entry.second
+
+    /** Asks for every answer of the visible passage in one request. */
+    private suspend fun fetchAnswers(): List<Pair<Int, String>>? {
         val screen =
-            com.sprime.ime.access.SprimeActions.describeScreen() ?: SprimeAccessibilityService.readScreen()
+            com.sprime.ime.access.SprimeActions.describeScreen(12000) ?: SprimeAccessibilityService.readScreen(12000)
         val image =
             if (screen.isNullOrBlank()) {
                 SprimeAccessibilityService.captureScreenshot(imeBottom())
@@ -202,39 +236,47 @@ object QuickAnswerOverlay {
                 null
             }
         if (screen.isNullOrBlank() && image == null) return null
+        source = if (screen.isNullOrBlank()) Source.IMAGE else Source.TEXT
+        strip?.invalidate()
+
         val cfg = settings.requestConfig()
         val system =
             ChatMessage(
                 ChatRole.SYSTEM,
-                "你在帮用户做单选题。只输出「题号+选项字母」，最多三个字符，例如 3B；判断题用 √ 或 ×；" +
-                    "无法判断时只输出 X。不要解释，不要标点。",
+                "你在帮用户做试卷上的选择题。请回答屏幕上所有单选题，每题一行，格式是「题号+答案」，例如 1A；" +
+                    "判断题用 √ 或 ×；没有把握的题写 X。只输出答案行，不要解释，不要序号以外的文字，最多 20 题。",
             )
         val content = buildString {
-            append("当前要回答第 ").append(index).append(" 题。\n")
-            if (!screen.isNullOrBlank()) append(screen.take(4000))
+            append("以下是屏幕上的全部文字，可能是一篇文章配多道题。请为每道题给出答案。\n")
+            if (!screen.isNullOrBlank()) append(screen.take(12000))
         }
         val user = ChatMessage(ChatRole.USER, content, image = image)
         val text = StringBuilder()
         provider.chat(cfg, listOf(system, user)).collect { delta ->
             if (delta is com.osfans.trime.ai.model.AiDelta.Text) text.append(delta.value)
         }
-        return sanitizeAnswer(text.toString())
+        return parseAnswers(text.toString())
     }
 
     private fun imeBottom(): Int = appContext.resources.displayMetrics.heightPixels
 
-    private fun sanitizeAnswer(raw: String): String? {
-        val cleaned = raw.trim()
-        if (cleaned.isEmpty()) return null
-        val match = Regex("([0-9]{1,2})?\\s*([A-Ea-e√×])").find(cleaned)
-        val normalized =
-            if (match != null) {
-                val number = match.groupValues[1].ifEmpty { questionIndex.toString() }
-                number + match.groupValues[2].uppercase()
-            } else {
-                cleaned.take(MAX_ANSWER_CHARS)
+    private fun parseAnswers(raw: String): List<Pair<Int, String>>? {
+        val found = LinkedHashMap<Int, String>()
+        Regex("(?m)^\\s*(\\d{1,2})\\s*[.、:：]?\\s*([A-Ea-e√×]|X|x)\\s*$").findAll(raw).forEach { match ->
+            if (found.size >= 20) return@forEach
+            val number = match.groupValues[1].toIntOrNull() ?: return@forEach
+            found[number] = match.groupValues[2].uppercase()
+        }
+        if (found.isEmpty()) {
+            // Fall back to a loose scan for "3B" tokens.
+            Regex("([0-9]{1,2})\\s*([A-Ea-e√×])").findAll(raw).forEach { match ->
+                if (found.size >= 20) return@forEach
+                val number = match.groupValues[1].toIntOrNull() ?: return@forEach
+                found.putIfAbsent(number, match.groupValues[2].uppercase())
             }
-        return normalized.take(MAX_ANSWER_CHARS)
+        }
+        if (found.isEmpty()) return null
+        return found.entries.sortedBy { it.key }.map { it.key to it.value }.take(20)
     }
 
     private fun haptic(success: Boolean) {
@@ -248,25 +290,42 @@ object QuickAnswerOverlay {
         )
     }
 
+    /** Long press cycles: closed -> single answer -> full table -> closed. */
     private fun toggleBubble() {
-        if (bubbleVisible) {
+        bubbleMode = when {
+            !bubbleVisible -> 1
+            bubbleMode == 1 -> 2
+            else -> 0
+        }
+        if (bubbleMode == 0) {
             hideBubble()
         } else {
             showBubble()
         }
     }
 
+    private fun refreshBubble() {
+        if (!bubbleVisible) return
+        showBubble()
+    }
+
     private fun showBubble() {
         val manager = windowManager ?: return
-        val text = if (answer.isBlank()) "X" else answer
-        val view =
+        hideBubbleViewOnly()
+        val content =
+            if (bubbleMode >= 2 && answers.isNotEmpty()) {
+                answers.joinToString("\n") { formatEntry(it) }
+            } else {
+                (if (answer.isBlank()) "X" else answer).take(MAX_ANSWER_CHARS)
+            }
+        val view: View =
             TextView(appContext).apply {
-                setText(text.take(MAX_ANSWER_CHARS))
-                textSize = 20f
+                setText(content)
+                textSize = if (bubbleMode >= 2) 14f else 20f
                 typeface = Typeface.DEFAULT_BOLD
                 setTextColor(Color.parseColor("#1F2937"))
-                gravity = Gravity.CENTER
-                setPadding(dp(6), dp(2), dp(6), dp(2))
+                gravity = if (bubbleMode >= 2) Gravity.START else Gravity.CENTER
+                setPadding(dp(8), dp(3), dp(8), dp(3))
                 background = android.graphics.drawable.GradientDrawable().apply {
                     cornerRadius = dp(8).toFloat()
                     setColor(Color.parseColor("#F8FAFC"))
@@ -306,6 +365,11 @@ object QuickAnswerOverlay {
     }
 
     private fun hideBubble() {
+        bubbleMode = 0
+        hideBubbleViewOnly()
+    }
+
+    private fun hideBubbleViewOnly() {
         hideBubbleTask?.let(handler::removeCallbacks)
         hideBubbleTask = null
         bubble?.let { runCatching { windowManager?.removeView(it) } }
@@ -369,8 +433,8 @@ object QuickAnswerOverlay {
             canvas.drawRoundRect(RectF(0f, 0f, w, h), radius, radius, paint)
 
             val cx = w / 2
-            paint.color = 0x88FFFFFF.toInt()
-            canvas.drawCircle(cx, h * 0.30f, QuickAnswerOverlay.dp(2).toFloat(), paint)
+            paint.color = QuickAnswerOverlay.sourceColor()
+            canvas.drawCircle(cx, h * 0.22f, QuickAnswerOverlay.dp(2).toFloat(), paint)
 
             paint.color = QuickAnswerOverlay.stateColor()
             canvas.drawCircle(cx, h * 0.72f, QuickAnswerOverlay.dp(3).toFloat(), paint)

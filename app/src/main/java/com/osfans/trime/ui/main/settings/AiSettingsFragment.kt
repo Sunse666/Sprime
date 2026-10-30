@@ -56,6 +56,15 @@ class AiSettingsFragment : PreferenceDelegateFragment(AppPrefs.defaultInstance()
         accessPreference = access
         screen.addPreference(access)
         refreshAccessSummary()
+
+        val legend =
+            Preference(context).apply {
+                key = "ai_strip_legend"
+                isPersistent = false
+                title = context.getString(R.string.ai_strip_legend_title)
+                summary = context.getString(R.string.ai_strip_legend_summary)
+            }
+        screen.addPreference(legend)
     }
 
     override fun onResume() {
