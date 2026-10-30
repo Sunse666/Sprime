@@ -352,23 +352,7 @@ object StripOverlay {
         return SCREEN_ASK.any { reply.contains(it, ignoreCase = true) }
     }
 
-    private fun parseAnswers(raw: String): List<Pair<Int, String>>? {
-        val found = LinkedHashMap<Int, String>()
-        Regex("(?m)^\\s*(\\d{1,2})\\s*[.、:：]?\\s*([A-Ea-e√×]|X|x)\\s*$").findAll(raw).forEach { m ->
-            if (found.size < MAX_ANSWERS) {
-                m.groupValues[1].toIntOrNull()?.let { found[it] = m.groupValues[2].uppercase() }
-            }
-        }
-        if (found.isEmpty()) {
-            Regex("([0-9]{1,2})\\s*([A-Ea-e√×])").findAll(raw).forEach { m ->
-                if (found.size < MAX_ANSWERS) {
-                    m.groupValues[1].toIntOrNull()?.let { found.putIfAbsent(it, m.groupValues[2].uppercase()) }
-                }
-            }
-        }
-        if (found.isEmpty()) return null
-        return found.entries.sortedBy { it.key }.map { it.key to it.value }.take(MAX_ANSWERS)
-    }
+    private fun parseAnswers(raw: String): List<Pair<Int, String>>? = StripAnswerParser.parse(raw)
 
     private fun imeBottom(): Int = appContext.resources.displayMetrics.heightPixels
 

@@ -35,8 +35,8 @@ android {
         applicationId = "com.sprime.ime"
         minSdk = 21
         targetSdk = 36
-        versionCode = 41
-        versionName = "1.0.0"
+        versionCode = 42
+        versionName = "1.1.0"
 
         multiDexEnabled = true
         buildConfigField("String", "BUILDER", "\"${project.builder}\"")
