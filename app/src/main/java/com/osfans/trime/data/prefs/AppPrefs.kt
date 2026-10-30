@@ -497,6 +497,10 @@ class AppPrefs(
             const val AGENT_ENABLED = "ai_agent_enabled"
             const val AGENT_MAX_STEPS = "ai_agent_max_steps"
             const val APPROVAL_POLICY = "ai_approval_policy"
+            const val QUICK_STRIP_ENABLED = "ai_quick_strip_enabled"
+            const val QUICK_STRIP_Y = "ai_quick_strip_y"
+            const val QUICK_STRIP_SECURE = "ai_quick_strip_secure"
+            const val QUICK_BUBBLE_MS = "ai_quick_bubble_ms"
         }
 
         val enabled = switch(R.string.ai_enabled, ENABLED, true)
@@ -560,6 +564,10 @@ class AppPrefs(
         val allowScreenshot = switch(R.string.ai_allow_screenshot, ALLOW_SCREENSHOT, false)
         val agentEnabled = switch(R.string.ai_agent_enabled, AGENT_ENABLED, true)
         val agentMaxSteps = int(R.string.ai_agent_max_steps, AGENT_MAX_STEPS, 20, 0, 500, "步")
+        val quickStripEnabled = switch(R.string.ai_quick_strip, QUICK_STRIP_ENABLED, true)
+        val quickStripY = int(QUICK_STRIP_Y, 400)
+        val quickStripSecure = switch(R.string.ai_quick_strip_secure, QUICK_STRIP_SECURE, false)
+        val quickBubbleMs = int(QUICK_BUBBLE_MS, 3000)
         val approvalPolicy =
             list(
                 R.string.ai_approval_policy,

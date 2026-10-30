@@ -344,4 +344,6 @@
     <string name="ai_perm_scroll">权限：滑动</string>
     <string name="ai_perm_type_text">权限：输入文字</string>
     <string name="ai_perm_gesture">权限：系统操作</string>
+    <string name="ai_quick_strip">答题细条</string>
+    <string name="ai_quick_strip_secure">答题时禁止被截图</string>
 </resources>
