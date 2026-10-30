@@ -578,7 +578,7 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
         restarting: Boolean,
     ) {
         Timber.d("onStartInputView: restarting=$restarting")
-        runCatching { com.sprime.ime.overlay.QuickAnswerOverlay.setImeVisible(true) }
+        runCatching { com.sprime.ime.strip.StripOverlay.setImeVisible(true) }
         InputFeedbackManager.startInput()
         postRimeJob {
             updateRimeOption(this)
@@ -602,7 +602,7 @@ open class TrimeInputMethodService : LifecycleInputMethodService() {
 
     override fun onFinishInputView(finishingInput: Boolean) {
         Timber.d("onFinishInputView: finishingInput=$finishingInput")
-        runCatching { com.sprime.ime.overlay.QuickAnswerOverlay.setImeVisible(false) }
+        runCatching { com.sprime.ime.strip.StripOverlay.setImeVisible(false) }
         aiController?.stopCompose()
         decorLocationUpdated = false
         inputView?.dismissCandidateActionMenu()

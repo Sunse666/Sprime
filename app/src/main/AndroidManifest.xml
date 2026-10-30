@@ -85,6 +85,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name="com.sprime.ime.strip.StripSettingsActivity"
+            android:exported="false"
+            android:label="侧边条" />
+
+        <activity
             android:name=".ui.setup.SetupActivity"
             android:exported="false" />
 

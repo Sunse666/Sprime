@@ -65,6 +65,19 @@ class AiSettingsFragment : PreferenceDelegateFragment(AppPrefs.defaultInstance()
                 summary = context.getString(R.string.ai_strip_legend_summary)
             }
         screen.addPreference(legend)
+
+        val strip =
+            Preference(context).apply {
+                key = "ai_strip_settings"
+                isPersistent = false
+                title = "侧边条"
+                summary = "按钮、指示灯、指令与规则"
+                setOnPreferenceClickListener {
+                    context.startActivity(android.content.Intent(context, com.sprime.ime.strip.StripSettingsActivity::class.java))
+                    true
+                }
+            }
+        screen.addPreference(strip)
     }
 
     override fun onResume() {

@@ -130,7 +130,7 @@ class SprimeAccessibilityService : AccessibilityService() {
     }
 
     override fun onServiceConnected() {
-        runCatching { com.sprime.ime.overlay.QuickAnswerOverlay.attach(this) }
+        runCatching { com.sprime.ime.strip.StripOverlay.attach(this) }
         current = this
     }
 
@@ -140,7 +140,7 @@ class SprimeAccessibilityService : AccessibilityService() {
 
     override fun onDestroy() {
         current = null
-        runCatching { com.sprime.ime.overlay.QuickAnswerOverlay.release() }
+        runCatching { com.sprime.ime.strip.StripOverlay.release() }
         super.onDestroy()
     }
 
