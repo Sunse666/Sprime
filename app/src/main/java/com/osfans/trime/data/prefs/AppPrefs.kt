@@ -496,6 +496,8 @@ class AppPrefs(
             const val ALLOW_SCREENSHOT = "ai_allow_screenshot"
             const val AGENT_ENABLED = "ai_agent_enabled"
             const val AGENT_MAX_STEPS = "ai_agent_max_steps"
+            const val APPROVAL_POLICY = "ai_approval_policy"
+            const val TOOL_PERMISSIONS = "ai_tool_permissions"
         }
 
         val enabled = switch(R.string.ai_enabled, ENABLED, true)
@@ -559,5 +561,14 @@ class AppPrefs(
         val allowScreenshot = switch(R.string.ai_allow_screenshot, ALLOW_SCREENSHOT, false)
         val agentEnabled = switch(R.string.ai_agent_enabled, AGENT_ENABLED, true)
         val agentMaxSteps = int(R.string.ai_agent_max_steps, AGENT_MAX_STEPS, 20, 0, 500, "步")
+        val approvalPolicy =
+            list(
+                R.string.ai_approval_policy,
+                APPROVAL_POLICY,
+                "DANGEROUS_ONLY",
+                { com.osfans.trime.ai.agent.ApprovalPolicy.entries.map { it.name } },
+                { listOf("每步确认", "危险确认", "全自动") },
+            )
+        val toolPermissions = editText(R.string.ai_tool_permissions, TOOL_PERMISSIONS, "", R.string.ai_tool_permissions_hint)
     }
 }

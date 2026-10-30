@@ -5,8 +5,13 @@
 
 package com.osfans.trime.ai.agent
 
+import com.osfans.trime.ai.agent.tools.ClickTool
+import com.osfans.trime.ai.agent.tools.DescribeScreenTool
+import com.osfans.trime.ai.agent.tools.GestureTool
 import com.osfans.trime.ai.agent.tools.ReadScreenTool
 import com.osfans.trime.ai.agent.tools.ScreenshotTool
+import com.osfans.trime.ai.agent.tools.ScrollTool
+import com.osfans.trime.ai.agent.tools.TypeTool
 import org.json.JSONObject
 
 /** Holds the tools that are currently available to the model. */
@@ -17,7 +22,12 @@ class ToolRegistry(
 
     init {
         register(ReadScreenTool())
+        register(DescribeScreenTool())
         register(ScreenshotTool(screenshot))
+        register(ClickTool())
+        register(ScrollTool())
+        register(TypeTool())
+        register(GestureTool())
     }
 
     fun register(tool: AiTool) {

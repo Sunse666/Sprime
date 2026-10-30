@@ -332,4 +332,7 @@
     <string name="ai_agent_enabled">允许 AI 操作其他应用</string>
     <string name="ai_agent_max_steps">单轮最大步数</string>
     <string name="ai_agent_max_steps_unit">步（0 = 不限）</string>
+    <string name="ai_approval_policy">审批策略</string>
+    <string name="ai_tool_permissions">单个工具权限</string>
+    <string name="ai_tool_permissions_hint">留空表示跟随审批策略</string>
 </resources>

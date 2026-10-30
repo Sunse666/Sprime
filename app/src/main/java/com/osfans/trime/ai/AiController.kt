@@ -42,6 +42,8 @@ class AiController : InputBroadcastReceiver {
         private val PRINTABLE_RANGE = 0x20..0x10FFFF
         private const val SCREEN_SENTINEL = "[screenshot]"
         private const val MAX_SCREEN_ROUNDS = 3
+        private const val APPROVAL_HIDE_DELAY = 300L
+        private const val TOOL_TIMEOUT_MS = 15_000L
         private val SCREEN_HINTS =
             listOf("截图", "截屏", "看屏幕", "看下屏幕", "看看屏幕", "屏幕内容", "screenshot", "screen")
         private const val NEWLINE = '\n'
@@ -57,6 +59,13 @@ class AiController : InputBroadcastReceiver {
 
     private val settings = AiSettings()
     private val provider = OpenAiCompatibleProvider()
+
+    private val _approval = MutableStateFlow<com.osfans.trime.ai.agent.ApprovalRequest?>(null)
+    val approval: StateFlow<com.osfans.trime.ai.agent.ApprovalRequest?> = _approval.asStateFlow()
+    private var approvalDeferred: kotlinx.coroutines.CompletableDeferred<Boolean>? = null
+    private var approveAllForRun = false
+    private var lastSignature: String? = null
+    private var repeatCount = 0
 
     private val toolRegistry =
         com.osfans.trime.ai.agent.ToolRegistry {
@@ -244,6 +253,7 @@ class AiController : InputBroadcastReceiver {
 
     fun ask(prompt: String) {
         lastPrompt = prompt
+        approveAllForRun = false
         lastInsertText = null
         hasSelection = service.currentInputConnection?.getSelectedText(0).isNullOrEmpty().not()
         if (!settings.enabled) {
@@ -340,7 +350,6 @@ class AiController : InputBroadcastReceiver {
             val answer = text.toString()
             val calls = parseToolCalls(toolCallsJson)
             if (calls.isEmpty()) {
-                session.addAssistant(answer.trim())
                 val merged = (pendingText.toString() + answer).trim()
                 if (stepLog.isNotEmpty()) stepLog.append("\n")
                 finishAnswer(merged, thinking.toString())
@@ -354,6 +363,37 @@ class AiController : InputBroadcastReceiver {
             }
             _state.value = AiPanelState.Streaming(pendingText.toString().trim(), thinking.toString())
         }
+    }
+
+
+    private suspend fun awaitApproval(tool: String): Boolean {
+        val deferred = kotlinx.coroutines.CompletableDeferred<Boolean>()
+        approvalDeferred = deferred
+        _approval.value = com.osfans.trime.ai.agent.ApprovalRequest(tool, tool)
+        return try {
+            deferred.await()
+        } finally {
+            _approval.value = null
+            approvalDeferred = null
+        }
+    }
+
+    private suspend fun runToolWithKeyboardHidden(call: com.osfans.trime.ai.agent.ToolCall): com.osfans.trime.ai.agent.ToolResult {
+        // The IME window covers the page, so it has to go away before touching other apps.
+        service.requestHideSelf(0)
+        kotlinx.coroutines.delay(APPROVAL_HIDE_DELAY)
+        val result =
+            kotlinx.coroutines.withTimeoutOrNull(TOOL_TIMEOUT_MS) { toolRegistry.execute(call) }
+                ?: com.osfans.trime.ai.agent.ToolResult("工具执行超时")
+        // Bring the panel back so the user can follow the steps.
+        runCatching { service.requestShowSelf(0) }
+        if (repeatCount >= 2) {
+            return com.osfans.trime.ai.agent.ToolResult(
+                result.text + "\n[系统提示] 同一个工具用相同参数连续调用 " + repeatCount + " 次，" +
+                    "请停止重复，换一种做法或直接向用户说明卡点。",
+            )
+        }
+        return result
     }
 
     private data class ParsedCall(
@@ -376,7 +416,29 @@ class AiController : InputBroadcastReceiver {
                     name = function.optString("name"),
                     arguments = function.optString("arguments", "{}"),
                 )
-            val result = toolRegistry.execute(call)
+            val signature = call.name + "|" + call.arguments
+            repeatCount = if (signature == lastSignature) repeatCount + 1 else 1
+            lastSignature = signature
+
+            val tool = toolRegistry.find(call.name)
+            var result: com.osfans.trime.ai.agent.ToolResult
+            if (tool == null) {
+                result = com.osfans.trime.ai.agent.ToolResult("没有名为 " + call.name + " 的工具")
+            } else {
+                val level = settings.permissionFor(tool)
+                if (level == com.osfans.trime.ai.agent.PermissionLevel.FORBID) {
+                    result = com.osfans.trime.ai.agent.ToolResult("用户禁止了这个操作")
+                } else if (level == com.osfans.trime.ai.agent.PermissionLevel.ASK && !approveAllForRun) {
+                    val approved = awaitApproval(call.name)
+                    if (!approved) {
+                        result = com.osfans.trime.ai.agent.ToolResult("用户拒绝了这次操作")
+                    } else {
+                        result = runToolWithKeyboardHidden(call)
+                    }
+                } else {
+                    result = runToolWithKeyboardHidden(call)
+                }
+            }
             parsed += ParsedCall(call.id, call.name, result, raw)
         }
         return parsed
@@ -399,8 +461,8 @@ class AiController : InputBroadcastReceiver {
             _state.value = AiPanelState.Inserted(parsed.display.ifBlank { insert })
         } else {
             _state.value = AiPanelState.Done(parsed.display, thinking, insert)
-        (_state.value as? AiPanelState.Done)?.let { answerCache[lastPrompt] = it }
         }
+        (_state.value as? AiPanelState.Done)?.let { answerCache[lastPrompt] = it }
     }
 
     fun stop() {
@@ -411,6 +473,27 @@ class AiController : InputBroadcastReceiver {
 
     fun retry() {
         if (session.hasUserTurn) startRequest()
+    }
+
+
+    /** Called from the panel when the user answers an approval request. */
+    /** Marks every remaining step of this turn as approved. */
+    fun allowAllForRun() {
+        approveAllForRun = true
+        resolveApproval(allow = true)
+    }
+
+    fun resolveApproval(
+        allow: Boolean,
+        remember: Boolean = false,
+    ) {
+        val request = _approval.value
+        if (allow && remember && request != null) {
+            settings.rememberAllow(request.tool)
+        }
+        _approval.value = null
+        approvalDeferred?.complete(allow)
+        approvalDeferred = null
     }
 
     fun newConversation() {

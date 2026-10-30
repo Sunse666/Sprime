@@ -44,6 +44,8 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
     private lateinit var primaryButton: TextView
     private lateinit var secondaryButton: TextView
     private lateinit var chipsView: View
+    private lateinit var approvalBar: LinearLayout
+    private lateinit var approvalLabel: TextView
     private lateinit var contentScroll: ScrollView
     private lateinit var followUpButton: TextView
     private var transcript = ""
@@ -95,6 +97,33 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
         chipsView = buildChips(textColor)
         root.addView(
             chipsView,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ).also { it.topMargin = context.dp(6) },
+        )
+
+
+        approvalBar =
+            LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                visibility = View.GONE
+            }
+        approvalLabel =
+            TextView(context).apply {
+                textSize = 13f
+                setTextColor(textColor)
+            }
+        approvalBar.addView(
+            approvalLabel,
+            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f),
+        )
+        approvalBar.addView(actionButton(textColor) { aiController.resolveApproval(true) }.apply { text = "允许"; textSize = 13f })
+        approvalBar.addView(actionButton(textColor) { aiController.resolveApproval(false) }.apply { text = "拒绝"; textSize = 13f })
+        approvalBar.addView(actionButton(textColor) { aiController.allowAllForRun() }.apply { text = "本次全允许"; textSize = 13f })
+        root.addView(
+            approvalBar,
             LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -248,6 +277,9 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
                     }
                 }
                 aiController.state.collect { render(it) }
+                launch {
+                    aiController.approval.collect { updateApprovalBar() }
+                }
             }
     }
 
@@ -258,6 +290,7 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
 
     private fun render(state: AiPanelState) {
         if (!::bodyView.isInitialized) return
+        updateApprovalBar()
         secondaryButton.visibility = View.GONE
         followUpButton.visibility = View.GONE
         chipsView.visibility = if (state is AiPanelState.Idle) View.VISIBLE else View.GONE
@@ -336,6 +369,13 @@ class AiPageWindow : BoardWindow.NoBarBoardWindow() {
         val label = context.getString(R.string.ai_thinking_label)
         thinkingHeader.text = if (thinkingExpanded) "$label ▾" else "$label ▸"
         thinkingBody.visibility = if (thinkingExpanded) View.VISIBLE else View.GONE
+    }
+
+    private fun updateApprovalBar() {
+        if (!::approvalBar.isInitialized) return
+        val request = aiController.approval.value
+        approvalBar.visibility = if (request == null) View.GONE else View.VISIBLE
+        approvalLabel.text = request?.let { "允许执行「" + it.tool + "」？" }.orEmpty()
     }
 
     private fun onPrimaryAction() {

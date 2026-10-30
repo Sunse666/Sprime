@@ -17,7 +17,7 @@ class PromptBuilderTest :
             val prompt = PromptBuilder.systemMessage("")
             chinese.containsMatchIn(prompt) shouldBe true
             prompt shouldContain "<insert>"
-            prompt shouldContain "[screenshot]"
+            prompt shouldContain "describe_screen"
         }
 
         "a user provided system prompt replaces the default" {

@@ -6,6 +6,9 @@
 package com.osfans.trime.ai
 
 import com.osfans.trime.ai.privacy.PiiFilter
+import com.osfans.trime.ai.agent.AiTool
+import com.osfans.trime.ai.agent.ApprovalPolicy
+import com.osfans.trime.ai.agent.PermissionLevel
 import com.osfans.trime.ai.prompt.AiAction
 import com.osfans.trime.ai.prompt.DefaultPrompts
 import com.osfans.trime.ai.provider.AiRequestConfig
@@ -65,6 +68,35 @@ class AiSettings {
     /** 0 means no step limit. */
     val agentMaxSteps: Int
         get() = prefs.agentMaxSteps.getValue()
+
+    val approvalPolicy: ApprovalPolicy
+        get() = ApprovalPolicy.parse(prefs.approvalPolicy.getValue()) ?: ApprovalPolicy.DANGEROUS_ONLY
+
+    /** Per tool override stored as "name=LEVEL" pairs. */
+    private val toolOverrides: Map<String, PermissionLevel>
+        get() =
+            prefs.toolPermissions.getValue()
+                .split(',')
+                .mapNotNull { entry ->
+                    val parts = entry.split('=')
+                    if (parts.size != 2) null else PermissionLevel.parse(parts[1].trim())?.let { parts[0].trim() to it }
+                }
+                .toMap()
+
+    fun permissionFor(tool: AiTool): PermissionLevel {
+        toolOverrides[tool.name]?.let { return it }
+        return when (approvalPolicy) {
+            ApprovalPolicy.AUTO -> PermissionLevel.ALLOW
+            ApprovalPolicy.EVERY_STEP -> PermissionLevel.ASK
+            ApprovalPolicy.DANGEROUS_ONLY -> if (tool.dangerous) PermissionLevel.ASK else PermissionLevel.ALLOW
+        }
+    }
+
+    fun rememberAllow(tool: String) {
+        val current = toolOverrides.toMutableMap()
+        current[tool] = PermissionLevel.ALLOW
+        prefs.toolPermissions.setValue(current.entries.joinToString(",") { it.key + "=" + it.value.name })
+    }
 
     val piiOptions: PiiFilter.Options
         get() =

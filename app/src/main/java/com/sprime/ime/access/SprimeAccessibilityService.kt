@@ -32,6 +32,10 @@ class SprimeAccessibilityService : AccessibilityService() {
         val isConnected: Boolean
             get() = current != null
 
+        /** The connected service, used by the AI agent to perform actions. */
+        val instance: SprimeAccessibilityService?
+            get() = current
+
         fun readScreen(limit: Int = 4000): String? = current?.capture(limit)
 
         val canCapture: Boolean
