@@ -235,9 +235,14 @@ class StripSettingsActivity : AppCompatActivity() {
                 }
             }
         val maxChars = EditText(this).apply {
-            hint = "最大字符数"
+            hint = "读取屏幕最大字符数"
             inputType = InputType.TYPE_CLASS_NUMBER
-            setText((existing?.maxChars ?: 12000).toString())
+            setText((existing?.maxChars ?: 20000).toString())
+        }
+        val maxOutput = EditText(this).apply {
+            hint = "输出最大字符数（纯文本/插入模式）"
+            inputType = InputType.TYPE_CLASS_NUMBER
+            setText((existing?.maxOutputChars ?: 2000).toString())
         }
         column.addView(name)
         column.addView(prompt)
@@ -245,6 +250,7 @@ class StripSettingsActivity : AppCompatActivity() {
         column.addView(useShot)
         column.addView(modeView)
         column.addView(maxChars)
+        column.addView(maxOutput)
 
         AlertDialog.Builder(this)
             .setTitle(if (existing == null) "新增规则" else "编辑规则")
@@ -260,7 +266,8 @@ class StripSettingsActivity : AppCompatActivity() {
                         readScreen = readScreen.isChecked,
                         useScreenshot = useShot.isChecked,
                         resultMode = mode,
-                        maxChars = maxChars.text.toString().toIntOrNull() ?: 12000,
+                        maxChars = maxChars.text.toString().toIntOrNull() ?: 20000,
+                        maxOutputChars = maxOutput.text.toString().toIntOrNull() ?: 2000,
                     )
                 val rules = state.rules.toMutableList()
                 val index = rules.indexOfFirst { it.id == id }

@@ -26,7 +26,9 @@ data class StripRule(
     val readScreen: Boolean = true,
     val useScreenshot: Boolean = false,
     val resultMode: ResultMode = ResultMode.ANSWER_TABLE,
-    val maxChars: Int = 12000,
+    val maxChars: Int = 20000,
+    /** How many characters of the answer are kept for PLAIN_TEXT / INSERT_TEXT. */
+    val maxOutputChars: Int = 2000,
 )
 
 /** Slot table: index 0..14 maps to a rule id, null means empty. */

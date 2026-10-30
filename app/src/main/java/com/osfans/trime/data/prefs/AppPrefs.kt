@@ -532,7 +532,7 @@ class AppPrefs(
             MAX_TOKENS,
             1024,
             64,
-            8192,
+            65536,
         )
         val systemPrompt = editText(
             R.string.ai_system_prompt,

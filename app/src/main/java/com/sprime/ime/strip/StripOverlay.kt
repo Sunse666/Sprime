@@ -221,7 +221,8 @@ object StripOverlay {
         }
     }
 
-    private fun formatEntry(entry: Pair<Int, String>): String = "" + entry.first + entry.second
+    private fun formatEntry(entry: Pair<Int, String>): String =
+        if (entry.first <= 0) entry.second else "" + entry.first + entry.second
 
     private suspend fun runRule(rule: StripRule): List<Pair<Int, String>>? {
         val screenText =
@@ -258,8 +259,8 @@ object StripOverlay {
         if (raw.isEmpty()) return null
         return when (rule.resultMode) {
             ResultMode.ANSWER_TABLE -> parseAnswers(raw) ?: listOf(0 to raw.take(3))
-            ResultMode.PLAIN_TEXT -> listOf(0 to raw)
-            ResultMode.INSERT_TEXT -> listOf(0 to raw.take(MAX_ANSWERS))
+            ResultMode.PLAIN_TEXT -> listOf(0 to raw.take(rule.maxOutputChars.coerceIn(20, 20000)))
+            ResultMode.INSERT_TEXT -> listOf(0 to raw.take(rule.maxOutputChars.coerceIn(20, 20000)))
         }
     }
 
@@ -307,17 +308,18 @@ object StripOverlay {
     private fun showBubble() {
         val manager = windowManager ?: return
         hideBubbleView()
-        val tableMode = bubbleMode >= 2 && answers.size > 1
+        val longest = answers.maxOfOrNull { it.second.length } ?: 0
+        val tableMode = bubbleMode >= 2 && (answers.size > 1 || longest > 12)
         val content =
             if (tableMode) {
                 answers.joinToString("\n") { formatEntry(it) }
             } else {
-                (answer.ifBlank { "X" }).take(12)
+                (answer.ifBlank { "X" }).take(60)
             }
         val text =
             TextView(appContext).apply {
                 setText(content)
-                textSize = if (tableMode) 13f else 20f
+                textSize = if (tableMode) 13f else if (content.length > 8) 15f else 20f
                 typeface = Typeface.DEFAULT_BOLD
                 setTextColor(Color.parseColor("#1F2937"))
                 gravity = if (tableMode) Gravity.START else Gravity.CENTER
