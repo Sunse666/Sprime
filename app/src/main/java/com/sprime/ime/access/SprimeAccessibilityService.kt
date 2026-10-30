@@ -140,7 +140,7 @@ class SprimeAccessibilityService : AccessibilityService() {
 
     override fun onDestroy() {
         current = null
-        runCatching { com.sprime.ime.overlay.QuickAnswerOverlay.detach() }
+        runCatching { com.sprime.ime.overlay.QuickAnswerOverlay.release() }
         super.onDestroy()
     }
 

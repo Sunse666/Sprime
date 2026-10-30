@@ -39,8 +39,8 @@ import kotlinx.coroutines.launch
 object QuickAnswerOverlay {
     private enum class State { IDLE, BUSY, READY, FAILED, ODD }
 
-    private const val WIDTH_DP = 36
-    private const val HEIGHT_DP = 96
+    private const val WIDTH_DP = 12
+    private const val HEIGHT_DP = 48
     const val DRAG_SLOP_DP = 8
     const val LONG_PRESS_MS = 400L
     private const val MAX_ANSWER_CHARS = 3
@@ -67,23 +67,43 @@ object QuickAnswerOverlay {
 
     private val prefs get() = AppPrefs.defaultInstance().ai
 
+    /** Turning the switch off must remove the strip immediately. */
+    private val stripToggleListener =
+        com.osfans.trime.data.prefs.PreferenceDelegate.OnChangeListener<Boolean> { _, enabled ->
+            if (enabled) {
+                if (strip == null) showStrip()
+            } else {
+                hideStrip()
+            }
+        }
+
     fun attach(accessibilityService: AccessibilityService) {
-        if (!prefs.quickStripEnabled.getValue()) return
-        if (strip != null) detach()
+        release()
         service = accessibilityService
         windowManager = accessibilityService.getSystemService(WindowManager::class.java)
+        prefs.quickStripEnabled.registerOnChangeListener(stripToggleListener)
+        if (!prefs.quickStripEnabled.getValue()) return
         showStrip()
     }
 
-    fun detach() {
+    /** Removes the strip but keeps listening so the switch can bring it back. */
+    fun hideStrip() {
         hideBubble()
         strip?.let { runCatching { windowManager?.removeView(it) } }
         strip = null
         params = null
-        service = null
-        windowManager = null
         state = State.IDLE
     }
+
+    /** Called when the accessibility service goes away. */
+    fun release() {
+        hideStrip()
+        runCatching { prefs.quickStripEnabled.unregisterOnChangeListener(stripToggleListener) }
+        service = null
+        windowManager = null
+    }
+
+    fun detach() = hideStrip()
 
     fun setImeVisible(visible: Boolean) {
         if (imeVisible == visible) return
@@ -342,29 +362,17 @@ object QuickAnswerOverlay {
         override fun onDraw(canvas: Canvas) {
             val w = width.toFloat()
             val h = height.toFloat()
-            val radius = QuickAnswerOverlay.dp(10).toFloat()
+            val radius = QuickAnswerOverlay.dp(6).toFloat()
             paint.style = Paint.Style.FILL
             paint.color = 0xCC1F2937.toInt()
             canvas.drawRoundRect(RectF(0f, 0f, w, h), radius, radius, paint)
 
-            paint.color = 0x66FFFFFF
-            paint.strokeWidth = QuickAnswerOverlay.dp(2).toFloat()
-            paint.style = Paint.Style.STROKE
-            val inset = QuickAnswerOverlay.dp(4).toFloat()
-            canvas.drawRoundRect(
-                RectF(inset, inset, w - inset, h - inset),
-                radius * 0.8f,
-                radius * 0.8f,
-                paint,
-            )
-
-            paint.style = Paint.Style.FILL
-            paint.color = 0xFFFFFFFF.toInt()
             val cx = w / 2
-            canvas.drawCircle(cx, h * 0.28f, QuickAnswerOverlay.dp(3).toFloat(), paint)
+            paint.color = 0x88FFFFFF.toInt()
+            canvas.drawCircle(cx, h * 0.30f, QuickAnswerOverlay.dp(2).toFloat(), paint)
 
             paint.color = QuickAnswerOverlay.stateColor()
-            canvas.drawCircle(cx, h * 0.72f, QuickAnswerOverlay.dp(5).toFloat(), paint)
+            canvas.drawCircle(cx, h * 0.72f, QuickAnswerOverlay.dp(3).toFloat(), paint)
         }
 
         override fun onTouchEvent(event: MotionEvent): Boolean {
