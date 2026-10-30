@@ -59,6 +59,13 @@ class AiSettings {
     val allowScreenshot: Boolean
         get() = prefs.allowScreenshot.getValue()
 
+    val agentEnabled: Boolean
+        get() = prefs.agentEnabled.getValue()
+
+    /** 0 means no step limit. */
+    val agentMaxSteps: Int
+        get() = prefs.agentMaxSteps.getValue()
+
     val piiOptions: PiiFilter.Options
         get() =
             PiiFilter.Options(

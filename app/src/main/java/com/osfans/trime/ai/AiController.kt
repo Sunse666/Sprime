@@ -58,6 +58,14 @@ class AiController : InputBroadcastReceiver {
     private val settings = AiSettings()
     private val provider = OpenAiCompatibleProvider()
 
+    private val toolRegistry =
+        com.osfans.trime.ai.agent.ToolRegistry {
+            captureWithSecureFlagOff()
+        }
+
+    /** Answers reused while the conversation stays open; cleared on a new one. */
+    private val answerCache = mutableMapOf<String, AiPanelState.Done>()
+
     private val _transcript = MutableStateFlow("")
     val transcript: StateFlow<String> = _transcript.asStateFlow()
 
@@ -247,6 +255,11 @@ class AiController : InputBroadcastReceiver {
             return
         }
         val safe = PiiFilter.sanitize(prompt, settings.piiOptions).trim()
+        answerCache[safe]?.let { cached ->
+            _state.value = cached
+            lastInsertText = cached.insertText
+            return
+        }
         session.addUser(safe)
         if (settings.allowScreenshot && ScreenHints.matches(safe) && SprimeAccessibilityService.canCapture) {
             requestJob?.cancel()
@@ -286,23 +299,34 @@ class AiController : InputBroadcastReceiver {
         }
     }
 
+    /** One user turn: loops until the model stops asking for tools. */
     private suspend fun runConversation() {
-        var rounds = 0
+        var step = 0
+        var pendingText = StringBuilder()
+        val stepLog = StringBuilder()
         while (true) {
+            if (settings.agentMaxSteps in 1..step) {
+                finishAnswer(stepLog.toString() + "\n\n已达单轮步数上限（" + settings.agentMaxSteps + "）", "")
+                return
+            }
             val text = StringBuilder()
             val thinking = StringBuilder()
             var failed = false
-            provider.chat(settings.requestConfig(), session.messages()).collect { delta ->
+            var toolCallsJson: String? = null
+            val tools = if (settings.agentEnabled) toolRegistry.specs() else emptyList()
+            provider.chat(settings.requestConfig(), session.messages(), tools).collect { delta ->
                 when (delta) {
                     is AiDelta.Text -> {
                         text.append(delta.value)
-                        _state.value = AiPanelState.Streaming(text.toString(), thinking.toString())
+                        _state.value = AiPanelState.Streaming((pendingText.toString() + text.toString()).trim(), thinking.toString())
                     }
 
                     is AiDelta.Reasoning -> {
                         thinking.append(delta.value)
-                        _state.value = AiPanelState.Streaming(text.toString(), thinking.toString())
+                        _state.value = AiPanelState.Streaming((pendingText.toString() + text.toString()).trim(), thinking.toString())
                     }
+
+                    is AiDelta.ToolCalls -> toolCallsJson = delta.json
 
                     is AiDelta.Failure -> {
                         _state.value = AiPanelState.Error(delta.message)
@@ -313,23 +337,53 @@ class AiController : InputBroadcastReceiver {
                 }
             }
             if (failed) return
-            val raw = text.toString()
-            if (rounds < MAX_SCREEN_ROUNDS && settings.allowScreenshot && raw.contains(SCREEN_SENTINEL)) {
-                _state.value = AiPanelState.Streaming("", "")
-                val image =
-                    captureWithSecureFlagOff()
-                rounds++
-                if (image != null) {
-                    session.addUser(settings.screenLookPrompt, image)
-                    continue
-                }
-                session.addUser(settings.screenFailedPrompt)
-                continue
+            val answer = text.toString()
+            val calls = parseToolCalls(toolCallsJson)
+            if (calls.isEmpty()) {
+                session.addAssistant(answer.trim())
+                val merged = (pendingText.toString() + answer).trim()
+                if (stepLog.isNotEmpty()) stepLog.append("\n")
+                finishAnswer(merged, thinking.toString())
+                return
             }
-            finishAnswer(raw.replace(SCREEN_SENTINEL, "").trim(), thinking.toString())
-            return
+            session.addAssistant(answer.trim(), calls.first().rawJson)
+            step++
+            calls.forEach { call ->
+                call.result.toMessage(call.id, call.name).forEach { session.addMessage(it) }
+                pendingText.append("· ").append(stepLine(call.name, call.result)).append("\n")
+            }
+            _state.value = AiPanelState.Streaming(pendingText.toString().trim(), thinking.toString())
         }
     }
+
+    private data class ParsedCall(
+        val id: String,
+        val name: String,
+        val result: com.osfans.trime.ai.agent.ToolResult,
+        val rawJson: String?,
+    )
+
+    private suspend fun parseToolCalls(raw: String?): List<ParsedCall> {
+        if (raw.isNullOrBlank()) return emptyList()
+        val array = runCatching { org.json.JSONArray(raw) }.getOrNull() ?: return emptyList()
+        val parsed = mutableListOf<ParsedCall>()
+        for (i in 0 until array.length()) {
+            val item = array.optJSONObject(i) ?: continue
+            val function = item.optJSONObject("function") ?: continue
+            val call =
+                com.osfans.trime.ai.agent.ToolCall(
+                    id = item.optString("id", "call_" + i),
+                    name = function.optString("name"),
+                    arguments = function.optString("arguments", "{}"),
+                )
+            val result = toolRegistry.execute(call)
+            parsed += ParsedCall(call.id, call.name, result, raw)
+        }
+        return parsed
+    }
+
+    private fun stepLine(name: String, result: com.osfans.trime.ai.agent.ToolResult): String =
+        name + "：" + result.text.lineSequence().firstOrNull().orEmpty().take(80)
 
     private fun finishAnswer(
         raw: String,
@@ -345,6 +399,7 @@ class AiController : InputBroadcastReceiver {
             _state.value = AiPanelState.Inserted(parsed.display.ifBlank { insert })
         } else {
             _state.value = AiPanelState.Done(parsed.display, thinking, insert)
+        (_state.value as? AiPanelState.Done)?.let { answerCache[lastPrompt] = it }
         }
     }
 
@@ -362,6 +417,7 @@ class AiController : InputBroadcastReceiver {
         requestJob?.cancel()
         requestJob = null
         session.reset()
+        answerCache.clear()
         _transcript.value = ""
         _screenText.value = null
         _state.value = AiPanelState.Idle

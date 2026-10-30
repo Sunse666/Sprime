@@ -331,4 +331,7 @@
     <string name="ai_prompt_screen_look">看屏幕提示词</string>
     <string name="ai_prompt_screen_failed">截图失败提示词</string>
     <string name="ai_prompt_hint">留空则使用内置默认提示词</string>
+    <string name="ai_agent_enabled">允许 AI 操作其他应用</string>
+    <string name="ai_agent_max_steps">单轮最大步数</string>
+    <string name="ai_agent_max_steps_unit">步（0 = 不限）</string>
 </resources>

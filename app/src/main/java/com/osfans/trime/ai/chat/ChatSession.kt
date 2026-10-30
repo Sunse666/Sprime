@@ -37,8 +37,16 @@ class ChatSession(
         trim()
     }
 
-    fun addAssistant(text: String) {
-        history += ChatMessage(ChatRole.ASSISTANT, text)
+    fun addAssistant(
+        text: String,
+        toolCalls: String? = null,
+    ) {
+        history += ChatMessage(ChatRole.ASSISTANT, text, toolCalls = toolCalls)
+        trim()
+    }
+
+    fun addMessage(message: ChatMessage) {
+        history += message
         trim()
     }
 

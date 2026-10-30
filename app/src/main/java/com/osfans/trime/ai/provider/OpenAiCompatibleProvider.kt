@@ -5,8 +5,10 @@
 
 package com.osfans.trime.ai.provider
 
+import com.osfans.trime.ai.agent.ToolSpec
 import com.osfans.trime.ai.model.AiDelta
 import com.osfans.trime.ai.model.ChatMessage
+import com.osfans.trime.ai.model.ChatRole
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
@@ -16,6 +18,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.job
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonArray
@@ -54,6 +57,7 @@ class OpenAiCompatibleProvider {
     fun chat(
         config: AiRequestConfig,
         messages: List<ChatMessage>,
+        tools: List<ToolSpec> = emptyList(),
     ): Flow<AiDelta> = flow {
         if (config.baseUrl.isBlank()) {
             emit(AiDelta.Failure("Missing API endpoint"))
@@ -63,7 +67,7 @@ class OpenAiCompatibleProvider {
             emit(AiDelta.Failure("Missing API key"))
             return@flow
         }
-        val call = client.newCall(buildRequest(config, messages))
+        val call = client.newCall(buildRequest(config, messages, tools))
         currentCoroutineContext().job.invokeOnCompletion { call.cancel() }
         try {
             call.execute().use { response ->
@@ -80,8 +84,10 @@ class OpenAiCompatibleProvider {
                 if (config.stream) {
                     readStream(source, this)
                 } else {
-                    val text = parseContent(json.parseToJsonElement(source.readUtf8()).jsonObject)
+                    val root = json.parseToJsonElement(source.readUtf8()).jsonObject
+                    val text = parseContent(root)
                     if (!text.isNullOrEmpty()) emit(AiDelta.Text(text))
+                    parseToolCalls(root)?.let { emit(AiDelta.ToolCalls(it)) }
                 }
             }
             emit(AiDelta.Done)
@@ -95,6 +101,7 @@ class OpenAiCompatibleProvider {
         collector: FlowCollector<AiDelta>,
     ) {
         val parser = SseParser()
+        val toolCalls = LinkedHashMap<Int, MutableToolCall>()
         while (currentCoroutineContext().isActive) {
             val line = source.readUtf8Line() ?: break
             val payload = parser.feed(line) ?: continue
@@ -103,12 +110,32 @@ class OpenAiCompatibleProvider {
             val delta = root.choicesDelta()
             delta?.reasoning?.takeIf { it.isNotEmpty() }?.let { collector.emit(AiDelta.Reasoning(it)) }
             delta?.content?.takeIf { it.isNotEmpty() }?.let { collector.emit(AiDelta.Text(it)) }
+            root.choicesToolCallDeltas().forEach { part ->
+                val entry = toolCalls.getOrPut(part.index) { MutableToolCall() }
+                part.id?.let { entry.id = it }
+                part.name?.let { entry.name = it }
+                part.arguments?.let { entry.arguments.append(it) }
+            }
         }
+        toolCallsJson(toolCalls)?.let { collector.emit(AiDelta.ToolCalls(it)) }
     }
 
     private data class Delta(
         val content: String?,
         val reasoning: String?,
+    )
+
+    private data class ToolCallDelta(
+        val index: Int,
+        val id: String?,
+        val name: String?,
+        val arguments: String?,
+    )
+
+    private class MutableToolCall(
+        var id: String? = null,
+        var name: String? = null,
+        val arguments: StringBuilder = StringBuilder(),
     )
 
     private fun JsonObject.choicesDelta(): Delta? {
@@ -128,6 +155,48 @@ class OpenAiCompatibleProvider {
         )
     }
 
+    private fun JsonObject.choicesToolCallDeltas(): List<ToolCallDelta> {
+        val choices = this["choices"]?.jsonArray ?: return emptyList()
+        val first = choices.firstOrNull()?.jsonObject ?: return emptyList()
+        val delta = first["delta"]?.jsonObject ?: return emptyList()
+        val calls = delta["tool_calls"]?.jsonArray ?: return emptyList()
+        return calls.mapNotNull { element ->
+            val obj = element.jsonObject
+            val index = obj["index"]?.jsonPrimitive?.contentOrNull?.toIntOrNull() ?: 0
+            val function = obj["function"]?.jsonObject
+            ToolCallDelta(
+                index = index,
+                id = obj["id"]?.jsonPrimitive?.contentOrNull,
+                name = function?.get("name")?.jsonPrimitive?.contentOrNull,
+                arguments = function?.get("arguments")?.jsonPrimitive?.contentOrNull,
+            )
+        }
+    }
+
+    private fun toolCallsJson(calls: Map<Int, MutableToolCall>): String? {
+        if (calls.isEmpty()) return null
+        val array =
+            buildJsonArray {
+                calls.toSortedMap().forEach { (index, call) ->
+                    val name = call.name ?: return@forEach
+                    add(
+                        buildJsonObject {
+                            put("id", call.id ?: "call_" + index)
+                            put("type", "function")
+                            put(
+                                "function",
+                                buildJsonObject {
+                                    put("name", name)
+                                    put("arguments", call.arguments.toString().ifBlank { "{}" })
+                                },
+                            )
+                        },
+                    )
+                }
+            }
+        return if (array.isEmpty()) null else array.toString()
+    }
+
     private fun parseContent(root: JsonObject): String? {
         val choices = root["choices"]?.jsonArray ?: return null
         val first = choices.firstOrNull()?.jsonObject ?: return null
@@ -135,9 +204,19 @@ class OpenAiCompatibleProvider {
         return first["message"]?.jsonObject?.get("content")?.jsonPrimitive?.contentOrNull
     }
 
+    private fun parseToolCalls(root: JsonObject): String? {
+        val choices = root["choices"]?.jsonArray ?: return null
+        val first = choices.firstOrNull()?.jsonObject ?: return null
+        val message = first["message"]?.jsonObject ?: return null
+        val calls = message["tool_calls"]?.jsonArray ?: return null
+        if (calls.isEmpty()) return null
+        return calls.toString()
+    }
+
     private fun buildRequest(
         config: AiRequestConfig,
         messages: List<ChatMessage>,
+        tools: List<ToolSpec>,
     ): Request {
         val payload =
             buildJsonObject {
@@ -148,42 +227,32 @@ class OpenAiCompatibleProvider {
                 put(
                     "messages",
                     buildJsonArray {
-                        messages.forEach { message ->
-                            add(
-                                buildJsonObject {
-                                    put("role", message.role.wireName)
-                                    val image = message.image
-                                    if (image.isNullOrEmpty()) {
-                                        put("content", message.content)
-                                    } else {
-                                        put(
-                                            "content",
-                                            buildJsonArray {
-                                                add(
-                                                    buildJsonObject {
-                                                        put("type", "text")
-                                                        put("text", message.content)
-                                                    },
-                                                )
-                                                add(
-                                                    buildJsonObject {
-                                                        put("type", "image_url")
-                                                        put(
-                                                            "image_url",
-                                                            buildJsonObject {
-                                                                put("url", "data:image/jpeg;base64," + image)
-                                                            },
-                                                        )
-                                                    },
-                                                )
-                                            },
-                                        )
-                                    }
-                                },
-                            )
-                        }
+                        messages.forEach { message -> add(message.toJson()) }
                     },
                 )
+                if (tools.isNotEmpty()) {
+                    put(
+                        "tools",
+                        buildJsonArray {
+                            tools.forEach { spec ->
+                                add(
+                                    buildJsonObject {
+                                        put("type", "function")
+                                        put(
+                                            "function",
+                                            buildJsonObject {
+                                                put("name", spec.name)
+                                                put("description", spec.description)
+                                                put("parameters", json.parseToJsonElement(spec.parameters.toString()))
+                                            },
+                                        )
+                                    },
+                                )
+                            }
+                        },
+                    )
+                    put("tool_choice", "auto")
+                }
             }
         val endpoint = config.baseUrl.trimEnd('/') + "/chat/completions"
         return Request.Builder()
@@ -193,4 +262,51 @@ class OpenAiCompatibleProvider {
             .post(payload.toString().toRequestBody("application/json".toMediaType()))
             .build()
     }
+
+    private fun ChatMessage.toJson(): JsonObject =
+        buildJsonObject {
+            put("role", role.wireName)
+            when (role) {
+                ChatRole.TOOL -> {
+                    put("content", content)
+                    toolCallId?.let { put("tool_call_id", it) }
+                    name?.let { put("name", it) }
+                }
+                else -> {
+                    val toolCallsJson = toolCalls
+                    if (!toolCallsJson.isNullOrBlank()) {
+                        put("tool_calls", json.parseToJsonElement(toolCallsJson))
+                        put("content", if (content.isEmpty()) "" else content)
+                    } else {
+                        val image = image
+                        if (image.isNullOrEmpty()) {
+                            put("content", content)
+                        } else {
+                            put(
+                                "content",
+                                buildJsonArray {
+                                    add(
+                                        buildJsonObject {
+                                            put("type", "text")
+                                            put("text", content)
+                                        },
+                                    )
+                                    add(
+                                        buildJsonObject {
+                                            put("type", "image_url")
+                                            put(
+                                                "image_url",
+                                                buildJsonObject {
+                                                    put("url", "data:image/jpeg;base64," + image)
+                                                },
+                                            )
+                                        },
+                                    )
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+        }
 }

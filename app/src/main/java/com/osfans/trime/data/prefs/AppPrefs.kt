@@ -494,6 +494,8 @@ class AppPrefs(
             const val AUTO_INSERT = "ai_auto_insert"
             const val SECURE_KEYBOARD = "ai_secure_keyboard"
             const val ALLOW_SCREENSHOT = "ai_allow_screenshot"
+            const val AGENT_ENABLED = "ai_agent_enabled"
+            const val AGENT_MAX_STEPS = "ai_agent_max_steps"
         }
 
         val enabled = switch(R.string.ai_enabled, ENABLED, true)
@@ -555,5 +557,7 @@ class AppPrefs(
         val autoInsert = switch(R.string.ai_auto_insert, AUTO_INSERT, false)
         val secureKeyboard = switch(R.string.ai_secure_keyboard, SECURE_KEYBOARD, true)
         val allowScreenshot = switch(R.string.ai_allow_screenshot, ALLOW_SCREENSHOT, false)
+        val agentEnabled = switch(R.string.ai_agent_enabled, AGENT_ENABLED, true)
+        val agentMaxSteps = int(R.string.ai_agent_max_steps, AGENT_MAX_STEPS, 20, 0, 500, "步")
     }
 }
