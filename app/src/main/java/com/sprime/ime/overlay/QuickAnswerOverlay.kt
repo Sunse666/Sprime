@@ -39,7 +39,8 @@ import kotlinx.coroutines.launch
 object QuickAnswerOverlay {
     private enum class State { IDLE, BUSY, READY, FAILED, ODD }
 
-    private const val WIDTH_DP = 12
+    private const val TOUCH_W_DP = 24
+    private const val VISUAL_W_DP = 12
     private const val HEIGHT_DP = 48
     const val DRAG_SLOP_DP = 8
     const val LONG_PRESS_MS = 400L
@@ -120,7 +121,7 @@ object QuickAnswerOverlay {
         val view = StripView(appContext)
         val lp =
             WindowManager.LayoutParams(
-                dp(WIDTH_DP),
+                dp(TOUCH_W_DP),
                 dp(HEIGHT_DP),
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
@@ -284,7 +285,7 @@ object QuickAnswerOverlay {
                 android.graphics.PixelFormat.TRANSLUCENT,
             ).apply {
                 gravity = Gravity.TOP or Gravity.START
-                x = dp(WIDTH_DP) + dp(4)
+                x = dp(VISUAL_W_DP) + dp(4)
                 this.y = y
             }
         runCatching { manager.addView(view, lp) }.onSuccess {
@@ -360,7 +361,7 @@ object QuickAnswerOverlay {
         }
 
         override fun onDraw(canvas: Canvas) {
-            val w = width.toFloat()
+            val w = QuickAnswerOverlay.dp(QuickAnswerOverlay.VISUAL_W_DP).toFloat()
             val h = height.toFloat()
             val radius = QuickAnswerOverlay.dp(6).toFloat()
             paint.style = Paint.Style.FILL
