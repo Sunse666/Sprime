@@ -326,6 +326,19 @@ object QuickAnswerOverlay {
             setBackgroundColor(Color.TRANSPARENT)
         }
 
+        override fun onAttachedToWindow() {
+            super.onAttachedToWindow()
+        }
+
+        override fun onSizeChanged(
+            w: Int,
+            h: Int,
+            oldw: Int,
+            oldh: Int,
+        ) {
+            super.onSizeChanged(w, h, oldw, oldh)
+        }
+
         override fun onDraw(canvas: Canvas) {
             val w = width.toFloat()
             val h = height.toFloat()
