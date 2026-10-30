@@ -47,6 +47,8 @@ object StripOverlay {
     private const val DRAG_SLOP_DP = 6
     private const val LONG_PRESS_MS = 400L
     private const val MAX_ANSWERS = 20
+    private const val MAX_SCREEN_ROUNDS = 2
+    private val SCREEN_ASK = listOf("截图", "截屏", "看不到", "无法查看", "需要图片", "screenshot", "screen")
 
     private var service: AccessibilityService? = null
     private var windowManager: WindowManager? = null
@@ -224,6 +226,7 @@ object StripOverlay {
     private fun formatEntry(entry: Pair<Int, String>): String =
         if (entry.first <= 0) entry.second else "" + entry.first + entry.second
 
+    /** One strip action: read the screen, ask the model, and follow up with a screenshot when needed. */
     private suspend fun runRule(rule: StripRule): List<Pair<Int, String>>? {
         val screenText =
             if (rule.readScreen) {
@@ -232,36 +235,58 @@ object StripOverlay {
             } else {
                 null
             }
-        val image =
-            if (rule.useScreenshot && screenText.isNullOrBlank()) {
-                SprimeAccessibilityService.captureScreenshot(imeBottom())
-            } else {
-                null
-            }
-        if (screenText.isNullOrBlank() && image == null && rule.readScreen) return null
+        var image: String? = null
+        if (rule.useScreenshot) {
+            image = SprimeAccessibilityService.captureScreenshot(imeBottom())
+        }
+        if (screenText.isNullOrBlank() && image == null) return null
 
-        val system = ChatMessage(ChatRole.SYSTEM, rule.prompt)
-        val content =
+        val messages = mutableListOf<ChatMessage>()
+        messages += ChatMessage(ChatRole.SYSTEM, rule.prompt)
+        val firstContent =
             buildString {
                 if (!screenText.isNullOrBlank()) {
                     append("以下是屏幕上的文字：\n")
                     append(screenText.take(rule.maxChars))
                 } else {
-                    append("请根据截图回答。")
+                    append("请根据截图完成回答。")
                 }
             }
-        val text = StringBuilder()
-        provider.chat(settings.requestConfig(), listOf(system, ChatMessage(ChatRole.USER, content, image = image)))
-            .collect { delta ->
-                if (delta is AiDelta.Text) text.append(delta.value)
-            }
-        val raw = text.toString().trim()
+        messages += ChatMessage(ChatRole.USER, firstContent, image = image)
+
+        var raw = request(messages)?.trim().orEmpty()
         if (raw.isEmpty()) return null
+
+        // The model may answer that it has to look at the screen first; give it the screenshot once.
+        var rounds = 0
+        while (rounds < MAX_SCREEN_ROUNDS && needsScreenshot(raw) && image == null) {
+            image = SprimeAccessibilityService.captureScreenshot(imeBottom())
+            if (image == null) break
+            messages += ChatMessage(ChatRole.ASSISTANT, raw)
+            messages += ChatMessage(ChatRole.USER, "这是当前屏幕的截图，请据此完成回答。", image = image)
+            raw = request(messages)?.trim().orEmpty()
+            rounds++
+            if (raw.isEmpty()) return null
+        }
+
         return when (rule.resultMode) {
             ResultMode.ANSWER_TABLE -> parseAnswers(raw) ?: listOf(0 to raw.take(3))
             ResultMode.PLAIN_TEXT -> listOf(0 to raw.take(rule.maxOutputChars.coerceIn(20, 20000)))
             ResultMode.INSERT_TEXT -> listOf(0 to raw.take(rule.maxOutputChars.coerceIn(20, 20000)))
         }
+    }
+
+    private suspend fun request(messages: List<ChatMessage>): String? {
+        val text = StringBuilder()
+        provider.chat(settings.requestConfig(), messages).collect { delta ->
+            if (delta is AiDelta.Text) text.append(delta.value)
+        }
+        return text.toString().ifBlank { null }
+    }
+
+    private fun needsScreenshot(reply: String): Boolean {
+        if (reply.length > 80) return false
+        return SCREEN_ASK.any { reply.contains(it, ignoreCase = true) }
     }
 
     private fun parseAnswers(raw: String): List<Pair<Int, String>>? {
